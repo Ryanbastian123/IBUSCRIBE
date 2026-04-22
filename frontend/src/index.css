@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  /* IBUSCRIBE — warm off-white + mint green palette */
+  --bg:           #F5F2EA;   /* warm off-white canvas */
+  --surface:      #EFEBE1;   /* subtle surface tint */
+  --surface-hover:#E8E3D7;
+  --card:         #FBF9F3;   /* cards lift slightly lighter than bg */
+  --border:       #E2DCCE;
+  --text:         #1A2420;   /* deep ink, hint of green */
+  --text-muted:   #5C6B65;
+  --text-dim:     #8E9A94;
+  --accent:       #5EBFA3;   /* mint green */
+  --accent-soft:  #86D4B8;   /* lighter mint */
+  --accent-ink:   #0F2A1F;   /* ink used on accent surfaces */
+  --warning:      #D97706;
+  --danger:       #DC2626;
+
+  /* Back-compat aliases (legacy CSS referencing --*-light / --*-dark) */
+  --bg-light: var(--bg);
+  --surface-light: var(--card);
+  --border-light: var(--border);
+  --text-light: var(--text);
+  --text-muted-light: var(--text-muted);
+  --accent-light: var(--accent);
+  --bg-dark: var(--bg);
+  --surface-dark: var(--card);
+  --surface-hover-dark: var(--surface-hover);
+  --border-dark: var(--border);
+  --text-dark: var(--text);
+  --text-muted-dark: var(--text-muted);
+  --accent-dark: var(--accent);
+
+  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, sans-serif;
+  --font-display: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+html, body, #root {
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+}
+
+::selection { background: rgba(94,191,163,0.28); color: var(--accent-ink); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #D4CEBE; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #BFB8A5; }
+
+/* Utilities */
+.glass {
+  background: rgba(251, 249, 243, 0.72);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #3B9B7C 0%, #5EBFA3 55%, #86D4B8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.mesh-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(94,191,163,0.18) 0%, transparent 60%),
+              radial-gradient(circle at 80% 20%, rgba(134,212,184,0.12) 0%, transparent 40%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dot-grid {
+  background-image: radial-gradient(#D9D3C3 1px, transparent 1px);
+  background-size: 22px 22px;
+}

@@ -1,22 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  /* IBUSCRIBE — warm off-white + mint green palette */
-  --bg:           #F5F2EA;   /* warm off-white canvas */
-  --surface:      #EFEBE1;   /* subtle surface tint */
-  --surface-hover:#E8E3D7;
-  --card:         #FBF9F3;   /* cards lift slightly lighter than bg */
-  --border:       #E2DCCE;
-  --text:         #1A2420;   /* deep ink, hint of green */
-  --text-muted:   #5C6B65;
-  --text-dim:     #8E9A94;
-  --accent:       #5EBFA3;   /* mint green */
-  --accent-soft:  #86D4B8;   /* lighter mint */
-  --accent-ink:   #0F2A1F;   /* ink used on accent surfaces */
-  --warning:      #D97706;
-  --danger:       #DC2626;
+  /* MEDSCRIBE — deep night × vivid mint */
+  --bg:           #071410;
+  --surface:      #081310;
+  --surface-hover:#162E20;
+  --card:         #0D1F18;
+  --border:       rgba(255,255,255,0.07);
+  --text:         #EDFAF4;
+  --text-muted:   #6E9E88;
+  --text-dim:     #3D5C4A;
+  --accent:       #10F09C;
+  --accent-soft:  #7EFFD8;
+  --accent-ink:   #011810;
+  --warning:      #F59E0B;
+  --danger:       #EF4444;
 
-  /* Back-compat aliases (legacy CSS referencing --*-light / --*-dark) */
+  /* Back-compat aliases */
   --bg-light: var(--bg);
   --surface-light: var(--card);
   --border-light: var(--border);
@@ -31,8 +31,8 @@
   --text-muted-dark: var(--text-muted);
   --accent-dark: var(--accent);
 
-  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, sans-serif;
-  --font-display: 'DM Sans', -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'DM Sans', 'Segoe UI', -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'DM Sans', -apple-system, sans-serif;
   --font-mono: 'DM Mono', ui-monospace, monospace;
 }
 
@@ -44,30 +44,28 @@
 }
 
 html, body, #root {
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: #071410;
+  color: #EDFAF4;
   -webkit-font-smoothing: antialiased;
   min-height: 100%;
 }
 
-::selection { background: rgba(94,191,163,0.28); color: var(--accent-ink); }
+::selection { background: rgba(16,240,156,0.18); color: #10F09C; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #D4CEBE; border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #BFB8A5; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #071410; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
-/* Utilities */
 .glass {
-  background: rgba(251, 249, 243, 0.72);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
-  border-bottom: 1px solid var(--border);
+  background: rgba(5,16,12,0.82);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #3B9B7C 0%, #5EBFA3 55%, #86D4B8 100%);
+  background: linear-gradient(130deg, #0EBF7A 0%, #10F09C 50%, #7EFFD8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -77,13 +75,13 @@ html, body, #root {
 .mesh-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(94,191,163,0.18) 0%, transparent 60%),
-              radial-gradient(circle at 80% 20%, rgba(134,212,184,0.12) 0%, transparent 40%);
+  background: radial-gradient(circle at 50% 0%, rgba(16,240,156,0.06) 0%, transparent 60%),
+              radial-gradient(circle at 80% 20%, rgba(16,240,156,0.04) 0%, transparent 40%);
   z-index: 0;
   pointer-events: none;
 }
 
 .dot-grid {
-  background-image: radial-gradient(#D9D3C3 1px, transparent 1px);
+  background-image: radial-gradient(rgba(16,240,156,0.1) 1px, transparent 1px);
   background-size: 22px 22px;
 }

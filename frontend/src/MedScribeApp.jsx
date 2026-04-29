@@ -4,28 +4,28 @@ import HomeScreen from './screens/HomeScreen'
 import logoImg from '../logo.PNG'
 
 const theme = {
-  bg: '#F5F2EA',
-  surface: '#EFEBE1',
-  surfaceHover: '#E8E3D7',
-  card: '#FBF9F3',
-  border: '#E2DCCE',
+  bg: '#0B1A14',
+  surface: '#112219',
+  surfaceHover: '#162C1E',
+  card: '#1A2E20',
+  border: '#1E3828',
   accent: '#5EBFA3',
   accent2: '#86D4B8',
-  accentInk: '#0F2A1F',
-  accentDim: 'rgba(94,191,163,0.18)',
-  accentGlow: 'rgba(94,191,163,0.38)',
+  accentInk: '#081810',
+  accentDim: 'rgba(94,191,163,0.15)',
+  accentGlow: 'rgba(94,191,163,0.35)',
   teal: '#5EBFA3',
   tealLight: '#86D4B8',
   tealBright: '#A8E4CE',
-  warning: '#D97706',
-  danger: '#DC2626',
-  text: '#1A2420',
-  textMuted: '#5C6B65',
-  textDim: '#8E9A94',
-  blue: '#4B6FA8',
-  purple: '#7A5CB0',
-  orange: '#D97706',
-  font: "'DM Sans', 'Segoe UI', -apple-system, sans-serif",
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  text: '#E8F4EE',
+  textMuted: '#7FAF90',
+  textDim: '#3D6B50',
+  blue: '#60A5D4',
+  purple: '#A57FD4',
+  orange: '#F59E0B',
+  font: "'Plus Jakarta Sans', 'DM Sans', 'Segoe UI', -apple-system, sans-serif",
   mono: "'DM Mono', ui-monospace, monospace",
 }
 
@@ -48,7 +48,7 @@ const LANGUAGES = [
 function GlobalStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
       @keyframes spin { to { transform: rotate(360deg); } }
       @keyframes pulse-ring {
         0%   { transform: scale(0.9); opacity: 0.7; }
@@ -97,7 +97,7 @@ function GlobalStyles() {
         100% { transform: scale(1);   opacity: 1; }
       }
       @keyframes mic-pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(94,191,163,0.4), 0 0 20px rgba(94,191,163,0.2); }
+        0%, 100% { box-shadow: 0 0 0 0 rgba(94,191,163,0.35), 0 0 20px rgba(94,191,163,0.2); }
         50%       { box-shadow: 0 0 0 12px rgba(94,191,163,0), 0 0 30px rgba(94,191,163,0.3); }
       }
       input:focus, select:focus, textarea:focus {
@@ -140,7 +140,7 @@ function Card3D({ children, style, delay = 0, glow }) {
       whileHover={{ y: -5, boxShadow: glow ? '0 24px 60px rgba(94,191,163,0.18)' : '0 20px 48px rgba(0,0,0,0.1)', transition: { duration: 0.2 } }}
       style={{
         position: 'relative', overflow: 'hidden',
-        background: '#FFFFFF',
+        background: '#1A2E20',
         border: `1px solid ${glow ? 'rgba(94,191,163,0.3)' : 'rgba(94,191,163,0.1)'}`,
         borderRadius: 20,
         boxShadow: glow ? '0 8px 40px rgba(94,191,163,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
@@ -162,7 +162,7 @@ function Card3D({ children, style, delay = 0, glow }) {
 function Card({ children, style, glow }) {
   return (
     <div style={{
-      background: '#FFFFFF',
+      background: '#1A2E20',
       border: `1px solid ${glow ? 'rgba(94,191,163,0.25)' : theme.border}`,
       borderRadius: 16,
       padding: '20px 24px',
@@ -429,7 +429,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
   const [error, setError] = useState('')
 
   const inputStyle = {
-    width: '100%', background: '#FFFFFF',
+    width: '100%', background: '#1A2E20',
     border: `1px solid ${theme.border}`, borderRadius: 10,
     padding: '11px 14px', color: theme.text, fontSize: 14,
     fontFamily: 'inherit', transition: 'border-color 0.2s, box-shadow 0.2s',
@@ -597,7 +597,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       {/* ── TOP BAR ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'rgba(245,242,234,0.82)', backdropFilter: 'saturate(140%) blur(12px)',
+        background: 'rgba(8,18,13,0.88)', backdropFilter: 'saturate(160%) blur(16px)',
         borderBottom: `1px solid ${theme.border}`,
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 24 }}>
@@ -884,7 +884,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       {/* ── STICKY FOOTER ── */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        background: 'rgba(245,242,234,0.92)', backdropFilter: 'saturate(140%) blur(12px)',
+        background: 'rgba(8,18,13,0.94)', backdropFilter: 'saturate(160%) blur(16px)',
         borderTop: `1px solid ${theme.border}`,
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -1010,7 +1010,7 @@ function ConsultationScreen({ onStop, intake, analyser }) {
       {/* ── TOP BAR ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'rgba(245,242,234,0.82)', backdropFilter: 'saturate(140%) blur(12px)',
+        background: 'rgba(8,18,13,0.88)', backdropFilter: 'saturate(160%) blur(16px)',
         borderBottom: `1px solid ${theme.border}`,
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -1302,7 +1302,7 @@ function ProcessingScreen() {
   )
 }
 
-// ── Proforma Review (ABDM OP Consultation Note format) ────────────────────────
+// ── Proforma Review (Hospital Clinical Proforma format) ────────────────────────
 
 function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onApprove, onDiscard }) {
   const [showFhir, setShowFhir] = useState(false)
@@ -1310,292 +1310,566 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
   if (!clinicalData) return null
 
-  const certColor = { confirmed: theme.accent, provisional: theme.warning, suspected: theme.blue }
-  const urgColor = { routine: theme.textMuted, urgent: theme.warning, stat: theme.danger }
-  const now = new Date()
-  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-  const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  const certColor   = { confirmed: theme.accent, provisional: theme.warning, suspected: theme.blue }
+  const urgColor    = { routine: theme.textMuted, urgent: theme.warning, stat: theme.danger }
+  const urgBg       = { routine: 'rgba(127,175,144,0.08)', urgent: 'rgba(245,158,11,0.10)', stat: 'rgba(239,68,68,0.10)' }
+  const now         = new Date()
+  const dateStr     = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  const timeStr     = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+
+  const checks = [
+    { label: 'Chief complaint',            ok: !!clinicalData.chief_complaint },
+    { label: `${clinicalData.diagnoses?.length || 0} diagnosis(es) with ICD-10`, ok: !!clinicalData.diagnoses?.length },
+    { label: `${clinicalData.medications?.length || 0} medication(s) prescribed`, ok: !!clinicalData.medications?.length },
+    { label: 'Follow-up noted',            ok: !!clinicalData.follow_up?.timeframe },
+    { label: `${clinicalData.vitals?.length || 0} vital(s) recorded`, ok: !!clinicalData.vitals?.length },
+    { label: `${clinicalData.lab_orders?.length || 0} investigation(s) ordered`, ok: !!clinicalData.lab_orders?.length },
+  ]
+
+  // ── Sub-components ──────────────────────────────────────────────────────────
+
+  // Section header: numbered, with divider line
+  const Section = ({ num, title, id, color = theme.accent }) => (
+    <div id={id} style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0 14px' }}>
+      <div style={{
+        width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+        background: `${color}1A`, border: `1px solid ${color}50`,
+        display: 'grid', placeItems: 'center',
+        fontSize: 11, fontWeight: 700, color, fontFamily: theme.mono,
+      }}>{num}</div>
+      <span style={{
+        fontSize: 10.5, fontWeight: 700, color,
+        fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase',
+      }}>{title}</span>
+      <div style={{ flex: 1, borderBottom: `1px dashed ${color}28` }} />
+    </div>
+  )
+
+  // Field row: label + dashed line + value (for patient ID grid)
+  const Field = ({ label, value, wide }) => (
+    <div style={{
+      display: 'flex', alignItems: 'baseline', gap: 6,
+      gridColumn: wide ? 'span 2' : 'span 1',
+      paddingBottom: 10,
+      borderBottom: `1px dashed ${theme.border}`,
+    }}>
+      <span style={{
+        fontSize: 10.5, color: theme.textDim, fontWeight: 600,
+        fontFamily: theme.mono, letterSpacing: '0.08em', textTransform: 'uppercase',
+        whiteSpace: 'nowrap', flexShrink: 0,
+      }}>{label}:</span>
+      <span style={{ fontSize: 13.5, color: value ? theme.text : theme.textDim, fontWeight: value ? 500 : 400, flex: 1 }}>
+        {value || '—'}
+      </span>
+    </div>
+  )
+
+  const vitalName = (name) => {
+    const map = { 'blood_pressure':'BP', 'pulse':'Pulse', 'heart_rate':'HR', 'temperature':'Temp',
+      'respiratory_rate':'RR', 'spo2':'SpO₂', 'weight':'Weight', 'height':'Height',
+      'bmi':'BMI', 'random_blood_glucose':'RBG' }
+    return map[name?.toLowerCase()] || name
+  }
+  const vitalUnit = (v) => v.unit || ''
+
+  const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
-    <div style={{
-      background: 'transparent', minHeight: '100vh',
-      padding: '24px 16px', position: 'relative', zIndex: 1,
-      animation: 'fadeIn 0.4s ease both',
-    }}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <StepIndicator current={2} />
+    <div style={{ minHeight: '100vh', background: theme.bg, animation: 'fadeIn 0.4s ease both', paddingBottom: 60 }}>
 
-        {/* Official proforma header */}
-        <Card style={{ marginBottom: 14 }} glow>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: 12,
-                background: 'rgba(94,191,163,0.08)',
-                border: '1px solid rgba(94,191,163,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22,
-              }}>🏥</div>
-              <div>
-                <p style={{ fontSize: 16, fontWeight: 700, color: theme.text }}>OPD Consultation Note</p>
-                <p style={{ fontSize: 12, color: theme.textDim }}>ABDM · FHIR R4 · OP Consultation Record</p>
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: 13, color: theme.text, fontFamily: "'DM Mono', monospace" }}>{dateStr} · {timeStr}</p>
-              <p style={{ fontSize: 11, color: theme.textDim, fontFamily: "'DM Mono', monospace' " }}>#{encounterId?.slice(0, 12)}</p>
-            </div>
+      {/* ── TOP NAV BAR ── */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 30,
+        background: `${theme.bg}E8`, backdropFilter: 'blur(14px)',
+        borderBottom: `1px solid ${theme.border}`,
+      }}>
+        <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 32px', height: 58, display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>Step 3 of 3 &nbsp;·&nbsp;</span>
+            <span style={{ fontSize: 13, color: theme.textMuted }}>Review &amp; approve consultation note</span>
           </div>
-        </Card>
-
-        {/* Patient demographics */}
-        <Card style={{ marginBottom: 10 }}>
-          <SectionTitle icon="👤">Patient Demographics</SectionTitle>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 32px' }}>
+          {/* Jump anchors */}
+          <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             {[
-              ['Name', intake.name || '—'],
-              ['Age / Gender', `${intake.age || '—'} / ${intake.gender || '—'}`],
-              ['ABHA ID', intake.abhaId || 'Not provided'],
-              ['Language', LANGUAGES.find(l => l.code === intake.language)?.label || '—'],
-            ].map(([k, v]) => (
-              <div key={k}>
-                <p style={{ fontSize: 10, color: theme.textDim, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>{k}</p>
-                <p style={{ fontSize: 14, color: theme.text, fontWeight: 500 }}>{v}</p>
-              </div>
+              { id: 'sec-id',   label: 'Patient' },
+              { id: 'sec-cc',   label: 'CC / HPI' },
+              { id: 'sec-pmh',  label: 'History' },
+              { id: 'sec-exam', label: 'Examination' },
+              { id: 'sec-dx',   label: 'Diagnosis' },
+              { id: 'sec-plan', label: 'Plan' },
+            ].map(j => (
+              <button key={j.id} onClick={() => scrollTo(j.id)} style={{
+                padding: '5px 11px', borderRadius: 7, fontSize: 11.5, fontWeight: 500,
+                border: `1px solid ${theme.border}`, background: theme.card,
+                color: theme.textMuted, cursor: 'pointer', transition: 'all .15s',
+                fontFamily: theme.mono,
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.color = theme.accent }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.color = theme.textMuted }}
+              >{j.label}</button>
             ))}
           </div>
-        </Card>
-
-        {/* Subjective */}
-        <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: theme.accent, marginBottom: 8, marginTop: 16, paddingLeft: 4,
-        }}>
-          S — Subjective
         </div>
+      </div>
 
-        <Card style={{ marginBottom: 10 }}>
-          <SectionTitle>Chief Complaint</SectionTitle>
-          <p style={{ color: theme.text, fontSize: 16, fontWeight: 600 }}>{clinicalData.chief_complaint || '—'}</p>
-        </Card>
+      {/* ── PAGE GRID ── */}
+      <div style={{
+        maxWidth: 1360, margin: '0 auto', padding: '28px 32px 0',
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px',
+        gap: 28, alignItems: 'start',
+      }}>
 
-        {clinicalData.history_of_present_illness && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>History of Present Illness</SectionTitle>
-            <p style={{ color: theme.text, fontSize: 14, lineHeight: 1.8 }}>{clinicalData.history_of_present_illness}</p>
-          </Card>
-        )}
+        {/* ══════════════════════════════════════════════════
+            MAIN — HOSPITAL PROFORMA DOCUMENT
+        ══════════════════════════════════════════════════ */}
+        <div style={{ minWidth: 0 }}>
 
-        {/* Patient-reported context */}
-        {(intake.currentMedications || intake.allergies || intake.pastHistory) && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Patient-Reported Background</SectionTitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {intake.allergies && (
+          {/* ── LETTERHEAD ── */}
+          <div style={{
+            background: theme.card,
+            border: `1px solid ${theme.border}`,
+            borderRadius: 16,
+            overflow: 'hidden',
+            marginBottom: 2,
+          }}>
+            {/* Top stripe */}
+            <div style={{ height: 4, background: `linear-gradient(90deg, ${theme.accent} 0%, ${theme.tealLight} 100%)` }} />
+            <div style={{ padding: '18px 26px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: theme.text, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                  OPD Consultation Record
+                </div>
+                <div style={{ fontSize: 11, color: theme.textDim, fontFamily: theme.mono, marginTop: 5, letterSpacing: '0.05em' }}>
+                  ABDM FHIR R4 · OP Consultation Note · AI-assisted draft
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 13.5, color: theme.text, fontWeight: 600 }}>{dateStr}</div>
+                <div style={{ fontSize: 12, color: theme.textMuted, fontFamily: theme.mono, marginTop: 3 }}>{timeStr}</div>
+                {encounterId && (
+                  <div style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, marginTop: 4 }}>
+                    UHID / Enc: {encounterId.slice(0, 18)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ── MAIN PROFORMA BODY ── */}
+          <div style={{
+            background: theme.card,
+            border: `1px solid ${theme.border}`,
+            borderTop: 'none',
+            borderRadius: '0 0 16px 16px',
+            padding: '4px 26px 26px',
+          }}>
+
+            {/* ════ 1. PATIENT IDENTIFICATION ════ */}
+            <Section num="1" title="Patient Identification" id="sec-id" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 28px' }}>
+              <Field label="Name" value={intake.name} wide />
+              <Field label="Age / DOB" value={intake.age ? `${intake.age} years` : null} />
+              <Field label="Sex" value={intake.gender ? intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1) : null} />
+              <Field label="ABHA ID" value={intake.abhaId} />
+              <Field label="Language" value={intake.language} />
+              <Field label="Date of Examination" value={dateStr} />
+            </div>
+
+            {intake.allergies && (
+              <div style={{
+                marginTop: 14, padding: '10px 16px',
+                background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.30)',
+                borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12,
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: theme.warning, fontFamily: theme.mono, flexShrink: 0 }}>⚠ ALLERGY ALERT</span>
+                <span style={{ fontSize: 14, color: '#FDE68A', fontWeight: 600 }}>{intake.allergies}</span>
+              </div>
+            )}
+
+            {/* ════ 2. CHIEF COMPLAINTS ════ */}
+            <Section num="2" title="Chief Complaints" id="sec-cc" />
+            <div style={{ padding: '4px 0 8px' }}>
+              {clinicalData.chief_complaint ? (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 12, color: theme.warning, fontWeight: 700, whiteSpace: 'nowrap', marginTop: 1 }}>⚠ ALLERGIES</span>
-                  <span style={{ fontSize: 14, color: theme.text }}>{intake.allergies}</span>
+                  <span style={{ color: theme.accent, fontWeight: 700, flexShrink: 0, marginTop: 1, fontSize: 16 }}>•</span>
+                  <span style={{ fontSize: 17, fontWeight: 600, color: theme.text, lineHeight: 1.4 }}>
+                    {clinicalData.chief_complaint}
+                    {intake.duration && (
+                      <span style={{ fontSize: 13, color: theme.textMuted, fontWeight: 400, marginLeft: 10 }}>
+                        — {intake.duration}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              ) : (
+                <span style={{ fontSize: 14, color: theme.textDim, fontStyle: 'italic' }}>Not recorded</span>
+              )}
+              {intake.chiefComplaint && intake.chiefComplaint !== clinicalData.chief_complaint && (
+                <div style={{ marginTop: 8, paddingLeft: 22, fontSize: 12.5, color: theme.textDim, fontStyle: 'italic' }}>
+                  Patient's words: "{intake.chiefComplaint}"
                 </div>
               )}
-              {intake.currentMedications && (
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 12, color: theme.textDim, fontWeight: 700, whiteSpace: 'nowrap', marginTop: 1 }}>CURRENT MEDS</span>
-                  <span style={{ fontSize: 14, color: theme.textMuted }}>{intake.currentMedications}</span>
-                </div>
-              )}
-              {intake.pastHistory && (
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 12, color: theme.textDim, fontWeight: 700, whiteSpace: 'nowrap', marginTop: 1 }}>PAST HISTORY</span>
-                  <span style={{ fontSize: 14, color: theme.textMuted }}>{intake.pastHistory}</span>
-                </div>
-              )}
             </div>
-          </Card>
-        )}
 
-        {/* Objective */}
-        <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: theme.blue, marginBottom: 8, marginTop: 16, paddingLeft: 4,
-        }}>
-          O — Objective
-        </div>
+            {/* ════ 3. HISTORY OF PRESENT ILLNESS ════ */}
+            {clinicalData.history_of_present_illness && (
+              <>
+                <Section num="3" title="History of Present Illness" id="sec-hpi" />
+                <p style={{
+                  fontSize: 14, lineHeight: 1.85, color: theme.text, margin: '0 0 4px',
+                  paddingLeft: 2,
+                }}>{clinicalData.history_of_present_illness}</p>
+              </>
+            )}
 
-        {clinicalData.vitals?.length > 0 && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Vitals</SectionTitle>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {clinicalData.vitals.map((v, i) => (
-                <div key={i} style={{
-                  background: 'rgba(94,191,163,0.05)', border: '1px solid rgba(94,191,163,0.15)',
-                  borderRadius: 10, padding: '10px 16px', minWidth: 100,
-                }}>
-                  <p style={{ fontSize: 10, color: theme.textDim, marginBottom: 4, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{v.name}</p>
-                  <p style={{ fontSize: 20, fontWeight: 800, color: theme.accent, fontFamily: "'DM Mono', monospace" }}>
-                    {v.value}<span style={{ fontSize: 12, fontWeight: 400, color: theme.textMuted, marginLeft: 4 }}>{v.unit}</span>
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {/* Assessment */}
-        <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: theme.warning, marginBottom: 8, marginTop: 16, paddingLeft: 4,
-        }}>
-          A — Assessment
-        </div>
-
-        {clinicalData.diagnoses?.length > 0 && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Diagnoses</SectionTitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {clinicalData.diagnoses.map((dx, i) => (
-                <div key={i} style={{
-                  background: theme.surface, border: `1px solid ${theme.border}`,
-                  borderRadius: 10, padding: '12px 16px',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>{dx.description}</span>
-                    <Badge label={dx.certainty} color={certColor[dx.certainty] || theme.textMuted} />
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <Badge label={`ICD-10: ${dx.icd10_code}`} color={theme.blue} />
-                    <span style={{ fontSize: 12, color: theme.textDim, alignSelf: 'center' }}>{dx.icd10_display}</span>
-                    {dx.snomed_code && <Badge label={`SNOMED: ${dx.snomed_code}`} color={theme.purple} />}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {/* Plan */}
-        <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: theme.purple, marginBottom: 8, marginTop: 16, paddingLeft: 4,
-        }}>
-          P — Plan
-        </div>
-
-        {clinicalData.medications?.length > 0 && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Prescription (Rx)</SectionTitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {clinicalData.medications.map((m, i) => (
-                <div key={i} style={{
-                  background: theme.surface, border: `1px solid ${theme.border}`,
-                  borderRadius: 10, padding: '12px 16px',
-                  display: 'flex', alignItems: 'flex-start', gap: 12,
-                }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                    background: 'rgba(94,191,163,0.07)', border: '1px solid rgba(94,191,163,0.15)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
-                  }}>💊</div>
-                  <div>
-                    <p style={{ fontSize: 15, fontWeight: 600, color: theme.text, marginBottom: 3 }}>{m.name}</p>
-                    <p style={{ fontSize: 13, color: theme.textMuted }}>
-                      {m.dose} · {m.route} · {m.frequency}{m.duration ? ` · ${m.duration}` : ''}
-                    </p>
-                    {m.instructions && <p style={{ fontSize: 12, color: theme.textDim, marginTop: 4 }}>{m.instructions}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {clinicalData.lab_orders?.length > 0 && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Investigations</SectionTitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {clinicalData.lab_orders.map((lab, i) => (
-                <div key={i} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-                  padding: '8px 0',
-                  borderBottom: i < clinicalData.lab_orders.length - 1 ? `1px solid ${theme.border}` : 'none',
-                }}>
-                  <div>
-                    <span style={{ fontSize: 14, color: theme.text, fontWeight: 500 }}>{lab.test_name}</span>
-                    {lab.reason && <span style={{ fontSize: 12, color: theme.textDim, marginLeft: 8 }}>— {lab.reason}</span>}
-                  </div>
-                  <Badge label={lab.urgency} color={urgColor[lab.urgency] || theme.textMuted} />
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {(clinicalData.follow_up?.timeframe || clinicalData.advice?.length > 0) && (
-          <Card style={{ marginBottom: 10 }}>
-            <SectionTitle>Follow-up & Advice</SectionTitle>
-            {clinicalData.follow_up?.timeframe && (
-              <p style={{ color: theme.text, fontSize: 14, marginBottom: clinicalData.advice?.length ? 12 : 0 }}>
-                <strong style={{ color: theme.accent }}>Follow-up:</strong> {clinicalData.follow_up.timeframe}
-                {clinicalData.follow_up.instructions && ` — ${clinicalData.follow_up.instructions}`}
+            {/* ════ 4. PAST MEDICAL HISTORY ════ */}
+            <Section num="4" title="Past Medical / Drug History" id="sec-pmh" />
+            {intake.pastHistory ? (
+              <p style={{ fontSize: 14, color: theme.text, lineHeight: 1.75, margin: '0 0 8px', paddingLeft: 2 }}>
+                {intake.pastHistory}
               </p>
-            )}
-            {clinicalData.advice?.length > 0 && (
-              <ul style={{ paddingLeft: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                {clinicalData.advice.map((a, i) => (
-                  <li key={i} style={{ color: theme.textMuted, fontSize: 14, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: theme.accent, flexShrink: 0 }}>›</span> {a}
-                  </li>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 16px', padding: '2px 0 8px' }}>
+                {['DM', 'HTN', 'TB', 'IHD', 'Asthma', 'CKD', 'Epilepsy', 'Thyroid'].map(c => (
+                  <div key={c} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <div style={{
+                      width: 14, height: 14, borderRadius: 3, border: `1.5px solid ${theme.border}`,
+                      background: theme.surface, flexShrink: 0,
+                    }} />
+                    <span style={{ fontSize: 13, color: theme.textMuted }}>{c}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
-          </Card>
-        )}
 
-        {/* Collapsibles */}
-        <div onClick={() => setShowTranscript(s => !s)} style={{
-          cursor: 'pointer', color: theme.textDim, fontSize: 13,
-          marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6, userSelect: 'none',
-        }}>
-          <span style={{ display: 'inline-block', transform: showTranscript ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}>▸</span>
-          Raw consultation transcript
-        </div>
-        {showTranscript && (
-          <Card style={{ marginBottom: 10 }}>
-            <p style={{ fontSize: 13, color: theme.textMuted, fontFamily: "'DM Mono', monospace", lineHeight: 1.75, whiteSpace: 'pre-wrap' }}>
-              {clinicalData.raw_transcript || '—'}
-            </p>
-          </Card>
-        )}
+            {intake.currentMedications && (
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Current Medications: </span>
+                <span style={{ fontSize: 13.5, color: theme.textMuted }}>{intake.currentMedications}</span>
+              </div>
+            )}
 
-        {fhirBundle && (
-          <>
-            <div onClick={() => setShowFhir(s => !s)} style={{
-              cursor: 'pointer', color: theme.textDim, fontSize: 13,
-              marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6, userSelect: 'none',
-            }}>
-              <span style={{ display: 'inline-block', transform: showFhir ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }}>▸</span>
-              FHIR R4 Bundle (ABDM)
+            {/* ════ 5. GENERAL PHYSICAL EXAMINATION ════ */}
+            <Section num="5" title="General Physical Examination" id="sec-exam" color={theme.blue} />
+            <div style={{ fontSize: 10.5, color: theme.blue, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
+              Vital Signs
             </div>
-            {showFhir && (
-              <Card style={{ marginBottom: 10 }}>
-                <pre style={{ fontSize: 11, color: theme.textMuted, fontFamily: "'DM Mono', monospace", overflow: 'auto', maxHeight: 400, margin: 0 }}>
-                  {JSON.stringify(fhirBundle, null, 2)}
-                </pre>
-              </Card>
-            )}
-          </>
-        )}
 
-        {/* Sticky action bar */}
-        <div style={{
-          position: 'sticky', bottom: 0,
-          background: `linear-gradient(transparent, ${theme.bg} 40%)`,
-          padding: '32px 0 20px',
-          display: 'flex', gap: 12,
-        }}>
-          <Btn variant="muted" onClick={onDiscard} style={{ flex: 1 }}>Discard</Btn>
-          <Btn variant="teal" onClick={onApprove} style={{ flex: 2, padding: '15px 0', fontSize: 16 }}>
-            ✓ Approve Proforma
-          </Btn>
-        </div>
+            {clinicalData.vitals?.length > 0 ? (
+              <div style={{ overflowX: 'auto', marginBottom: 6 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+                  <thead>
+                    <tr style={{ borderBottom: `2px solid ${theme.border}` }}>
+                      {clinicalData.vitals.map((v, i) => (
+                        <th key={i} style={{
+                          padding: '8px 14px 8px 0', textAlign: 'left',
+                          color: theme.textDim, fontFamily: theme.mono, fontSize: 10.5,
+                          fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
+                        }}>{vitalName(v.name)}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      {clinicalData.vitals.map((v, i) => (
+                        <td key={i} style={{
+                          padding: '12px 14px 12px 0', verticalAlign: 'baseline',
+                          borderBottom: `1px dashed ${theme.border}`,
+                        }}>
+                          <span style={{ fontSize: 22, fontWeight: 700, color: theme.accent, fontFamily: theme.mono, letterSpacing: '-0.02em' }}>
+                            {v.value}
+                          </span>
+                          {vitalUnit(v) && (
+                            <span style={{ fontSize: 11, color: theme.textMuted, marginLeft: 4 }}>{vitalUnit(v)}</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ padding: '10px 0', color: theme.textDim, fontSize: 13.5, fontStyle: 'italic' }}>
+                No vitals recorded during this consultation
+              </div>
+            )}
+
+            {/* ════ 6. ASSESSMENT / DIFFERENTIAL DIAGNOSIS ════ */}
+            <Section num="6" title="Assessment / Diagnosis" id="sec-dx" color={theme.warning} />
+
+            {clinicalData.diagnoses?.length > 0 ? (
+              <div style={{ display: 'grid', gap: 10 }}>
+                {clinicalData.diagnoses.map((dx, i) => (
+                  <div key={i} style={{
+                    display: 'grid',
+                    gridTemplateColumns: '24px 1fr auto',
+                    gap: '0 14px',
+                    alignItems: 'start',
+                    padding: '12px 16px',
+                    background: theme.surface,
+                    border: `1px solid ${theme.border}`,
+                    borderLeft: `3px solid ${certColor[dx.certainty] || theme.textMuted}`,
+                    borderRadius: 10,
+                  }}>
+                    <span style={{
+                      fontSize: 12, fontWeight: 700, color: theme.textDim,
+                      fontFamily: theme.mono, paddingTop: 2,
+                    }}>#{i + 1}</span>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, lineHeight: 1.35, marginBottom: 5 }}>
+                        {dx.description}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                        <span style={{
+                          padding: '2px 10px', borderRadius: 6, fontSize: 11.5, fontWeight: 700,
+                          fontFamily: theme.mono, letterSpacing: '0.05em',
+                          background: 'rgba(96,165,212,0.12)', color: theme.blue,
+                          border: '1px solid rgba(96,165,212,0.28)',
+                        }}>{dx.icd10_code}</span>
+                        {dx.icd10_display && (
+                          <span style={{ fontSize: 12, color: theme.textDim }}>{dx.icd10_display}</span>
+                        )}
+                        {dx.snomed_code && (
+                          <span style={{
+                            padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+                            fontFamily: theme.mono, background: 'rgba(165,127,212,0.10)',
+                            color: theme.purple, border: '1px solid rgba(165,127,212,0.25)',
+                          }}>SNOMED {dx.snomed_code}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span style={{
+                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                      background: `${certColor[dx.certainty] || theme.textMuted}14`,
+                      color: certColor[dx.certainty] || theme.textMuted,
+                      border: `1px solid ${certColor[dx.certainty] || theme.textMuted}35`,
+                      whiteSpace: 'nowrap', marginTop: 2,
+                    }}>{dx.certainty}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '10px 0', color: theme.textDim, fontSize: 13.5, fontStyle: 'italic' }}>No diagnoses recorded</div>
+            )}
+
+            {/* ════ 7. PLAN ════ */}
+            <Section num="7" title="Management Plan" id="sec-plan" color={theme.purple} />
+
+            {/* 7a. Prescription */}
+            {clinicalData.medications?.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  ℞ Prescription
+                </div>
+                <div style={{ display: 'grid', gap: 0, border: `1px solid ${theme.border}`, borderRadius: 10, overflow: 'hidden' }}>
+                  {/* Table header */}
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.2fr',
+                    padding: '8px 14px', background: theme.surface,
+                    borderBottom: `1px solid ${theme.border}`,
+                  }}>
+                    {['Drug', 'Dose', 'Frequency', 'Duration'].map(h => (
+                      <span key={h} style={{ fontSize: 10, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{h}</span>
+                    ))}
+                  </div>
+                  {clinicalData.medications.map((m, i) => (
+                    <div key={i} style={{
+                      display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.2fr',
+                      padding: '12px 14px', alignItems: 'start',
+                      borderBottom: i < clinicalData.medications.length - 1 ? `1px dashed ${theme.border}` : 'none',
+                      background: i % 2 === 0 ? 'transparent' : `${theme.accent}04`,
+                    }}>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>{m.name}</div>
+                        {m.instructions && <div style={{ fontSize: 11.5, color: theme.textDim, marginTop: 3 }}>{m.instructions}</div>}
+                        {m.route && m.route !== 'oral' && (
+                          <div style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontFamily: theme.mono }}>via {m.route}</div>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.dose || '—'}</div>
+                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.frequency || '—'}</div>
+                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.duration || '—'}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 7b. Investigations */}
+            {clinicalData.lab_orders?.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  Investigations Ordered
+                </div>
+                <div style={{ display: 'grid', gap: 8 }}>
+                  {clinicalData.lab_orders.map((lab, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px',
+                      background: urgBg[lab.urgency] || theme.surface,
+                      border: `1px solid ${urgColor[lab.urgency] || theme.border}28`,
+                      borderLeft: `3px solid ${urgColor[lab.urgency] || theme.textDim}`,
+                      borderRadius: 9,
+                    }}>
+                      <span style={{ fontSize: 13.5, color: theme.text, fontWeight: 500, flex: 1 }}>{lab.test_name}</span>
+                      {lab.reason && <span style={{ fontSize: 12, color: theme.textDim, flex: 1 }}>{lab.reason}</span>}
+                      <span style={{
+                        padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+                        background: `${urgColor[lab.urgency] || theme.textMuted}18`,
+                        color: urgColor[lab.urgency] || theme.textMuted,
+                        border: `1px solid ${urgColor[lab.urgency] || theme.textMuted}35`,
+                        fontFamily: theme.mono, letterSpacing: '0.05em', textTransform: 'uppercase',
+                        whiteSpace: 'nowrap', flexShrink: 0,
+                      }}>{lab.urgency || 'routine'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 7c. Follow-up & Advice */}
+            {(clinicalData.follow_up?.timeframe || clinicalData.advice?.length > 0) && (
+              <div>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  Follow-up &amp; Advice
+                </div>
+                {clinicalData.follow_up?.timeframe && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                    <div style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, flexShrink: 0 }}>Review after:</div>
+                    <span style={{
+                      padding: '5px 14px', borderRadius: 20,
+                      background: `${theme.accent}14`, border: `1px solid ${theme.accent}35`,
+                      color: theme.accent, fontSize: 14, fontWeight: 700,
+                    }}>{clinicalData.follow_up.timeframe}</span>
+                    {clinicalData.follow_up.instructions && (
+                      <span style={{ fontSize: 13, color: theme.textMuted }}>{clinicalData.follow_up.instructions}</span>
+                    )}
+                  </div>
+                )}
+                {clinicalData.advice?.length > 0 && (
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {clinicalData.advice.map((a, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                        <span style={{ color: theme.accent, flexShrink: 0, fontSize: 14, marginTop: 2 }}>›</span>
+                        <span style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.55 }}>{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>{/* end proforma body */}
+        </div>{/* end main col */}
+
+        {/* ══════════════════════════════════════════════════
+            SIDEBAR
+        ══════════════════════════════════════════════════ */}
+        <aside style={{ position: 'sticky', top: 68, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+          {/* Patient card */}
+          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+            <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 10 }}>Patient on record</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: theme.text, letterSpacing: '-0.02em', marginBottom: 3 }}>{intake.name || '—'}</div>
+            <div style={{ fontSize: 13, color: theme.textMuted, marginBottom: 4 }}>
+              {intake.age && `${intake.age}y`}{intake.age && intake.gender && ' · '}{intake.gender && intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}
+            </div>
+            {intake.abhaId && (
+              <div style={{ fontFamily: theme.mono, fontSize: 10.5, color: theme.textDim }}>ABHA · {intake.abhaId}</div>
+            )}
+            {intake.allergies && (
+              <div style={{ marginTop: 10, padding: '7px 10px', background: 'rgba(245,158,11,0.09)', border: '1px solid rgba(245,158,11,0.28)', borderRadius: 8, fontSize: 12, color: theme.warning, fontWeight: 600 }}>
+                ⚠ {intake.allergies}
+              </div>
+            )}
+          </div>
+
+          {/* Review checklist */}
+          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+            <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 12 }}>Review checklist</div>
+            <div style={{ display: 'grid', gap: 9 }}>
+              {checks.map((c, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                  <span style={{
+                    width: 18, height: 18, borderRadius: 99, flexShrink: 0,
+                    background: c.ok ? theme.accent : 'transparent',
+                    border: `1.5px solid ${c.ok ? theme.accent : theme.border}`,
+                    display: 'grid', placeItems: 'center',
+                    color: theme.accentInk, fontSize: 10, fontWeight: 800,
+                  }}>{c.ok ? '✓' : ''}</span>
+                  <span style={{ fontSize: 12.5, color: c.ok ? theme.text : theme.textDim }}>{c.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Collapsibles: transcript + FHIR */}
+          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, overflow: 'hidden' }}>
+            <button onClick={() => setShowTranscript(s => !s)} style={{
+              width: '100%', padding: '12px 16px', background: 'none', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
+              borderBottom: showTranscript ? `1px solid ${theme.border}` : 'none',
+            }}>
+              <span style={{ fontSize: 12.5, color: theme.textMuted, fontWeight: 500 }}>Raw transcript</span>
+              <span style={{ color: theme.textDim, fontSize: 15, transform: showTranscript ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
+            </button>
+            {showTranscript && (
+              <div style={{ padding: '12px 16px', maxHeight: 200, overflowY: 'auto' }}>
+                <p style={{ fontSize: 11.5, color: theme.textMuted, fontFamily: theme.mono, lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {clinicalData.raw_transcript || '—'}
+                </p>
+              </div>
+            )}
+            {fhirBundle && (
+              <>
+                <button onClick={() => setShowFhir(s => !s)} style={{
+                  width: '100%', padding: '12px 16px', background: 'none', border: 'none',
+                  borderTop: `1px solid ${theme.border}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
+                  borderBottom: showFhir ? `1px solid ${theme.border}` : 'none',
+                }}>
+                  <span style={{ fontSize: 12.5, color: theme.textMuted, fontWeight: 500 }}>FHIR R4 Bundle</span>
+                  <span style={{ color: theme.textDim, fontSize: 15, transform: showFhir ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
+                </button>
+                {showFhir && (
+                  <div style={{ padding: '12px 16px', maxHeight: 240, overflowY: 'auto' }}>
+                    <pre style={{ fontSize: 10, color: theme.textMuted, fontFamily: theme.mono, margin: 0, overflowX: 'auto' }}>
+                      {JSON.stringify(fhirBundle, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Approve / Discard */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button onClick={onApprove} style={{
+              width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+              background: theme.accent, color: theme.accentInk,
+              fontSize: 14.5, fontFamily: 'inherit', fontWeight: 800, cursor: 'pointer',
+              boxShadow: `0 8px 24px -8px ${theme.accentGlow}`,
+              transition: 'transform .15s, filter .15s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+              letterSpacing: '-0.01em',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.filter = 'brightness(1.06)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.filter = 'none' }}
+            >✓ Approve &amp; Save Note</button>
+            <button onClick={onDiscard} style={{
+              width: '100%', padding: '11px', borderRadius: 12,
+              background: 'transparent', border: `1px solid ${theme.border}`,
+              color: theme.textMuted, fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
+              transition: 'border-color .15s, color .15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = theme.danger; e.currentTarget.style.color = theme.danger }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.color = theme.textMuted }}
+            >Discard</button>
+            <p style={{ textAlign: 'center', fontSize: 10.5, color: theme.textDim, margin: 0, lineHeight: 1.5 }}>
+              Nothing is saved until you approve.
+            </p>
+          </div>
+        </aside>
       </div>
     </div>
   )
@@ -1708,7 +1982,7 @@ function PatientSummaryCard({ clinicalData, intake }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
             <label style={{ fontSize: 12, color: theme.textDim, whiteSpace: 'nowrap' }}>Language:</label>
             <select value={lang} onChange={handleLangChange} style={{
-              background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 7,
+              background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 7,
               padding: '5px 10px', fontSize: 13, color: theme.text, fontFamily: 'inherit', cursor: 'pointer',
             }}>
               {summaryLangs.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
@@ -1733,7 +2007,7 @@ function PatientSummaryCard({ clinicalData, intake }) {
               <p style={{ fontSize: 11, fontWeight: 700, color: theme.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Conditions</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {summary.diagnoses.map((d, i) => (
-                  <div key={i} style={{ background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
+                  <div key={i} style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 2 }}>{d.condition}</p>
                     <p style={{ fontSize: 13, color: theme.textMuted }}>{d.explanation}</p>
                   </div>
@@ -1748,7 +2022,7 @@ function PatientSummaryCard({ clinicalData, intake }) {
               <p style={{ fontSize: 11, fontWeight: 700, color: theme.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Medicines</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {summary.medications.map((m, i) => (
-                  <div key={i} style={{ background: '#fff', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
+                  <div key={i} style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
                     <p style={{ fontSize: 14, fontWeight: 600, color: theme.accent, marginBottom: 3 }}>💊 {m.name}</p>
                     <p style={{ fontSize: 13, color: theme.textMuted }}>{m.instructions}{m.duration ? ` · ${m.duration}` : ''}</p>
                     {m.with_food !== undefined && (

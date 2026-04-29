@@ -486,9 +486,9 @@ function Nav({ onNew, onOpenPricing }) {
   }, [])
   const link = (href, label) => (
     <a href={href}
-      style={{ color: T.textMuted, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
-      onMouseEnter={e => { e.target.style.color = T.text }}
-      onMouseLeave={e => { e.target.style.color = T.textMuted }}>
+      style={{ color: T.textSecondary, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
+      onMouseEnter={e => { e.target.style.color = '#ffffff' }}
+      onMouseLeave={e => { e.target.style.color = T.textSecondary }}>
       {label}
     </a>
   )
@@ -505,9 +505,9 @@ function Nav({ onNew, onOpenPricing }) {
         <nav style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
           {link('#how', 'How it works')}
           {link('#cases', 'Use cases')}
-          <span onClick={onOpenPricing} style={{ color: T.textMuted, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = T.text }}
-            onMouseLeave={e => { e.currentTarget.style.color = T.textMuted }}>Pricing</span>
+          <span onClick={onOpenPricing} style={{ color: T.textSecondary, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#ffffff' }}
+            onMouseLeave={e => { e.currentTarget.style.color = T.textSecondary }}>Pricing</span>
           {link('#faq', 'FAQ')}
         </nav>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -552,7 +552,7 @@ function HeroVisual({ tilt }) {
         </div>
         <div style={{ color: T.textDim, fontSize: 11, marginBottom: 10, fontFamily: MONO, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Live transcript</div>
         <p style={{ color: T.text, fontSize: 15, lineHeight: 1.7, margin: 0 }}>
-          "Patient आया है with complaint of <span style={{ color: T.accent }}>fever since 3 days</span>, body ache भी है… temperature <span style={{ color: T.accent }}>101.2°F</span>…"
+          "Patient came in with complaint of <span style={{ color: T.accent }}>fever since 3 days</span>, body ache as well… temperature <span style={{ color: T.accent }}>101.2°F</span>…"
         </p>
         <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 56, marginTop: 28 }}>
           {Array.from({ length: 44 }).map((_, i) => (
@@ -565,8 +565,8 @@ function HeroVisual({ tilt }) {
         <Badge tone="blue">Transcribing · Whisper large-v3</Badge>
         <div style={{ marginTop: 24, display: 'grid', gap: 14 }}>
           {[
-            { t: '0:00', txt: 'Namaste doctor, मुझे fever है 3 दिन से' },
-            { t: '0:08', txt: 'Headache and body pain भी है' },
+            { t: '0:00', txt: 'Doctor, I have had fever for 3 days now' },
+            { t: '0:08', txt: 'Headache and body pain as well' },
             { t: '0:22', txt: 'Temp checked: 101.2 F. No cough.' },
             { t: '0:42', txt: 'Tab Dolo 650 mg TDS for 5 days' },
           ].map((l, i) => (
@@ -711,10 +711,10 @@ function HowItWorks() {
 
 // ─── Use Cases ────────────────────────────────────────────────────────────────
 const USE_CASES = {
-  diabetes: { label: 'Diabetes',    snippet: '"Sugar fasting 186 है, post-meal 248. Pichle 3 महीने से HbA1c 8.4. Complaints of polyuria and nocturia. Fatigue भी है."', cc: 'Polyuria, nocturia, fatigue × 3 months',  dx: 'Type 2 Diabetes Mellitus — uncontrolled', icd: 'E11.9',  plan: 'Metformin SR 500 mg BD · Glimepiride 1 mg OD · HbA1c recheck 3 mo · diet counselling' },
-  gastro:   { label: 'Gastro',      snippet: '"Epigastric pain, burning sensation, खाने के बाद बढ़ जाता है. Acidity is there since 2 weeks. No vomiting."',              cc: 'Epigastric burning × 2 weeks, post-prandial', dx: 'Gastritis / functional dyspepsia',       icd: 'K29.70', plan: 'Pan-D 40 mg OD × 14d · avoid NSAIDs · lifestyle advice' },
-  htn:      { label: 'Hypertension', snippet: '"BP 158 by 96 today. Headache morning में होता है. Family history of hypertension है. No chest pain."',                   cc: 'Morning headaches, elevated BP (158/96)',   dx: 'Essential Hypertension — Stage 1',      icd: 'I10',    plan: 'Amlodipine 5 mg OD · home BP log × 2w · low salt diet' },
-  peds:     { label: 'Pediatric',   snippet: '"Bacche को fever है 2 दिन से, loose motions भी — 4–5 times. Weight 12 kg. No vomiting, feeds are okay."',                cc: 'Fever × 2 days + loose stools × 2 days',  dx: 'Acute gastroenteritis with fever',      icd: 'A09',    plan: 'ORS sachets · Zinc 20 mg OD × 14d · Cifran suspension per weight' },
+  diabetes: { label: 'Diabetes',    snippet: '"Fasting sugar is 186, post-meal 248. HbA1c has been 8.4 for the past 3 months. Complaints of polyuria and nocturia. Fatigue as well."', cc: 'Polyuria, nocturia, fatigue × 3 months',  dx: 'Type 2 Diabetes Mellitus — uncontrolled', icd: 'E11.9',  plan: 'Metformin SR 500 mg BD · Glimepiride 1 mg OD · HbA1c recheck 3 mo · diet counselling' },
+  gastro:   { label: 'Gastro',      snippet: '"Epigastric pain, burning sensation, gets worse after eating. Acidity is there since 2 weeks. No vomiting."',                      cc: 'Epigastric burning × 2 weeks, post-prandial', dx: 'Gastritis / functional dyspepsia',       icd: 'K29.70', plan: 'Pan-D 40 mg OD × 14d · avoid NSAIDs · lifestyle advice' },
+  htn:      { label: 'Hypertension', snippet: '"BP 158 by 96 today. Headache in the mornings. Family history of hypertension. No chest pain."',                                cc: 'Morning headaches, elevated BP (158/96)',   dx: 'Essential Hypertension — Stage 1',      icd: 'I10',    plan: 'Amlodipine 5 mg OD · home BP log × 2w · low salt diet' },
+  peds:     { label: 'Pediatric',   snippet: '"Child has had fever for 2 days, loose motions as well — 4–5 times. Weight 12 kg. No vomiting, feeds are okay."',               cc: 'Fever × 2 days + loose stools × 2 days',  dx: 'Acute gastroenteritis with fever',      icd: 'A09',    plan: 'ORS sachets · Zinc 20 mg OD × 14d · Cifran suspension per weight' },
 }
 
 function UseCases() {
@@ -793,68 +793,6 @@ function Features() {
             <ExpandCard key={i} icon={f.i} title={f.t} delay={i * 60}>
               <p style={{ color: T.textSecondary, margin: 0, lineHeight: 1.7, fontSize: 14.5 }}>{f.d}</p>
             </ExpandCard>
-          ))}
-        </div>
-      </Container>
-    </section>
-  )
-}
-
-// ─── Testimonials ─────────────────────────────────────────────────────────────
-function Metrics() {
-  const quotes = [
-    { n: 'Dr. Priya Sharma', r: 'Family Physician · Bengaluru', q: "I finish my last patient, I finish my notes. That's it. I get my evenings back.", initials: 'PS' },
-    { n: 'Dr. Rajesh Kumar', r: 'GP · Pune',                    q: "The Hindi-English switching just works. I don't adjust how I speak with patients anymore.", initials: 'RK' },
-    { n: 'Dr. Anjali Mehta', r: 'Pediatrician · Mumbai',        q: "It knows Cifran syrup, ORS and zinc. It speaks my pharmacology, not an American textbook.", initials: 'AM' },
-  ]
-  return (
-    <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, rgba(18,43,31,0.3), transparent)` }}>
-      <Container>
-        <div className="rv" style={{ textAlign: 'center', marginBottom: 52 }}>
-          <SectionLabel>Testimonials</SectionLabel>
-          <SectionHeading style={{ fontSize: 'clamp(26px, 3.2vw, 42px)' }}>Doctors on what changed for them.</SectionHeading>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-          {quotes.map((q, i) => (
-            <figure key={i} className="rv"
-              style={{
-                margin: 0,
-                background: `linear-gradient(155deg, ${T.card}, ${T.surface})`,
-                border: `1px solid ${T.border}`,
-                borderRadius: 22, padding: 34,
-                transitionDelay: `${i * 80}ms`,
-                position: 'relative', overflow: 'hidden',
-                transition: 'transform .4s cubic-bezier(.16,1,.3,1), border-color .35s, box-shadow .35s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-6px)'
-                e.currentTarget.style.borderColor = T.borderAccent
-                e.currentTarget.style.boxShadow = `0 28px 60px -28px rgba(0,0,0,0.55), 0 0 40px -20px ${T.accentGlow}`
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.borderColor = T.border
-                e.currentTarget.style.boxShadow = 'none'
-              }}>
-              <div aria-hidden style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: '50%', background: T.accentDim, filter: 'blur(35px)' }} />
-              {/* Big quote mark */}
-              <div style={{ position: 'relative', fontSize: 80, color: T.accent, lineHeight: 0.7, marginBottom: 10, fontFamily: MONO, opacity: 0.3, userSelect: 'none' }}>"</div>
-              <blockquote style={{ position: 'relative', margin: 0, fontSize: 16, lineHeight: 1.72, color: T.text }}>{q.q}</blockquote>
-              <figcaption style={{ position: 'relative', marginTop: 26, display: 'flex', alignItems: 'center', gap: 14, paddingTop: 22, borderTop: `1px solid ${T.border}` }}>
-                <div style={{
-                  width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                  background: `linear-gradient(135deg, ${T.accentDeep}, ${T.accent})`,
-                  display: 'grid', placeItems: 'center',
-                  color: T.accentInk, fontWeight: 800, fontSize: 12,
-                  letterSpacing: '-0.02em',
-                  boxShadow: `0 6px 18px -4px ${T.accentGlow}`,
-                }}>{q.initials}</div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: T.text }}>{q.n}</div>
-                  <div style={{ color: T.textDim, fontSize: 13, marginTop: 2 }}>{q.r}</div>
-                </div>
-              </figcaption>
-            </figure>
           ))}
         </div>
       </Container>
@@ -1134,7 +1072,6 @@ export default function HomeScreen({ onNew }) {
       <HowItWorks />
       <UseCases />
       <Features />
-      <Metrics />
       <Rural />
       <Team />
       <FAQ />

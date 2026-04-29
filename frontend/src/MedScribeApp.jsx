@@ -19,9 +19,9 @@ const theme = {
   tealBright: '#A8E4CE',
   warning: '#F59E0B',
   danger: '#EF4444',
-  text: '#E8F4EE',
-  textMuted: '#7FAF90',
-  textDim: '#3D6B50',
+  text: '#EFF8F4',
+  textMuted: '#AAC9B8',
+  textDim: '#6E9A82',
   blue: '#60A5D4',
   purple: '#A57FD4',
   orange: '#F59E0B',
@@ -429,12 +429,13 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
   const [error, setError] = useState('')
 
   const inputStyle = {
-    width: '100%', background: '#1A2E20',
-    border: `1px solid ${theme.border}`, borderRadius: 10,
-    padding: '11px 14px', color: theme.text, fontSize: 14,
-    fontFamily: 'inherit', transition: 'border-color 0.2s, box-shadow 0.2s',
+    width: '100%', background: 'rgba(8,22,14,0.75)',
+    border: `1px solid ${theme.border}`, borderRadius: 12,
+    padding: '13px 16px', color: '#EFF8F4', fontSize: 14.5,
+    fontFamily: 'inherit', transition: 'border-color 0.22s, box-shadow 0.22s',
+    lineHeight: 1.5, letterSpacing: '0.005em',
   }
-  const textareaStyle = { ...inputStyle, resize: 'vertical', minHeight: 72, lineHeight: 1.6 }
+  const textareaStyle = { ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.65 }
   const set = key => e => setIntake(p => ({ ...p, [key]: e.target.value }))
 
   const startPatientRecording = async () => {
@@ -554,28 +555,37 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
   // Chip row primitive
   const Chip = ({ active, onClick, children, tone = 'accent' }) => {
     const toneColor = tone === 'warning' ? theme.warning : tone === 'danger' ? theme.danger : theme.accent
+    const toneDim = tone === 'warning' ? 'rgba(245,158,11,0.1)' : tone === 'danger' ? 'rgba(239,68,68,0.1)' : theme.accentDim
     return (
       <button type="button" onClick={onClick} style={{
-        padding: '8px 14px', borderRadius: 999, fontSize: 13, fontFamily: 'inherit',
-        border: `1px solid ${active ? toneColor : theme.border}`,
-        background: active ? theme.accentDim : theme.card,
-        color: active ? toneColor : theme.textMuted,
+        padding: '9px 18px', borderRadius: 999, fontSize: 13.5, fontFamily: 'inherit',
+        border: `1px solid ${active ? toneColor : 'rgba(255,255,255,0.1)'}`,
+        background: active ? toneDim : 'rgba(255,255,255,0.04)',
+        color: active ? toneColor : '#AAC9B8',
         fontWeight: active ? 600 : 500, cursor: 'pointer',
-        transition: 'all .15s ease',
+        transition: 'all .18s ease', letterSpacing: '0.01em',
       }}>{children}</button>
     )
   }
 
   // Labels + fields
   const Label = ({ children, required }) => (
-    <label style={{ fontSize: 12, color: theme.textDim, display: 'block', marginBottom: 8, fontFamily: theme.mono, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500 }}>
-      {children}{required && <span style={{ color: theme.accent, marginLeft: 4 }}>•</span>}
+    <label style={{ fontSize: 11.5, color: '#8FB8A4', display: 'block', marginBottom: 9, fontFamily: theme.mono, letterSpacing: '0.11em', textTransform: 'uppercase', fontWeight: 600 }}>
+      {children}{required && <span style={{ color: theme.accent, marginLeft: 5 }}>•</span>}
     </label>
   )
   const Rule = ({ children }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '40px 0 20px' }}>
-      <span style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>{children}</span>
-      <div style={{ flex: 1, height: 1, background: theme.border }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '44px 0 26px' }}>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        padding: '5px 14px', borderRadius: 99,
+        background: 'rgba(94,191,163,0.08)',
+        border: '1px solid rgba(94,191,163,0.22)',
+        flexShrink: 0,
+      }}>
+        <span style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>{children}</span>
+      </div>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, rgba(94,191,163,0.2), transparent)` }} />
     </div>
   )
 
@@ -602,24 +612,26 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 24 }}>
           <button onClick={onBack} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', color: theme.textMuted, cursor: 'pointer',
-            fontSize: 14, fontFamily: 'inherit', padding: '6px 10px', borderRadius: 8,
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            color: '#AAC9B8', cursor: 'pointer',
+            fontSize: 13.5, fontFamily: 'inherit', padding: '7px 14px', borderRadius: 10,
+            transition: 'all .15s',
           }}>← Back</button>
 
-          <div style={{ height: 24, width: 1, background: theme.border }} />
+          <div style={{ height: 22, width: 1, background: 'rgba(255,255,255,0.1)' }} />
 
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>Patient Intake</div>
-            <div style={{ fontSize: 14, color: theme.textMuted, marginTop: 2 }}>
+            <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Patient Intake</div>
+            <div style={{ fontSize: 13.5, color: '#AAC9B8', marginTop: 3 }}>
               {doneReq} of 3 required filled
               {doneReq === 3 && <span style={{ color: theme.accent, marginLeft: 10 }}>· ready to hand to doctor</span>}
             </div>
           </div>
 
           <select style={{
-            background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 10,
-            padding: '9px 12px', color: theme.text, fontSize: 13, fontFamily: 'inherit', cursor: 'pointer',
+            background: 'rgba(8,22,14,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+            padding: '9px 14px', color: '#EFF8F4', fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
           }} value={intake.language} onChange={set('language')}>
             {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
           </select>
@@ -644,9 +656,11 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
           {/* ── VOICE HERO STRIP ── */}
           <div style={{
-            background: `linear-gradient(135deg, ${theme.accentDim}, rgba(134,212,184,0.10))`,
-            border: `1px solid rgba(94,191,163,0.28)`, borderRadius: 20,
-            padding: '28px 32px', position: 'relative', overflow: 'hidden',
+            background: `linear-gradient(135deg, rgba(94,191,163,0.10) 0%, rgba(94,191,163,0.04) 100%)`,
+            border: `1px solid rgba(94,191,163,0.25)`,
+            borderRadius: 20, padding: '28px 32px',
+            position: 'relative', overflow: 'hidden',
+            boxShadow: `0 24px 60px -30px rgba(94,191,163,0.12), inset 0 1px 0 rgba(255,255,255,0.04)`,
           }}>
             {isProcessing ? (
               <div style={{ textAlign: 'center', padding: '12px 0' }}>
@@ -676,13 +690,13 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 15, color: theme.text, fontWeight: 600, marginBottom: 4 }}>
+                  <div style={{ fontSize: 16, color: '#EFF8F4', fontWeight: 650, marginBottom: 6, letterSpacing: '-0.01em' }}>
                     {isRecording ? 'Listening…' : 'Tap and tell us about the patient'}
                   </div>
-                  <div style={{ fontSize: 13, color: theme.textMuted, lineHeight: 1.55 }}>
+                  <div style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.6 }}>
                     {isRecording
                       ? 'Name · age · what\'s bothering them · medications · allergies'
-                      : 'Speak naturally in any language — the form on the left fills as you go.'}
+                      : 'Speak naturally in any language — the form fills as you go.'}
                   </div>
 
                   {isRecording && (
@@ -823,24 +837,29 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
         }}>
           {/* Live patient card */}
           <div style={{
-            background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 18,
-            padding: 26, boxShadow: '0 18px 50px -30px rgba(26,36,32,0.18)',
+            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
+            border: `1px solid rgba(255,255,255,0.08)`,
+            borderRadius: 20, padding: 28,
+            boxShadow: '0 24px 60px -30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-              <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>Patient preview</div>
-              <span style={{ fontSize: 11, color: theme.textDim, fontFamily: theme.mono }}>LIVE</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Patient preview</div>
+              <span style={{ fontSize: 10, color: theme.textDim, fontFamily: theme.mono, letterSpacing: '0.12em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: 99, background: theme.accent, display: 'inline-block', animation: 'mic-pulse 2s infinite' }} />
+                LIVE
+              </span>
             </div>
 
             {/* Identity */}
             <div style={{ marginBottom: 22 }}>
-              <div style={{ fontSize: 24, color: theme.text, fontWeight: 600, letterSpacing: '-0.015em', lineHeight: 1.2 }}>
-                {intake.name.trim() || <span style={{ color: theme.textDim, fontStyle: 'italic', fontWeight: 400 }}>Patient name…</span>}
+              <div style={{ fontSize: 26, color: '#EFF8F4', fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                {intake.name.trim() || <span style={{ color: '#6E9A82', fontStyle: 'italic', fontWeight: 400, fontSize: 22 }}>Patient name…</span>}
               </div>
-              <div style={{ color: theme.textMuted, fontSize: 14, marginTop: 4 }}>
+              <div style={{ color: '#AAC9B8', fontSize: 14, marginTop: 5 }}>
                 {intake.age && `${intake.age}y`}
                 {intake.age && intake.gender && ' · '}
                 {intake.gender && intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}
-                {!intake.age && !intake.gender && <span style={{ color: theme.textDim }}>Age · gender</span>}
+                {!intake.age && !intake.gender && <span style={{ color: '#6E9A82' }}>Age · gender</span>}
               </div>
               {intake.abhaId.trim() && (
                 <div style={{ fontFamily: theme.mono, fontSize: 12, color: theme.textDim, marginTop: 6 }}>
@@ -869,9 +888,12 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
           {/* Readiness checklist */}
           <div style={{
-            background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 18, padding: 22,
+            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
+            border: `1px solid rgba(255,255,255,0.08)`,
+            borderRadius: 20, padding: 24,
+            boxShadow: '0 16px 40px -24px rgba(0,0,0,0.3)',
           }}>
-            <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 14 }}>Readiness</div>
+            <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>Readiness</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {requiredFilled.map(f => <ChecklistRow key={f.key} label={f.label} ok={f.ok} required theme={theme} />)}
               <div style={{ height: 1, background: theme.border, margin: '6px 0' }} />
@@ -900,7 +922,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
             }}>
               {intake.consentGiven && <span style={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>✓</span>}
             </div>
-            <span style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.5 }}>
+            <span style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.5 }}>
               Patient has given verbal consent for AI-assisted documentation (ABDM compliant).
             </span>
           </label>
@@ -931,11 +953,11 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 function PreviewRow({ label, value, placeholder = '—', warn, last, theme }) {
   const hasValue = value && (typeof value === 'string' ? value.trim() : true)
   return (
-    <div style={{ paddingBottom: 14, marginBottom: 14, borderBottom: last ? 'none' : `1px dashed ${theme.border}` }}>
-      <div style={{ fontSize: 10, color: warn && hasValue ? theme.warning : theme.textDim, fontFamily: theme.mono, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ paddingBottom: 14, marginBottom: 14, borderBottom: last ? 'none' : `1px solid rgba(255,255,255,0.06)` }}>
+      <div style={{ fontSize: 10, color: warn && hasValue ? theme.warning : '#6E9A82', fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
         {warn && hasValue && <span>⚠</span>}{label}
       </div>
-      <div style={{ fontSize: 14, color: hasValue ? (warn ? theme.warning : theme.text) : theme.textDim, lineHeight: 1.55, fontStyle: hasValue ? 'normal' : 'italic', fontWeight: warn && hasValue ? 500 : 400 }}>
+      <div style={{ fontSize: 14, color: hasValue ? (warn ? theme.warning : '#EFF8F4') : '#6E9A82', lineHeight: 1.6, fontStyle: hasValue ? 'normal' : 'italic', fontWeight: warn && hasValue ? 500 : 400 }}>
         {hasValue ? value : placeholder}
       </div>
     </div>
@@ -944,15 +966,16 @@ function PreviewRow({ label, value, placeholder = '—', warn, last, theme }) {
 
 function ChecklistRow({ label, ok, required, theme }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5, padding: '2px 0' }}>
       <span style={{
-        width: 18, height: 18, borderRadius: 99, flexShrink: 0,
+        width: 19, height: 19, borderRadius: 6, flexShrink: 0,
         background: ok ? theme.accent : 'transparent',
-        border: `1.5px solid ${ok ? theme.accent : theme.border}`,
-        display: 'grid', placeItems: 'center', color: '#fff', fontSize: 11, fontWeight: 700,
+        border: `1.5px solid ${ok ? theme.accent : 'rgba(255,255,255,0.15)'}`,
+        display: 'grid', placeItems: 'center', color: theme.accentInk, fontSize: 11, fontWeight: 800,
+        transition: 'all .18s',
       }}>{ok ? '✓' : ''}</span>
-      <span style={{ color: ok ? theme.text : theme.textMuted }}>{label}</span>
-      {required && !ok && <span style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.1em', marginLeft: 'auto' }}>REQUIRED</span>}
+      <span style={{ color: ok ? '#EFF8F4' : '#AAC9B8', transition: 'color .18s' }}>{label}</span>
+      {required && !ok && <span style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.12em', marginLeft: 'auto', opacity: 0.8 }}>REQUIRED</span>}
     </div>
   )
 }
@@ -998,81 +1021,116 @@ function ConsultationScreen({ onStop, intake, analyser }) {
   return (
     <div style={{
       minHeight: '100vh', background: theme.bg, position: 'relative', zIndex: 1,
-      animation: 'fadeIn 0.4s ease both',
+      animation: 'fadeIn 0.35s ease both',
     }}>
-      {/* Soft mint halo behind the stage */}
+      {/* Deep ambient glow behind the stage */}
       <div aria-hidden style={{
-        position: 'absolute', top: 40, right: '12%', width: 620, height: 620,
-        background: `radial-gradient(circle, ${theme.accentDim}, transparent 65%)`,
-        filter: 'blur(40px)', pointerEvents: 'none', zIndex: 0,
+        position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-10%)',
+        width: 700, height: 700,
+        background: `radial-gradient(circle, rgba(94,191,163,0.07) 0%, transparent 65%)`,
+        filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0,
+      }} />
+      <div aria-hidden style={{
+        position: 'absolute', bottom: '5%', left: '30%',
+        width: 400, height: 400,
+        background: `radial-gradient(circle, rgba(94,191,163,0.04) 0%, transparent 65%)`,
+        filter: 'blur(50px)', pointerEvents: 'none', zIndex: 0,
       }} />
 
       {/* ── TOP BAR ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'rgba(8,18,13,0.88)', backdropFilter: 'saturate(160%) blur(16px)',
-        borderBottom: `1px solid ${theme.border}`,
+        background: 'rgba(8,18,13,0.92)', backdropFilter: 'saturate(180%) blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 20 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>Step 2 of 3</div>
-            <div style={{ fontSize: 14, color: theme.textMuted, marginTop: 2 }}>Consultation in session</div>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'stretch', height: 62, gap: 24 }}>
+          {/* Step label */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700 }}>Step 2 of 3</div>
+              <div style={{ fontSize: 14, color: '#EFF8F4', fontWeight: 500, marginTop: 2, letterSpacing: '-0.01em' }}>Consultation in session</div>
+            </div>
           </div>
 
-          {/* REC badge — always visible */}
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10, padding: '8px 16px',
-            borderRadius: 999, background: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.32)',
-            fontSize: 12, fontWeight: 700, color: theme.danger, letterSpacing: '0.1em',
-          }}>
-            <span style={{
-              width: 8, height: 8, borderRadius: '50%', background: theme.danger,
-              boxShadow: '0 0 0 0 rgba(220,38,38,0.6)',
-              animation: 'mic-pulse 1.4s ease-in-out infinite',
-            }} />
-            REC · <span style={{ fontFamily: theme.mono, fontWeight: 600, letterSpacing: '0.04em' }}>{fmt(seconds)}</span>
-          </span>
+          {/* Step progress pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+            {['Intake', 'Consultation', 'Review'].map((s, i) => (
+              <div key={i} style={{
+                padding: '4px 12px', borderRadius: 99, fontSize: 11.5, fontWeight: 600,
+                background: i === 1 ? 'rgba(94,191,163,0.12)' : 'transparent',
+                color: i === 1 ? theme.accent : 'rgba(255,255,255,0.22)',
+                border: `1px solid ${i === 1 ? 'rgba(94,191,163,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                letterSpacing: '0.02em',
+              }}>{i === 1 && <span style={{ marginRight: 5, opacity: 0.7 }}>●</span>}{s}</div>
+            ))}
+          </div>
+
+          <div style={{ flex: 1 }} />
+
+          {/* REC badge */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 10,
+              padding: '8px 18px', borderRadius: 10,
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.28)',
+            }}>
+              <span style={{
+                width: 7, height: 7, borderRadius: '50%', background: '#EF4444',
+                boxShadow: '0 0 0 0 rgba(239,68,68,0.5)',
+                animation: 'mic-pulse 1.4s ease-in-out infinite', flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#F87171', letterSpacing: '0.14em', fontFamily: theme.mono }}>REC</span>
+              <span style={{ width: 1, height: 14, background: 'rgba(239,68,68,0.25)' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#EFF8F4', letterSpacing: '0.06em', fontFamily: theme.mono }}>{fmt(seconds)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── GRID ── */}
+      {/* ── MAIN GRID ── */}
       <div style={{
-        maxWidth: 1320, margin: '0 auto', padding: '36px 32px 48px',
-        display: 'grid', gridTemplateColumns: 'minmax(280px, 1fr) minmax(0, 1.8fr)',
-        gap: 40, position: 'relative', zIndex: 1,
+        maxWidth: 1320, margin: '0 auto', padding: '32px 32px 60px',
+        display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr',
+        gap: 36, position: 'relative', zIndex: 1,
       }}>
+
         {/* ═════ LEFT: PATIENT CONTEXT ═════ */}
         <aside style={{
-          position: 'sticky', top: 96, alignSelf: 'start',
-          display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0,
+          position: 'sticky', top: 78, alignSelf: 'start',
+          display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0,
         }}>
+          {/* Patient card */}
           <div style={{
-            background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 18,
-            padding: 24, boxShadow: '0 18px 50px -30px rgba(26,36,32,0.18)',
+            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 20, padding: '22px 24px',
+            boxShadow: '0 24px 60px -30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}>
-            <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 14 }}>
+            <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>
               Patient on record
             </div>
 
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: 22, color: theme.text, fontWeight: 600, letterSpacing: '-0.015em', lineHeight: 1.2 }}>
+            {/* Identity block */}
+            <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ fontSize: 23, color: '#EFF8F4', fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                 {intake.name || 'Unnamed patient'}
               </div>
-              <div style={{ color: theme.textMuted, fontSize: 14, marginTop: 4 }}>
-                {intake.age && `${intake.age}y`}
-                {intake.age && intake.gender && ' · '}
-                {intake.gender && intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}
+              <div style={{ color: '#AAC9B8', fontSize: 13.5, marginTop: 5, display: 'flex', gap: 6, alignItems: 'center' }}>
+                {intake.age && <span>{intake.age}y</span>}
+                {intake.age && intake.gender && <span style={{ opacity: 0.4 }}>·</span>}
+                {intake.gender && <span>{intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}</span>}
               </div>
               {intake.abhaId && (
-                <div style={{ fontFamily: theme.mono, fontSize: 12, color: theme.textDim, marginTop: 6 }}>
+                <div style={{ fontFamily: theme.mono, fontSize: 11.5, color: '#6E9A82', marginTop: 7, letterSpacing: '0.04em' }}>
                   ABHA · {intake.abhaId}
                 </div>
               )}
             </div>
 
             <ContextRow label="Chief complaint" theme={theme}>
-              {intake.chiefComplaint || <em style={{ color: theme.textDim }}>not captured</em>}
-              {intake.duration && <span style={{ color: theme.textMuted }}> · {intake.duration}</span>}
+              {intake.chiefComplaint || <em style={{ color: '#6E9A82' }}>not captured</em>}
+              {intake.duration && <span style={{ color: '#AAC9B8' }}> · {intake.duration}</span>}
               {intake.severity && <span style={{ color: intake.severity === 'severe' ? theme.danger : intake.severity === 'moderate' ? theme.warning : theme.accent, textTransform: 'capitalize' }}> · {intake.severity}</span>}
             </ContextRow>
 
@@ -1093,96 +1151,134 @@ function ConsultationScreen({ onStop, intake, analyser }) {
             )}
           </div>
 
+          {/* Tips card */}
           <div style={{
-            background: 'transparent', border: `1px dashed ${theme.border}`,
-            borderRadius: 14, padding: '14px 16px',
-            fontSize: 12, color: theme.textMuted, lineHeight: 1.6,
+            background: 'rgba(94,191,163,0.05)',
+            border: '1px solid rgba(94,191,163,0.15)',
+            borderRadius: 16, padding: '14px 18px',
+            display: 'flex', gap: 12, alignItems: 'flex-start',
           }}>
-            <div style={{ fontFamily: theme.mono, fontSize: 10, color: theme.textDim, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6 }}>Tips</div>
-            Speak naturally — Hindi, English, Tamil, or mixed all work. Background noise is fine. The AI follows your pace.
+            <div style={{
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 1,
+              background: 'rgba(94,191,163,0.1)', border: '1px solid rgba(94,191,163,0.2)',
+              display: 'grid', placeItems: 'center', fontSize: 13,
+            }}>💡</div>
+            <div>
+              <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 5 }}>Tips</div>
+              <div style={{ fontSize: 12.5, color: '#AAC9B8', lineHeight: 1.65 }}>
+                Speak naturally — English, Tamil, or mixed all work. Background noise is fine. The AI follows your pace.
+              </div>
+            </div>
           </div>
         </aside>
 
-        {/* ═════ RIGHT: STAGE ═════ */}
-        <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 8 }}>
-          {/* Pulse-ring mic visual */}
-          <div style={{ position: 'relative', width: 180, height: 180, marginBottom: 18 }}>
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                border: `1.5px solid rgba(94,191,163,${0.42 - i * 0.08})`,
-                animation: `pulse-ring ${1.6 + i * 0.4}s ease-out ${i * 0.25}s infinite`,
+        {/* ═════ RIGHT: RECORDING STAGE ═════ */}
+        <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 12 }}>
+
+          {/* Mic ring visual */}
+          <div style={{ position: 'relative', width: 170, height: 170, marginBottom: 24, flexShrink: 0 }}>
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} aria-hidden style={{
+                position: 'absolute',
+                inset: -(i * 18),
+                borderRadius: '50%',
+                border: `1px solid rgba(94,191,163,${0.18 - i * 0.035})`,
+                animation: `pulse-ring ${1.8 + i * 0.45}s ease-out ${i * 0.28}s infinite`,
               }} />
             ))}
+            {/* Mic circle */}
             <div style={{
-              position: 'absolute', inset: 24, borderRadius: '50%',
-              background: `radial-gradient(circle, ${theme.accentDim}, rgba(94,191,163,0.04))`,
-              border: `1.5px solid rgba(94,191,163,0.32)`,
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 40% 35%, rgba(94,191,163,0.16) 0%, rgba(94,191,163,0.04) 60%, transparent 100%)`,
+              border: '1.5px solid rgba(94,191,163,0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 54, boxShadow: `0 0 60px ${theme.accentGlow}`,
-            }}>🎙️</div>
+              boxShadow: `0 0 80px -10px rgba(94,191,163,0.22), inset 0 1px 0 rgba(255,255,255,0.08)`,
+            }}>
+              <svg width="44" height="54" viewBox="0 0 44 54" fill="none" style={{ color: theme.accent }}>
+                <rect x="13" y="1" width="18" height="30" rx="9" fill="currentColor" opacity="0.9"/>
+                <path d="M5 26c0 9.389 7.611 17 17 17s17-7.611 17-17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9"/>
+                <line x1="22" y1="43" x2="22" y2="51" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="15" y1="51" x2="29" y2="51" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
+            </div>
           </div>
 
-          {/* Massive timer */}
+          {/* Timer */}
           <div style={{
-            fontSize: 96, fontWeight: 700, fontFamily: theme.mono,
-            letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 28,
-            background: `linear-gradient(135deg, #3B9B7C, ${theme.accent}, ${theme.accent2})`,
+            fontSize: 'clamp(72px, 9vw, 100px)', fontWeight: 800, fontFamily: theme.mono,
+            letterSpacing: '-0.05em', lineHeight: 1, marginBottom: 30,
+            background: `linear-gradient(135deg, rgba(94,191,163,0.8) 0%, ${theme.accent} 40%, ${theme.accent2} 100%)`,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
             {fmt(seconds)}
           </div>
 
-          {/* Full-width waveform */}
+          {/* Symmetric waveform */}
           <div style={{
-            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-            gap: 4, height: 96, width: '100%', maxWidth: 720, marginBottom: 20,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 3, height: 80, width: '100%', maxWidth: 660, marginBottom: 28,
           }}>
-            {bars.map((h, i) => (
-              <div key={i} style={{
-                flex: 1, maxWidth: 6,
-                height: Math.max(4, h), borderRadius: 3,
-                background: `linear-gradient(to top, ${theme.accent}, ${theme.accent2})`,
-                opacity: 0.7 + (h / 88) * 0.3,
-                transition: 'height 0.08s ease',
-                boxShadow: h > 40 ? `0 0 10px ${theme.accentGlow}` : 'none',
-              }} />
-            ))}
+            {bars.map((h, i) => {
+              const center = bars.length / 2
+              const distFromCenter = Math.abs(i - center) / center
+              const opacity = 0.55 + (1 - distFromCenter) * 0.4
+              return (
+                <div key={i} style={{
+                  flex: 1, maxWidth: 5,
+                  height: Math.max(3, h * (1 - distFromCenter * 0.3)),
+                  borderRadius: 99,
+                  background: h > 45
+                    ? `linear-gradient(to top, ${theme.accent}, ${theme.accent2})`
+                    : `linear-gradient(to top, rgba(94,191,163,0.7), rgba(134,212,184,0.5))`,
+                  opacity,
+                  transition: 'height 0.07s ease',
+                  boxShadow: h > 50 ? `0 0 8px rgba(94,191,163,0.35)` : 'none',
+                }} />
+              )
+            })}
           </div>
 
-          {/* Status caption */}
-          <div style={{ textAlign: 'center', marginBottom: 32, maxWidth: 460 }}>
-            <div style={{ fontSize: 16, color: theme.text, fontWeight: 500, marginBottom: 4 }}>
+          {/* Status text */}
+          <div style={{ textAlign: 'center', marginBottom: 30, maxWidth: 480 }}>
+            <div style={{ fontSize: 17, color: '#EFF8F4', fontWeight: 600, marginBottom: 8, letterSpacing: '-0.01em' }}>
               Listening to the consultation…
             </div>
-            <div style={{ fontSize: 13, color: theme.textMuted, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.68 }}>
               Both doctor and patient should speak naturally. The AI is drafting the note in the background.
             </div>
           </div>
 
           {/* "Being captured" panel */}
           <div style={{
-            width: '100%', maxWidth: 560, marginBottom: 36,
-            background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 16,
-            padding: '18px 22px',
+            width: '100%', maxWidth: 520, marginBottom: 36,
+            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 18, padding: '20px 24px',
+            boxShadow: '0 20px 50px -28px rgba(0,0,0,0.35)',
           }}>
-            <div style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 12 }}>
+            <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 14 }}>
               Being captured
             </div>
-            <div style={{ display: 'grid', gap: 10 }}>
+            <div style={{ display: 'grid', gap: 11 }}>
               {capturedChips.map((c, i) => (
                 <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: 12, fontSize: 13.5,
-                  color: c.active ? (c.warn ? theme.warning : theme.text) : theme.textDim,
+                  display: 'flex', alignItems: 'center', gap: 12,
                 }}>
-                  <span style={{
+                  <div style={{
                     display: 'inline-grid', placeItems: 'center',
-                    width: 28, height: 28, borderRadius: 8,
-                    background: c.active ? (c.warn ? 'rgba(217,119,6,0.12)' : theme.accentDim) : 'transparent',
-                    border: `1px solid ${c.active ? (c.warn ? 'rgba(217,119,6,0.3)' : 'rgba(94,191,163,0.3)') : theme.border}`,
-                    fontSize: 13,
-                  }}>{c.icon}</span>
-                  <span>{c.label}</span>
+                    width: 30, height: 30, borderRadius: 9, flexShrink: 0,
+                    background: c.active ? (c.warn ? 'rgba(245,158,11,0.1)' : 'rgba(94,191,163,0.1)') : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${c.active ? (c.warn ? 'rgba(245,158,11,0.28)' : 'rgba(94,191,163,0.28)') : 'rgba(255,255,255,0.08)'}`,
+                    fontSize: 14,
+                  }}>{c.icon}</div>
+                  <span style={{
+                    fontSize: 13.5, fontWeight: c.active ? 500 : 400,
+                    color: c.active ? (c.warn ? theme.warning : '#EFF8F4') : '#6E9A82',
+                    letterSpacing: '-0.005em',
+                  }}>{c.label}</span>
+                  {c.active && !c.warn && (
+                    <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: 99, background: theme.accent, flexShrink: 0, boxShadow: `0 0 8px ${theme.accentGlow}` }} />
+                  )}
                 </div>
               ))}
             </div>
@@ -1190,21 +1286,28 @@ function ConsultationScreen({ onStop, intake, analyser }) {
 
           {/* Stop button */}
           <button onClick={onStop} style={{
-            padding: '16px 40px', borderRadius: 14, border: 'none',
+            padding: '15px 44px', borderRadius: 14, border: 'none',
             background: theme.accent, color: theme.accentInk,
-            fontSize: 15, fontFamily: 'inherit', fontWeight: 600, letterSpacing: '-0.01em',
-            cursor: 'pointer', boxShadow: `0 14px 36px -12px ${theme.accentGlow}`,
-            transition: 'transform .15s ease, filter .15s ease',
-            display: 'inline-flex', alignItems: 'center', gap: 10,
+            fontSize: 15, fontFamily: 'inherit', fontWeight: 700, letterSpacing: '-0.01em',
+            cursor: 'pointer',
+            boxShadow: `0 16px 40px -14px rgba(94,191,163,0.45), 0 4px 12px -4px rgba(0,0,0,0.3)`,
+            transition: 'transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s ease',
+            display: 'inline-flex', alignItems: 'center', gap: 11,
           }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.filter = 'brightness(1.05)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.filter = 'none' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)'
+              e.currentTarget.style.boxShadow = `0 22px 50px -14px rgba(94,191,163,0.55), 0 4px 12px -4px rgba(0,0,0,0.3)`
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'none'
+              e.currentTarget.style.boxShadow = `0 16px 40px -14px rgba(94,191,163,0.45), 0 4px 12px -4px rgba(0,0,0,0.3)`
+            }}
           >
-            <span style={{ display: 'inline-block', width: 10, height: 10, background: theme.accentInk, borderRadius: 2 }} />
+            <span style={{ display: 'inline-block', width: 11, height: 11, background: theme.accentInk, borderRadius: 3, flexShrink: 0 }} />
             Stop & generate note
           </button>
-          <div style={{ fontSize: 12, color: theme.textDim, marginTop: 12 }}>
-            The draft will appear for your review — nothing is saved until you approve it.
+          <div style={{ fontSize: 12, color: '#6E9A82', marginTop: 14, letterSpacing: '0.01em' }}>
+            The draft will appear for your review — nothing is saved until you approve.
           </div>
         </section>
       </div>

@@ -1405,33 +1405,129 @@ function ProcessingScreen() {
   )
 }
 
+// ── Proforma edit-mode helper components (module-level, stable refs) ──────────
+
+function InpText({ value, onChange, style = {} }) {
+  const [focused, setFocused] = useState(false)
+  return (
+    <input
+      value={value || ''}
+      onChange={e => onChange(e.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: `1px solid ${focused ? theme.accent : theme.border}`,
+        borderRadius: 7, color: theme.text, fontFamily: 'inherit',
+        fontSize: 13.5, padding: '6px 10px', outline: 'none',
+        width: '100%', transition: 'border-color .15s', ...style,
+      }}
+    />
+  )
+}
+
+function InpArea({ value, onChange, rows = 3, style = {} }) {
+  const [focused, setFocused] = useState(false)
+  return (
+    <textarea
+      value={value || ''}
+      onChange={e => onChange(e.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      rows={rows}
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: `1px solid ${focused ? theme.accent : theme.border}`,
+        borderRadius: 7, color: theme.text, fontFamily: 'inherit',
+        fontSize: 13.5, padding: '8px 12px', outline: 'none',
+        width: '100%', resize: 'vertical', lineHeight: 1.6,
+        transition: 'border-color .15s', ...style,
+      }}
+    />
+  )
+}
+
+function RemoveBtn({ onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      width: 24, height: 24, borderRadius: '50%', padding: 0,
+      border: '1px solid rgba(239,68,68,0.35)',
+      background: 'rgba(239,68,68,0.08)', color: '#EF4444',
+      fontSize: 15, fontWeight: 700, cursor: 'pointer',
+      display: 'grid', placeItems: 'center', flexShrink: 0, lineHeight: 1,
+    }}>×</button>
+  )
+}
+
+function AddBtn({ onClick, label }) {
+  return (
+    <button onClick={onClick} style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      padding: '6px 14px', borderRadius: 8,
+      border: `1px dashed ${theme.accent}50`,
+      background: `${theme.accent}08`, color: theme.accent,
+      fontSize: 12, fontWeight: 600, cursor: 'pointer',
+      marginTop: 8, fontFamily: theme.mono,
+    }}>+ {label}</button>
+  )
+}
+
 // ── Proforma Review (Hospital Clinical Proforma format) ────────────────────────
 
 function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onApprove, onDiscard }) {
   const [showFhir, setShowFhir] = useState(false)
   const [showTranscript, setShowTranscript] = useState(false)
+  const [editMode, setEditMode] = useState(false)
+  const [editData, setEditData] = useState(() => JSON.parse(JSON.stringify(clinicalData || {})))
+  const origRef = useRef(JSON.parse(JSON.stringify(clinicalData || {})))
 
   if (!clinicalData) return null
 
-  const certColor   = { confirmed: theme.accent, provisional: theme.warning, suspected: theme.blue }
-  const urgColor    = { routine: theme.textMuted, urgent: theme.warning, stat: theme.danger }
-  const urgBg       = { routine: 'rgba(127,175,144,0.08)', urgent: 'rgba(245,158,11,0.10)', stat: 'rgba(239,68,68,0.10)' }
-  const now         = new Date()
-  const dateStr     = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-  const timeStr     = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  const d = editData
+
+  // ── Update helpers ───────────────────────────────────────────────────────────
+  const setField    = (key, val) => setEditData(p => ({ ...p, [key]: val }))
+  const setFollowup = (key, val) => setEditData(p => ({ ...p, follow_up: { ...(p.follow_up || {}), [key]: val } }))
+
+  const setVital    = (i, k, v) => setEditData(p => { const a=[...(p.vitals||[])]; a[i]={...a[i],[k]:v}; return{...p,vitals:a} })
+  const addVital    = () => setEditData(p => ({...p, vitals:[...(p.vitals||[]),{name:'',value:'',unit:''}]}))
+  const removeVital = (i) => setEditData(p => ({...p, vitals:(p.vitals||[]).filter((_,j)=>j!==i)}))
+
+  const setDx    = (i, k, v) => setEditData(p => { const a=[...(p.diagnoses||[])]; a[i]={...a[i],[k]:v}; return{...p,diagnoses:a} })
+  const addDx    = () => setEditData(p => ({...p, diagnoses:[...(p.diagnoses||[]),{description:'',icd10_code:'',certainty:'provisional'}]}))
+  const removeDx = (i) => setEditData(p => ({...p, diagnoses:(p.diagnoses||[]).filter((_,j)=>j!==i)}))
+
+  const setMed    = (i, k, v) => setEditData(p => { const a=[...(p.medications||[])]; a[i]={...a[i],[k]:v}; return{...p,medications:a} })
+  const addMed    = () => setEditData(p => ({...p, medications:[...(p.medications||[]),{name:'',dose:'',frequency:'',duration:'',instructions:''}]}))
+  const removeMed = (i) => setEditData(p => ({...p, medications:(p.medications||[]).filter((_,j)=>j!==i)}))
+
+  const setLab    = (i, k, v) => setEditData(p => { const a=[...(p.lab_orders||[])]; a[i]={...a[i],[k]:v}; return{...p,lab_orders:a} })
+  const addLab    = () => setEditData(p => ({...p, lab_orders:[...(p.lab_orders||[]),{test_name:'',urgency:'routine',reason:''}]}))
+  const removeLab = (i) => setEditData(p => ({...p, lab_orders:(p.lab_orders||[]).filter((_,j)=>j!==i)}))
+
+  const setAdvice    = (i, v) => setEditData(p => { const a=[...(p.advice||[])]; a[i]=v; return{...p,advice:a} })
+  const addAdvice    = () => setEditData(p => ({...p, advice:[...(p.advice||[]),'New advice item']}))
+  const removeAdvice = (i) => setEditData(p => ({...p, advice:(p.advice||[]).filter((_,j)=>j!==i)}))
+
+  const cancelEdit = () => { setEditData(JSON.parse(JSON.stringify(origRef.current))); setEditMode(false) }
+
+  const certColor = { confirmed: theme.accent, provisional: theme.warning, suspected: theme.blue }
+  const urgColor  = { routine: theme.textMuted, urgent: theme.warning, stat: theme.danger }
+  const urgBg     = { routine: 'rgba(127,175,144,0.08)', urgent: 'rgba(245,158,11,0.10)', stat: 'rgba(239,68,68,0.10)' }
+  const now     = new Date()
+  const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
 
   const checks = [
-    { label: 'Chief complaint',            ok: !!clinicalData.chief_complaint },
-    { label: `${clinicalData.diagnoses?.length || 0} diagnosis(es) with ICD-10`, ok: !!clinicalData.diagnoses?.length },
-    { label: `${clinicalData.medications?.length || 0} medication(s) prescribed`, ok: !!clinicalData.medications?.length },
-    { label: 'Follow-up noted',            ok: !!clinicalData.follow_up?.timeframe },
-    { label: `${clinicalData.vitals?.length || 0} vital(s) recorded`, ok: !!clinicalData.vitals?.length },
-    { label: `${clinicalData.lab_orders?.length || 0} investigation(s) ordered`, ok: !!clinicalData.lab_orders?.length },
+    { label: 'Chief complaint',                                        ok: !!d.chief_complaint },
+    { label: `${d.diagnoses?.length || 0} diagnosis(es) with ICD-10`, ok: !!d.diagnoses?.length },
+    { label: `${d.medications?.length || 0} medication(s) prescribed`, ok: !!d.medications?.length },
+    { label: 'Follow-up noted',                                        ok: !!d.follow_up?.timeframe },
+    { label: `${d.vitals?.length || 0} vital(s) recorded`,            ok: !!d.vitals?.length },
+    { label: `${d.lab_orders?.length || 0} investigation(s) ordered`, ok: !!d.lab_orders?.length },
   ]
 
   // ── Sub-components ──────────────────────────────────────────────────────────
-
-  // Section header: numbered, with divider line
   const Section = ({ num, title, id, color = theme.accent }) => (
     <div id={id} style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0 14px' }}>
       <div style={{
@@ -1440,30 +1536,19 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         display: 'grid', placeItems: 'center',
         fontSize: 11, fontWeight: 700, color, fontFamily: theme.mono,
       }}>{num}</div>
-      <span style={{
-        fontSize: 10.5, fontWeight: 700, color,
-        fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase',
-      }}>{title}</span>
+      <span style={{ fontSize: 10.5, fontWeight: 700, color, fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase' }}>{title}</span>
       <div style={{ flex: 1, borderBottom: `1px dashed ${color}28` }} />
     </div>
   )
 
-  // Field row: label + dashed line + value (for patient ID grid)
   const Field = ({ label, value, wide }) => (
     <div style={{
       display: 'flex', alignItems: 'baseline', gap: 6,
       gridColumn: wide ? 'span 2' : 'span 1',
-      paddingBottom: 10,
-      borderBottom: `1px dashed ${theme.border}`,
+      paddingBottom: 10, borderBottom: `1px dashed ${theme.border}`,
     }}>
-      <span style={{
-        fontSize: 10.5, color: theme.textDim, fontWeight: 600,
-        fontFamily: theme.mono, letterSpacing: '0.08em', textTransform: 'uppercase',
-        whiteSpace: 'nowrap', flexShrink: 0,
-      }}>{label}:</span>
-      <span style={{ fontSize: 13.5, color: value ? theme.text : theme.textDim, fontWeight: value ? 500 : 400, flex: 1 }}>
-        {value || '—'}
-      </span>
+      <span style={{ fontSize: 10.5, color: theme.textDim, fontWeight: 600, fontFamily: theme.mono, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0 }}>{label}:</span>
+      <span style={{ fontSize: 13.5, color: value ? theme.text : theme.textDim, fontWeight: value ? 500 : 400, flex: 1 }}>{value || '—'}</span>
     </div>
   )
 
@@ -1486,11 +1571,46 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         background: `${theme.bg}E8`, backdropFilter: 'blur(14px)',
         borderBottom: `1px solid ${theme.border}`,
       }}>
-        <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 32px', height: 58, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 32px', height: 58, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>Step 3 of 3 &nbsp;·&nbsp;</span>
             <span style={{ fontSize: 13, color: theme.textMuted }}>Review &amp; approve consultation note</span>
           </div>
+
+          {/* ── Edit toggle ── */}
+          {!editMode ? (
+            <button onClick={() => setEditMode(true)} style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '6px 14px', borderRadius: 8,
+              border: `1px solid ${theme.border}`, background: theme.card,
+              color: theme.textMuted, fontSize: 12.5, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s', flexShrink: 0,
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.color = theme.accent }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.color = theme.textMuted }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Edit Proforma
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+              <button onClick={cancelEdit} style={{
+                padding: '6px 14px', borderRadius: 8,
+                border: `1px solid ${theme.border}`, background: 'transparent',
+                color: theme.textMuted, fontSize: 12.5, fontWeight: 600,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}>Cancel</button>
+              <button onClick={() => setEditMode(false)} style={{
+                padding: '6px 16px', borderRadius: 8, border: 'none',
+                background: theme.accent, color: theme.accentInk,
+                fontSize: 12.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              }}>✓ Save Edits</button>
+            </div>
+          )}
+
           {/* Jump anchors */}
           <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             {[
@@ -1515,6 +1635,21 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         </div>
       </div>
 
+      {/* ── Edit mode banner ── */}
+      {editMode && (
+        <div style={{
+          background: `${theme.accent}10`, borderBottom: `1px solid ${theme.accent}28`,
+          padding: '8px 32px', display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={theme.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          <span style={{ fontSize: 12.5, color: theme.accent, fontWeight: 600 }}>Editing mode active</span>
+          <span style={{ fontSize: 12, color: theme.textMuted }}>— modify any field below. Changes are reflected in the review checklist and are included when you approve.</span>
+        </div>
+      )}
+
       {/* ── PAGE GRID ── */}
       <div style={{
         maxWidth: 1360, margin: '0 auto', padding: '28px 32px 0',
@@ -1522,38 +1657,26 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         gap: 28, alignItems: 'start',
       }}>
 
-        {/* ══════════════════════════════════════════════════
-            MAIN — HOSPITAL PROFORMA DOCUMENT
-        ══════════════════════════════════════════════════ */}
+        {/* ══ MAIN — HOSPITAL PROFORMA DOCUMENT ══ */}
         <div style={{ minWidth: 0 }}>
 
           {/* ── LETTERHEAD ── */}
           <div style={{
             background: theme.card,
-            border: `1px solid ${theme.border}`,
-            borderRadius: 16,
-            overflow: 'hidden',
-            marginBottom: 2,
+            border: `1px solid ${editMode ? theme.accent + '50' : theme.border}`,
+            borderRadius: 16, overflow: 'hidden', marginBottom: 2,
+            transition: 'border-color .2s',
           }}>
-            {/* Top stripe */}
             <div style={{ height: 4, background: `linear-gradient(90deg, ${theme.accent} 0%, ${theme.tealLight} 100%)` }} />
             <div style={{ padding: '18px 26px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 19, fontWeight: 800, color: theme.text, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                  OPD Consultation Record
-                </div>
-                <div style={{ fontSize: 11, color: theme.textDim, fontFamily: theme.mono, marginTop: 5, letterSpacing: '0.05em' }}>
-                  ABDM FHIR R4 · OP Consultation Note · AI-assisted draft
-                </div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: theme.text, letterSpacing: '-0.02em', lineHeight: 1.1 }}>OPD Consultation Record</div>
+                <div style={{ fontSize: 11, color: theme.textDim, fontFamily: theme.mono, marginTop: 5, letterSpacing: '0.05em' }}>ABDM FHIR R4 · OP Consultation Note · AI-assisted draft</div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 13.5, color: theme.text, fontWeight: 600 }}>{dateStr}</div>
                 <div style={{ fontSize: 12, color: theme.textMuted, fontFamily: theme.mono, marginTop: 3 }}>{timeStr}</div>
-                {encounterId && (
-                  <div style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, marginTop: 4 }}>
-                    UHID / Enc: {encounterId.slice(0, 18)}
-                  </div>
-                )}
+                {encounterId && <div style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, marginTop: 4 }}>UHID / Enc: {encounterId.slice(0, 18)}</div>}
               </div>
             </div>
           </div>
@@ -1561,10 +1684,9 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
           {/* ── MAIN PROFORMA BODY ── */}
           <div style={{
             background: theme.card,
-            border: `1px solid ${theme.border}`,
-            borderTop: 'none',
-            borderRadius: '0 0 16px 16px',
-            padding: '4px 26px 26px',
+            border: `1px solid ${editMode ? theme.accent + '50' : theme.border}`,
+            borderTop: 'none', borderRadius: '0 0 16px 16px',
+            padding: '4px 26px 26px', transition: 'border-color .2s',
           }}>
 
             {/* ════ 1. PATIENT IDENTIFICATION ════ */}
@@ -1577,13 +1699,8 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
               <Field label="Language" value={intake.language} />
               <Field label="Date of Examination" value={dateStr} />
             </div>
-
             {intake.allergies && (
-              <div style={{
-                marginTop: 14, padding: '10px 16px',
-                background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.30)',
-                borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12,
-              }}>
+              <div style={{ marginTop: 14, padding: '10px 16px', background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.30)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: theme.warning, fontFamily: theme.mono, flexShrink: 0 }}>⚠ ALLERGY ALERT</span>
                 <span style={{ fontSize: 14, color: '#FDE68A', fontWeight: 600 }}>{intake.allergies}</span>
               </div>
@@ -1592,22 +1709,21 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             {/* ════ 2. CHIEF COMPLAINTS ════ */}
             <Section num="2" title="Chief Complaints" id="sec-cc" />
             <div style={{ padding: '4px 0 8px' }}>
-              {clinicalData.chief_complaint ? (
+              {editMode ? (
+                <InpText value={d.chief_complaint} onChange={val => setField('chief_complaint', val)}
+                  style={{ fontSize: 15, padding: '9px 13px', fontWeight: 500 }} />
+              ) : d.chief_complaint ? (
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                   <span style={{ color: theme.accent, fontWeight: 700, flexShrink: 0, marginTop: 1, fontSize: 16 }}>•</span>
                   <span style={{ fontSize: 17, fontWeight: 600, color: theme.text, lineHeight: 1.4 }}>
-                    {clinicalData.chief_complaint}
-                    {intake.duration && (
-                      <span style={{ fontSize: 13, color: theme.textMuted, fontWeight: 400, marginLeft: 10 }}>
-                        — {intake.duration}
-                      </span>
-                    )}
+                    {d.chief_complaint}
+                    {intake.duration && <span style={{ fontSize: 13, color: theme.textMuted, fontWeight: 400, marginLeft: 10 }}>— {intake.duration}</span>}
                   </span>
                 </div>
               ) : (
                 <span style={{ fontSize: 14, color: theme.textDim, fontStyle: 'italic' }}>Not recorded</span>
               )}
-              {intake.chiefComplaint && intake.chiefComplaint !== clinicalData.chief_complaint && (
+              {intake.chiefComplaint && intake.chiefComplaint !== d.chief_complaint && (
                 <div style={{ marginTop: 8, paddingLeft: 22, fontSize: 12.5, color: theme.textDim, fontStyle: 'italic' }}>
                   Patient's words: "{intake.chiefComplaint}"
                 </div>
@@ -1615,36 +1731,31 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             </div>
 
             {/* ════ 3. HISTORY OF PRESENT ILLNESS ════ */}
-            {clinicalData.history_of_present_illness && (
+            {(d.history_of_present_illness || editMode) && (
               <>
                 <Section num="3" title="History of Present Illness" id="sec-hpi" />
-                <p style={{
-                  fontSize: 14, lineHeight: 1.85, color: theme.text, margin: '0 0 4px',
-                  paddingLeft: 2,
-                }}>{clinicalData.history_of_present_illness}</p>
+                {editMode ? (
+                  <InpArea value={d.history_of_present_illness} onChange={val => setField('history_of_present_illness', val)} rows={4} />
+                ) : (
+                  <p style={{ fontSize: 14, lineHeight: 1.85, color: theme.text, margin: '0 0 4px', paddingLeft: 2 }}>{d.history_of_present_illness}</p>
+                )}
               </>
             )}
 
             {/* ════ 4. PAST MEDICAL HISTORY ════ */}
             <Section num="4" title="Past Medical / Drug History" id="sec-pmh" />
             {intake.pastHistory ? (
-              <p style={{ fontSize: 14, color: theme.text, lineHeight: 1.75, margin: '0 0 8px', paddingLeft: 2 }}>
-                {intake.pastHistory}
-              </p>
+              <p style={{ fontSize: 14, color: theme.text, lineHeight: 1.75, margin: '0 0 8px', paddingLeft: 2 }}>{intake.pastHistory}</p>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px 16px', padding: '2px 0 8px' }}>
                 {['DM', 'HTN', 'TB', 'IHD', 'Asthma', 'CKD', 'Epilepsy', 'Thyroid'].map(c => (
                   <div key={c} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{
-                      width: 14, height: 14, borderRadius: 3, border: `1.5px solid ${theme.border}`,
-                      background: theme.surface, flexShrink: 0,
-                    }} />
+                    <div style={{ width: 14, height: 14, borderRadius: 3, border: `1.5px solid ${theme.border}`, background: theme.surface, flexShrink: 0 }} />
                     <span style={{ fontSize: 13, color: theme.textMuted }}>{c}</span>
                   </div>
                 ))}
               </div>
             )}
-
             {intake.currentMedications && (
               <div style={{ marginBottom: 8 }}>
                 <span style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Current Medications: </span>
@@ -1654,38 +1765,44 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
             {/* ════ 5. GENERAL PHYSICAL EXAMINATION ════ */}
             <Section num="5" title="General Physical Examination" id="sec-exam" color={theme.blue} />
-            <div style={{ fontSize: 10.5, color: theme.blue, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-              Vital Signs
-            </div>
+            <div style={{ fontSize: 10.5, color: theme.blue, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>Vital Signs</div>
 
-            {clinicalData.vitals?.length > 0 ? (
+            {editMode ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 6 }}>
+                {(d.vitals?.length > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 28px', gap: 6, marginBottom: 2 }}>
+                    {['Vital name', 'Value', 'Unit', ''].map(h => (
+                      <span key={h} style={{ fontSize: 10, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', paddingLeft: 2 }}>{h}</span>
+                    ))}
+                  </div>
+                )}
+                {(d.vitals || []).map((v, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 28px', gap: 6, alignItems: 'center' }}>
+                    <InpText value={v.name} onChange={val => setVital(i, 'name', val)} style={{ fontSize: 13 }} />
+                    <InpText value={v.value} onChange={val => setVital(i, 'value', val)} style={{ fontSize: 13 }} />
+                    <InpText value={v.unit} onChange={val => setVital(i, 'unit', val)} style={{ fontSize: 13 }} />
+                    <RemoveBtn onClick={() => removeVital(i)} />
+                  </div>
+                ))}
+                {(!d.vitals?.length) && <div style={{ fontSize: 13, color: theme.textDim, fontStyle: 'italic', padding: '2px 0' }}>No vitals — add one below</div>}
+                <AddBtn onClick={addVital} label="Add vital" />
+              </div>
+            ) : d.vitals?.length > 0 ? (
               <div style={{ overflowX: 'auto', marginBottom: 6 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
                   <thead>
                     <tr style={{ borderBottom: `2px solid ${theme.border}` }}>
-                      {clinicalData.vitals.map((v, i) => (
-                        <th key={i} style={{
-                          padding: '8px 14px 8px 0', textAlign: 'left',
-                          color: theme.textDim, fontFamily: theme.mono, fontSize: 10.5,
-                          fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-                          whiteSpace: 'nowrap',
-                        }}>{vitalName(v.name)}</th>
+                      {d.vitals.map((v, i) => (
+                        <th key={i} style={{ padding: '8px 14px 8px 0', textAlign: 'left', color: theme.textDim, fontFamily: theme.mono, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{vitalName(v.name)}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      {clinicalData.vitals.map((v, i) => (
-                        <td key={i} style={{
-                          padding: '12px 14px 12px 0', verticalAlign: 'baseline',
-                          borderBottom: `1px dashed ${theme.border}`,
-                        }}>
-                          <span style={{ fontSize: 22, fontWeight: 700, color: theme.accent, fontFamily: theme.mono, letterSpacing: '-0.02em' }}>
-                            {v.value}
-                          </span>
-                          {vitalUnit(v) && (
-                            <span style={{ fontSize: 11, color: theme.textMuted, marginLeft: 4 }}>{vitalUnit(v)}</span>
-                          )}
+                      {d.vitals.map((v, i) => (
+                        <td key={i} style={{ padding: '12px 14px 12px 0', verticalAlign: 'baseline', borderBottom: `1px dashed ${theme.border}` }}>
+                          <span style={{ fontSize: 22, fontWeight: 700, color: theme.accent, fontFamily: theme.mono, letterSpacing: '-0.02em' }}>{v.value}</span>
+                          {vitalUnit(v) && <span style={{ fontSize: 11, color: theme.textMuted, marginLeft: 4 }}>{vitalUnit(v)}</span>}
                         </td>
                       ))}
                     </tr>
@@ -1693,64 +1810,63 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
                 </table>
               </div>
             ) : (
-              <div style={{ padding: '10px 0', color: theme.textDim, fontSize: 13.5, fontStyle: 'italic' }}>
-                No vitals recorded during this consultation
-              </div>
+              <div style={{ padding: '10px 0', color: theme.textDim, fontSize: 13.5, fontStyle: 'italic' }}>No vitals recorded during this consultation</div>
             )}
 
             {/* ════ 6. ASSESSMENT / DIFFERENTIAL DIAGNOSIS ════ */}
             <Section num="6" title="Assessment / Diagnosis" id="sec-dx" color={theme.warning} />
 
-            {clinicalData.diagnoses?.length > 0 ? (
+            {(d.diagnoses?.length > 0 || editMode) ? (
               <div style={{ display: 'grid', gap: 10 }}>
-                {clinicalData.diagnoses.map((dx, i) => (
+                {(d.diagnoses || []).map((dx, i) => (
                   <div key={i} style={{
-                    display: 'grid',
-                    gridTemplateColumns: '24px 1fr auto',
-                    gap: '0 14px',
-                    alignItems: 'start',
-                    padding: '12px 16px',
-                    background: theme.surface,
+                    padding: '12px 16px', background: theme.surface,
                     border: `1px solid ${theme.border}`,
                     borderLeft: `3px solid ${certColor[dx.certainty] || theme.textMuted}`,
                     borderRadius: 10,
                   }}>
-                    <span style={{
-                      fontSize: 12, fontWeight: 700, color: theme.textDim,
-                      fontFamily: theme.mono, paddingTop: 2,
-                    }}>#{i + 1}</span>
-                    <div>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, lineHeight: 1.35, marginBottom: 5 }}>
-                        {dx.description}
+                    {editMode ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 11, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700 }}>#{i+1}</span>
+                          <RemoveBtn onClick={() => removeDx(i)} />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+                          <InpText value={dx.description} onChange={val => setDx(i, 'description', val)} style={{ fontSize: 14, fontWeight: 500 }} />
+                          <select value={dx.certainty || 'provisional'} onChange={e => setDx(i, 'certainty', e.target.value)} style={{
+                            background: `${certColor[dx.certainty] || theme.textMuted}14`,
+                            border: `1px solid ${certColor[dx.certainty] || theme.textMuted}40`,
+                            borderRadius: 7, color: certColor[dx.certainty] || theme.textMuted,
+                            padding: '6px 10px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
+                            fontFamily: 'inherit', outline: 'none',
+                          }}>
+                            <option value="confirmed" style={{ background: theme.card }}>confirmed</option>
+                            <option value="provisional" style={{ background: theme.card }}>provisional</option>
+                            <option value="suspected" style={{ background: theme.card }}>suspected</option>
+                          </select>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 8 }}>
+                          <InpText value={dx.icd10_code} onChange={val => setDx(i, 'icd10_code', val)} style={{ fontSize: 12.5, fontFamily: theme.mono }} />
+                          <InpText value={dx.icd10_display} onChange={val => setDx(i, 'icd10_display', val)} style={{ fontSize: 12.5 }} />
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                        <span style={{
-                          padding: '2px 10px', borderRadius: 6, fontSize: 11.5, fontWeight: 700,
-                          fontFamily: theme.mono, letterSpacing: '0.05em',
-                          background: 'rgba(96,165,212,0.12)', color: theme.blue,
-                          border: '1px solid rgba(96,165,212,0.28)',
-                        }}>{dx.icd10_code}</span>
-                        {dx.icd10_display && (
-                          <span style={{ fontSize: 12, color: theme.textDim }}>{dx.icd10_display}</span>
-                        )}
-                        {dx.snomed_code && (
-                          <span style={{
-                            padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                            fontFamily: theme.mono, background: 'rgba(165,127,212,0.10)',
-                            color: theme.purple, border: '1px solid rgba(165,127,212,0.25)',
-                          }}>SNOMED {dx.snomed_code}</span>
-                        )}
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: '24px 1fr auto', gap: '0 14px', alignItems: 'start' }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: theme.textDim, fontFamily: theme.mono, paddingTop: 2 }}>#{i + 1}</span>
+                        <div>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: theme.text, lineHeight: 1.35, marginBottom: 5 }}>{dx.description}</div>
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                            <span style={{ padding: '2px 10px', borderRadius: 6, fontSize: 11.5, fontWeight: 700, fontFamily: theme.mono, letterSpacing: '0.05em', background: 'rgba(96,165,212,0.12)', color: theme.blue, border: '1px solid rgba(96,165,212,0.28)' }}>{dx.icd10_code}</span>
+                            {dx.icd10_display && <span style={{ fontSize: 12, color: theme.textDim }}>{dx.icd10_display}</span>}
+                            {dx.snomed_code && <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 600, fontFamily: theme.mono, background: 'rgba(165,127,212,0.10)', color: theme.purple, border: '1px solid rgba(165,127,212,0.25)' }}>SNOMED {dx.snomed_code}</span>}
+                          </div>
+                        </div>
+                        <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: `${certColor[dx.certainty] || theme.textMuted}14`, color: certColor[dx.certainty] || theme.textMuted, border: `1px solid ${certColor[dx.certainty] || theme.textMuted}35`, whiteSpace: 'nowrap', marginTop: 2 }}>{dx.certainty}</span>
                       </div>
-                    </div>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
-                      background: `${certColor[dx.certainty] || theme.textMuted}14`,
-                      color: certColor[dx.certainty] || theme.textMuted,
-                      border: `1px solid ${certColor[dx.certainty] || theme.textMuted}35`,
-                      whiteSpace: 'nowrap', marginTop: 2,
-                    }}>{dx.certainty}</span>
+                    )}
                   </div>
                 ))}
+                {editMode && <AddBtn onClick={addDx} label="Add diagnosis" />}
               </div>
             ) : (
               <div style={{ padding: '10px 0', color: theme.textDim, fontSize: 13.5, fontStyle: 'italic' }}>No diagnoses recorded</div>
@@ -1760,103 +1876,140 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             <Section num="7" title="Management Plan" id="sec-plan" color={theme.purple} />
 
             {/* 7a. Prescription */}
-            {clinicalData.medications?.length > 0 && (
+            {(d.medications?.length > 0 || editMode) && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
-                  ℞ Prescription
-                </div>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>℞ Prescription</div>
                 <div style={{ display: 'grid', gap: 0, border: `1px solid ${theme.border}`, borderRadius: 10, overflow: 'hidden' }}>
-                  {/* Table header */}
                   <div style={{
-                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.2fr',
-                    padding: '8px 14px', background: theme.surface,
-                    borderBottom: `1px solid ${theme.border}`,
+                    display: 'grid',
+                    gridTemplateColumns: editMode ? '2fr 1fr 1fr 1.2fr 28px' : '2fr 1fr 1fr 1.2fr',
+                    padding: '8px 14px', background: theme.surface, borderBottom: `1px solid ${theme.border}`,
+                    gap: editMode ? 8 : 0,
                   }}>
-                    {['Drug', 'Dose', 'Frequency', 'Duration'].map(h => (
+                    {['Drug', 'Dose', 'Frequency', 'Duration', ...(editMode ? [''] : [])].map(h => (
                       <span key={h} style={{ fontSize: 10, color: theme.textDim, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{h}</span>
                     ))}
                   </div>
-                  {clinicalData.medications.map((m, i) => (
+                  {(d.medications || []).map((m, i) => (
                     <div key={i} style={{
-                      display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.2fr',
-                      padding: '12px 14px', alignItems: 'start',
-                      borderBottom: i < clinicalData.medications.length - 1 ? `1px dashed ${theme.border}` : 'none',
+                      display: 'grid',
+                      gridTemplateColumns: editMode ? '2fr 1fr 1fr 1.2fr 28px' : '2fr 1fr 1fr 1.2fr',
+                      padding: '10px 14px', alignItems: 'center', gap: editMode ? 8 : 0,
+                      borderBottom: i < (d.medications.length - 1) ? `1px dashed ${theme.border}` : 'none',
                       background: i % 2 === 0 ? 'transparent' : `${theme.accent}04`,
                     }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>{m.name}</div>
-                        {m.instructions && <div style={{ fontSize: 11.5, color: theme.textDim, marginTop: 3 }}>{m.instructions}</div>}
-                        {m.route && m.route !== 'oral' && (
-                          <div style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontFamily: theme.mono }}>via {m.route}</div>
-                        )}
-                      </div>
-                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.dose || '—'}</div>
-                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.frequency || '—'}</div>
-                      <div style={{ fontSize: 14, color: theme.textMuted }}>{m.duration || '—'}</div>
+                      {editMode ? (
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                            <InpText value={m.name} onChange={val => setMed(i, 'name', val)} style={{ fontWeight: 600 }} />
+                            <InpText value={m.instructions} onChange={val => setMed(i, 'instructions', val)} style={{ fontSize: 11.5 }} />
+                          </div>
+                          <InpText value={m.dose} onChange={val => setMed(i, 'dose', val)} />
+                          <InpText value={m.frequency} onChange={val => setMed(i, 'frequency', val)} />
+                          <InpText value={m.duration} onChange={val => setMed(i, 'duration', val)} />
+                          <RemoveBtn onClick={() => removeMed(i)} />
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>{m.name}</div>
+                            {m.instructions && <div style={{ fontSize: 11.5, color: theme.textDim, marginTop: 3 }}>{m.instructions}</div>}
+                            {m.route && m.route !== 'oral' && <div style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontFamily: theme.mono }}>via {m.route}</div>}
+                          </div>
+                          <div style={{ fontSize: 14, color: theme.textMuted }}>{m.dose || '—'}</div>
+                          <div style={{ fontSize: 14, color: theme.textMuted }}>{m.frequency || '—'}</div>
+                          <div style={{ fontSize: 14, color: theme.textMuted }}>{m.duration || '—'}</div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
+                {editMode && <AddBtn onClick={addMed} label="Add medication" />}
               </div>
             )}
 
             {/* 7b. Investigations */}
-            {clinicalData.lab_orders?.length > 0 && (
+            {(d.lab_orders?.length > 0 || editMode) && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
-                  Investigations Ordered
-                </div>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>Investigations Ordered</div>
                 <div style={{ display: 'grid', gap: 8 }}>
-                  {clinicalData.lab_orders.map((lab, i) => (
+                  {(d.lab_orders || []).map((lab, i) => (
                     <div key={i} style={{
-                      display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px',
-                      background: urgBg[lab.urgency] || theme.surface,
-                      border: `1px solid ${urgColor[lab.urgency] || theme.border}28`,
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 14px',
+                      background: editMode ? theme.surface : (urgBg[lab.urgency] || theme.surface),
+                      border: `1px solid ${editMode ? theme.border : ((urgColor[lab.urgency] || theme.border) + '28')}`,
                       borderLeft: `3px solid ${urgColor[lab.urgency] || theme.textDim}`,
                       borderRadius: 9,
                     }}>
-                      <span style={{ fontSize: 13.5, color: theme.text, fontWeight: 500, flex: 1 }}>{lab.test_name}</span>
-                      {lab.reason && <span style={{ fontSize: 12, color: theme.textDim, flex: 1 }}>{lab.reason}</span>}
-                      <span style={{
-                        padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-                        background: `${urgColor[lab.urgency] || theme.textMuted}18`,
-                        color: urgColor[lab.urgency] || theme.textMuted,
-                        border: `1px solid ${urgColor[lab.urgency] || theme.textMuted}35`,
-                        fontFamily: theme.mono, letterSpacing: '0.05em', textTransform: 'uppercase',
-                        whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>{lab.urgency || 'routine'}</span>
+                      {editMode ? (
+                        <>
+                          <InpText value={lab.test_name} onChange={val => setLab(i, 'test_name', val)} style={{ flex: 1 }} />
+                          <InpText value={lab.reason} onChange={val => setLab(i, 'reason', val)} style={{ fontSize: 12 }} />
+                          <select value={lab.urgency || 'routine'} onChange={e => setLab(i, 'urgency', e.target.value)} style={{
+                            background: theme.surface, border: `1px solid ${theme.border}`,
+                            borderRadius: 7, color: urgColor[lab.urgency] || theme.textMuted,
+                            padding: '6px 10px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer',
+                            fontFamily: theme.mono, outline: 'none', flexShrink: 0,
+                          }}>
+                            <option value="routine" style={{ background: theme.card }}>routine</option>
+                            <option value="urgent" style={{ background: theme.card }}>urgent</option>
+                            <option value="stat" style={{ background: theme.card }}>stat</option>
+                          </select>
+                          <RemoveBtn onClick={() => removeLab(i)} />
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize: 13.5, color: theme.text, fontWeight: 500, flex: 1 }}>{lab.test_name}</span>
+                          {lab.reason && <span style={{ fontSize: 12, color: theme.textDim, flex: 1 }}>{lab.reason}</span>}
+                          <span style={{ padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: `${urgColor[lab.urgency] || theme.textMuted}18`, color: urgColor[lab.urgency] || theme.textMuted, border: `1px solid ${urgColor[lab.urgency] || theme.textMuted}35`, fontFamily: theme.mono, letterSpacing: '0.05em', textTransform: 'uppercase', whiteSpace: 'nowrap', flexShrink: 0 }}>{lab.urgency || 'routine'}</span>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
+                {editMode && <AddBtn onClick={addLab} label="Add investigation" />}
               </div>
             )}
 
             {/* 7c. Follow-up & Advice */}
-            {(clinicalData.follow_up?.timeframe || clinicalData.advice?.length > 0) && (
+            {(d.follow_up?.timeframe || d.advice?.length > 0 || editMode) && (
               <div>
-                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
-                  Follow-up &amp; Advice
-                </div>
-                {clinicalData.follow_up?.timeframe && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{ fontSize: 10.5, color: theme.purple, fontFamily: theme.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>Follow-up &amp; Advice</div>
+                {(d.follow_up?.timeframe || editMode) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
                     <div style={{ fontSize: 10.5, color: theme.textDim, fontFamily: theme.mono, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, flexShrink: 0 }}>Review after:</div>
-                    <span style={{
-                      padding: '5px 14px', borderRadius: 20,
-                      background: `${theme.accent}14`, border: `1px solid ${theme.accent}35`,
-                      color: theme.accent, fontSize: 14, fontWeight: 700,
-                    }}>{clinicalData.follow_up.timeframe}</span>
-                    {clinicalData.follow_up.instructions && (
-                      <span style={{ fontSize: 13, color: theme.textMuted }}>{clinicalData.follow_up.instructions}</span>
+                    {editMode ? (
+                      <>
+                        <InpText value={d.follow_up?.timeframe} onChange={val => setFollowup('timeframe', val)} style={{ fontSize: 14, fontWeight: 700, maxWidth: 160 }} />
+                        <InpText value={d.follow_up?.instructions} onChange={val => setFollowup('instructions', val)} style={{ fontSize: 13, flex: 1, minWidth: 140 }} />
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ padding: '5px 14px', borderRadius: 20, background: `${theme.accent}14`, border: `1px solid ${theme.accent}35`, color: theme.accent, fontSize: 14, fontWeight: 700 }}>{d.follow_up.timeframe}</span>
+                        {d.follow_up.instructions && <span style={{ fontSize: 13, color: theme.textMuted }}>{d.follow_up.instructions}</span>}
+                      </>
                     )}
                   </div>
                 )}
-                {clinicalData.advice?.length > 0 && (
+                {(d.advice?.length > 0 || editMode) && (
                   <div style={{ display: 'grid', gap: 8 }}>
-                    {clinicalData.advice.map((a, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                        <span style={{ color: theme.accent, flexShrink: 0, fontSize: 14, marginTop: 2 }}>›</span>
-                        <span style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.55 }}>{a}</span>
+                    {(d.advice || []).map((a, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        {editMode ? (
+                          <>
+                            <InpText value={a} onChange={val => setAdvice(i, val)} style={{ flex: 1 }} />
+                            <RemoveBtn onClick={() => removeAdvice(i)} />
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ color: theme.accent, flexShrink: 0, fontSize: 14 }}>›</span>
+                            <span style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.55 }}>{a}</span>
+                          </>
+                        )}
                       </div>
                     ))}
+                    {editMode && <AddBtn onClick={addAdvice} label="Add advice" />}
                   </div>
                 )}
               </div>
@@ -1865,9 +2018,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
           </div>{/* end proforma body */}
         </div>{/* end main col */}
 
-        {/* ══════════════════════════════════════════════════
-            SIDEBAR
-        ══════════════════════════════════════════════════ */}
+        {/* ══ SIDEBAR ══ */}
         <aside style={{ position: 'sticky', top: 68, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
           {/* Patient card */}
@@ -1877,9 +2028,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             <div style={{ fontSize: 13, color: theme.textMuted, marginBottom: 4 }}>
               {intake.age && `${intake.age}y`}{intake.age && intake.gender && ' · '}{intake.gender && intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}
             </div>
-            {intake.abhaId && (
-              <div style={{ fontFamily: theme.mono, fontSize: 10.5, color: theme.textDim }}>ABHA · {intake.abhaId}</div>
-            )}
+            {intake.abhaId && <div style={{ fontFamily: theme.mono, fontSize: 10.5, color: theme.textDim }}>ABHA · {intake.abhaId}</div>}
             {intake.allergies && (
               <div style={{ marginTop: 10, padding: '7px 10px', background: 'rgba(245,158,11,0.09)', border: '1px solid rgba(245,158,11,0.28)', borderRadius: 8, fontSize: 12, color: theme.warning, fontWeight: 600 }}>
                 ⚠ {intake.allergies}
@@ -1887,19 +2036,13 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             )}
           </div>
 
-          {/* Review checklist */}
+          {/* Review checklist — reflects editData live */}
           <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
             <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 12 }}>Review checklist</div>
             <div style={{ display: 'grid', gap: 9 }}>
               {checks.map((c, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <span style={{
-                    width: 18, height: 18, borderRadius: 99, flexShrink: 0,
-                    background: c.ok ? theme.accent : 'transparent',
-                    border: `1.5px solid ${c.ok ? theme.accent : theme.border}`,
-                    display: 'grid', placeItems: 'center',
-                    color: theme.accentInk, fontSize: 10, fontWeight: 800,
-                  }}>{c.ok ? '✓' : ''}</span>
+                  <span style={{ width: 18, height: 18, borderRadius: 99, flexShrink: 0, background: c.ok ? theme.accent : 'transparent', border: `1.5px solid ${c.ok ? theme.accent : theme.border}`, display: 'grid', placeItems: 'center', color: theme.accentInk, fontSize: 10, fontWeight: 800 }}>{c.ok ? '✓' : ''}</span>
                   <span style={{ fontSize: 12.5, color: c.ok ? theme.text : theme.textDim }}>{c.label}</span>
                 </div>
               ))}
@@ -1908,37 +2051,24 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
           {/* Collapsibles: transcript + FHIR */}
           <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, overflow: 'hidden' }}>
-            <button onClick={() => setShowTranscript(s => !s)} style={{
-              width: '100%', padding: '12px 16px', background: 'none', border: 'none',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
-              borderBottom: showTranscript ? `1px solid ${theme.border}` : 'none',
-            }}>
+            <button onClick={() => setShowTranscript(s => !s)} style={{ width: '100%', padding: '12px 16px', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', borderBottom: showTranscript ? `1px solid ${theme.border}` : 'none' }}>
               <span style={{ fontSize: 12.5, color: theme.textMuted, fontWeight: 500 }}>Raw transcript</span>
               <span style={{ color: theme.textDim, fontSize: 15, transform: showTranscript ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
             </button>
             {showTranscript && (
               <div style={{ padding: '12px 16px', maxHeight: 200, overflowY: 'auto' }}>
-                <p style={{ fontSize: 11.5, color: theme.textMuted, fontFamily: theme.mono, lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
-                  {clinicalData.raw_transcript || '—'}
-                </p>
+                <p style={{ fontSize: 11.5, color: theme.textMuted, fontFamily: theme.mono, lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>{d.raw_transcript || '—'}</p>
               </div>
             )}
             {fhirBundle && (
               <>
-                <button onClick={() => setShowFhir(s => !s)} style={{
-                  width: '100%', padding: '12px 16px', background: 'none', border: 'none',
-                  borderTop: `1px solid ${theme.border}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
-                  borderBottom: showFhir ? `1px solid ${theme.border}` : 'none',
-                }}>
+                <button onClick={() => setShowFhir(s => !s)} style={{ width: '100%', padding: '12px 16px', background: 'none', border: 'none', borderTop: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', borderBottom: showFhir ? `1px solid ${theme.border}` : 'none' }}>
                   <span style={{ fontSize: 12.5, color: theme.textMuted, fontWeight: 500 }}>FHIR R4 Bundle</span>
                   <span style={{ color: theme.textDim, fontSize: 15, transform: showFhir ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
                 </button>
                 {showFhir && (
                   <div style={{ padding: '12px 16px', maxHeight: 240, overflowY: 'auto' }}>
-                    <pre style={{ fontSize: 10, color: theme.textMuted, fontFamily: theme.mono, margin: 0, overflowX: 'auto' }}>
-                      {JSON.stringify(fhirBundle, null, 2)}
-                    </pre>
+                    <pre style={{ fontSize: 10, color: theme.textMuted, fontFamily: theme.mono, margin: 0, overflowX: 'auto' }}>{JSON.stringify(fhirBundle, null, 2)}</pre>
                   </div>
                 )}
               </>
@@ -1947,7 +2077,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
           {/* Approve / Discard */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button onClick={onApprove} style={{
+            <button onClick={() => onApprove(editData)} style={{
               width: '100%', padding: '14px', borderRadius: 12, border: 'none',
               background: theme.accent, color: theme.accentInk,
               fontSize: 14.5, fontFamily: 'inherit', fontWeight: 800, cursor: 'pointer',
@@ -2461,7 +2591,7 @@ export default function MedScribeApp() {
   }, [intake, showError])
 
   const handleNew = () => { setIntake(EMPTY_INTAKE); setScreen('intake') }
-  const handleApprove = () => setScreen('approved')
+  const handleApprove = (editedData) => { if (editedData) setClinicalData(editedData); setScreen('approved') }
   const handleDiscard = () => { setClinicalData(null); setFhirBundle(null); setEncounterId(''); setScreen('home') }
 
   return (

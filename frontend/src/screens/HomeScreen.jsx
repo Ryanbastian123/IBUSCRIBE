@@ -923,35 +923,164 @@ function PricingModal({ open, onClose, onNew }) {
   )
 }
 
-// ─── Team (click-to-expand) ───────────────────────────────────────────────────
+// ─── Team ─────────────────────────────────────────────────────────────────────
 function Team() {
+  const [openIdx, setOpenIdx] = useState(-1)
   const founders = [
-    { initials: 'MB',  name: 'Max Bastian',            title: 'Co-Founder & Chief Medical Officer', sub: 'MBBS · Bengaluru', bio: 'Practicing physician who lived the documentation burden first-hand — 80 patients a day, two hours of notes after. Drives clinical accuracy, Indian healthcare context, and ABDM compliance across every line of IBUSCRIBE.' },
-    { initials: 'RCB', name: 'Ryan Chrisden Bastian',  title: 'Co-Founder & Head of Engineering',   sub: 'AI & Data Science Engineer · Bangalore', bio: 'Built IBUSCRIBE from the ground up — the ambient recording pipeline, clinical NLP, FHIR R4 builder, and the full-stack product. Obsessed with making AI genuinely useful where the need is greatest.' },
+    {
+      initials: 'MB',
+      num: '01',
+      name: 'Max Bastian',
+      title: 'Founder & Chief Medical Officer',
+      sub: 'MBBS · Bengaluru',
+      stat: { value: '80+', label: 'patients per day — lived the burden first-hand' },
+      tags: ['Clinical Accuracy', 'ABDM Compliance', 'Indian Healthcare'],
+      bio: 'Practicing physician who lived the documentation burden first-hand — 80 patients a day, two hours of notes after. Drives clinical accuracy, Indian healthcare context, and ABDM compliance across every line of ibuscribe.',
+    },
+    {
+      initials: 'RCB',
+      num: '02',
+      name: 'Ryan Chrisden Bastian',
+      title: 'Co-Founder & Head of Engineering',
+      sub: 'AI & Data Science Engineer · Bangalore',
+      stat: { value: '100%', label: 'of the stack — built from the ground up' },
+      tags: ['Clinical NLP', 'FHIR R4', 'Ambient AI'],
+      bio: 'Built ibuscribe from the ground up — the ambient recording pipeline, clinical NLP, FHIR R4 builder, and the full-stack product. Obsessed with making AI genuinely useful where the need is greatest.',
+    },
   ]
+
   return (
-    <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
+    <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, overflow: 'hidden' }}>
+      {/* Background radial glow */}
+      <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: 700, height: 700, borderRadius: '50%', background: `radial-gradient(circle, rgba(16,240,156,0.05) 0%, transparent 68%)`, pointerEvents: 'none' }} />
+
       <Container>
-        <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 56px' }}>
+        {/* Header */}
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 72px' }}>
           <SectionLabel>Who we are</SectionLabel>
           <SectionHeading>Two people. One mission.</SectionHeading>
-          <SectionSub>A doctor and an engineer who believe the pen has outpaced the stethoscope for far too long. Click a card to meet them.</SectionSub>
+          <SectionSub>A doctor and an engineer who believe the pen has outpaced the stethoscope for far too long.</SectionSub>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, maxWidth: 900, margin: '0 auto' }}>
-          {founders.map((f, i) => (
-            <ExpandCard
+
+        {/* Cards grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, maxWidth: 980, margin: '0 auto' }}>
+          {founders.map((f, i) => {
+            const isOpen = openIdx === i
+            return (
+            <div
               key={i}
-              icon={<span style={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, letterSpacing: '-0.02em', color: T.accentInk }}>{f.initials}</span>}
-              title={f.name}
-              delay={i * 120}
+              className={i === 0 ? 'rvl' : 'rvr'}
+              style={{
+                transitionDelay: `${i * 120}ms`,
+                background: isOpen
+                  ? `linear-gradient(160deg, ${T.cardMid} 0%, ${T.card} 100%)`
+                  : `linear-gradient(160deg, ${T.card} 0%, ${T.surface} 100%)`,
+                border: `1px solid ${isOpen ? T.borderAccent : T.border}`,
+                borderRadius: 24,
+                padding: '32px 32px',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'border-color .3s, background .3s, box-shadow .3s',
+                boxShadow: isOpen ? `0 20px 60px -30px ${T.accentGlow}` : 'none',
+              }}
             >
-              <div style={{ display: 'grid', gap: 10 }}>
-                <div style={{ color: T.accent, fontSize: 12, fontFamily: MONO, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{f.title}</div>
-                <div style={{ color: T.textMuted, fontSize: 13 }}>{f.sub}</div>
-                <p style={{ color: T.textSecondary, fontSize: 14.5, lineHeight: 1.7, margin: '8px 0 0' }}>{f.bio}</p>
+              {/* Left accent strip — only visible when open */}
+              {isOpen && <div style={{ position: 'absolute', left: 0, top: 48, bottom: 48, width: 3, background: `linear-gradient(to bottom, transparent, ${T.accent} 40%, ${T.accent} 60%, transparent)`, borderRadius: '0 2px 2px 0', opacity: 0.7 }} />}
+
+              {/* Header row: avatar + identity + expand toggle */}
+              <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+                {/* Monogram */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <div style={{
+                    width: 62, height: 62, borderRadius: 17,
+                    background: T.accentDim,
+                    border: `1.5px solid ${T.borderAccent}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: `0 0 24px -8px ${T.accentGlow}`,
+                  }}>
+                    <span style={{ fontFamily: MONO, fontSize: f.initials.length > 2 ? 12 : 16, fontWeight: 700, color: T.accent, letterSpacing: '-0.02em' }}>{f.initials}</span>
+                  </div>
+                  <div style={{ position: 'absolute', inset: -6, borderRadius: 22, border: `1px solid ${T.borderAccent}`, opacity: 0.3, pointerEvents: 'none' }} />
+                </div>
+
+                {/* Name + title */}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', marginBottom: 5, lineHeight: 1.2 }}>{f.name}</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: T.accent, letterSpacing: '0.11em', textTransform: 'uppercase', fontFamily: MONO, marginBottom: 4 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, color: T.textMuted }}>{f.sub}</div>
+                </div>
+
+                {/* Expand/collapse button */}
+                <button
+                  onClick={() => setOpenIdx(isOpen ? -1 : i)}
+                  aria-label={isOpen ? 'Collapse' : 'Expand'}
+                  style={{
+                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                    background: isOpen ? T.accentDim : T.card,
+                    border: `1px solid ${isOpen ? T.borderAccent : T.border}`,
+                    color: isOpen ? T.accent : T.textMuted,
+                    fontSize: 22, lineHeight: 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background .2s, border-color .2s, color .2s, transform .25s',
+                    transform: isOpen ? 'rotate(45deg)' : 'none',
+                    cursor: 'pointer',
+                  }}
+                >+</button>
               </div>
-            </ExpandCard>
-          ))}
+
+              {/* Expandable content */}
+              {isOpen && (
+                <div style={{ animation: 'contentIn .28s cubic-bezier(.16,1,.3,1)' }}>
+                  {/* Divider */}
+                  <div style={{ height: 1, background: `linear-gradient(to right, ${T.borderAccent}, ${T.border}, transparent)`, margin: '28px 0 24px' }} />
+
+                  {/* Bio */}
+                  <p style={{ color: T.textSecondary, fontSize: 14.5, lineHeight: 1.78, margin: '0 0 24px' }}>{f.bio}</p>
+
+                  {/* Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
+                    {f.tags.map((tag, ti) => (
+                      <span key={ti} style={{
+                        background: T.accentDim,
+                        border: `1px solid ${T.borderAccent}`,
+                        color: T.accentSoft,
+                        fontSize: 11,
+                        fontWeight: 500,
+                        padding: '4px 11px',
+                        borderRadius: 999,
+                        letterSpacing: '0.04em',
+                        fontFamily: MONO,
+                      }}>{tag}</span>
+                    ))}
+                  </div>
+
+                  {/* Stat block */}
+                  <div style={{
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 14,
+                    padding: '14px 18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                  }}>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: T.accent, letterSpacing: '-0.04em', fontFamily: MONO, flexShrink: 0, lineHeight: 1 }}>{f.stat.value}</div>
+                    <div style={{ width: 1, height: 26, background: T.border, flexShrink: 0 }} />
+                    <div style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.55 }}>{f.stat.label}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )})}
+        </div>
+
+        {/* Footer tagline */}
+        <div className="rv" style={{ textAlign: 'center', marginTop: 56, transitionDelay: '280ms' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 36, height: 1, background: T.textDim, opacity: 0.4 }} />
+            <span style={{ fontSize: 12, color: T.textDim, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: MONO }}>Bengaluru · Founded 2025</span>
+            <div style={{ width: 36, height: 1, background: T.textDim, opacity: 0.4 }} />
+          </div>
         </div>
       </Container>
     </section>

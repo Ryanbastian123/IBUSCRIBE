@@ -3,32 +3,34 @@ import { motion, AnimatePresence } from 'motion/react'
 import HomeScreen from './screens/HomeScreen'
 
 const theme = {
-  bg: '#0B1A14',
-  surface: '#112219',
-  surfaceHover: '#162C1E',
-  card: '#1A2E20',
-  border: '#1E3828',
-  accent: '#5EBFA3',
-  accent2: '#86D4B8',
-  accentInk: '#081810',
-  accentDim: 'rgba(94,191,163,0.15)',
-  accentGlow: 'rgba(94,191,163,0.35)',
-  teal: '#5EBFA3',
-  tealLight: '#86D4B8',
-  tealBright: '#A8E4CE',
-  warning: '#F59E0B',
-  danger: '#EF4444',
-  text: '#EFF8F4',
-  textMuted: '#AAC9B8',
-  textDim: '#6E9A82',
-  blue: '#60A5D4',
-  purple: '#A57FD4',
-  orange: '#F59E0B',
+  bg: '#F2F5F3',
+  surface: '#FFFFFF',
+  surfaceHover: '#F6F9F7',
+  card: '#FFFFFF',
+  cardSubtle: '#F7FAF8',
+  border: '#D9E3DD',
+  borderStrong: '#B8CEBC',
+  accent: '#0C7A52',
+  accent2: '#0A6142',
+  accentInk: '#FFFFFF',
+  accentDim: 'rgba(12,122,82,0.08)',
+  accentGlow: 'rgba(12,122,82,0.18)',
+  teal: '#0C7A52',
+  tealLight: '#10B981',
+  tealBright: '#34D399',
+  warning: '#B45309',
+  danger: '#DC2626',
+  text: '#0F1C16',
+  textMuted: '#3E6050',
+  textDim: '#7A9E8E',
+  blue: '#1D4ED8',
+  purple: '#6D28D9',
+  orange: '#B45309',
   font: "'Plus Jakarta Sans', 'DM Sans', 'Segoe UI', -apple-system, sans-serif",
   mono: "'DM Mono', ui-monospace, monospace",
 }
 
-const API = 'http://localhost:8000'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const LANGUAGES = [
   { code: 'mixed', label: 'Auto-detect / Mixed' },
@@ -87,8 +89,8 @@ function GlobalStyles() {
         to   { opacity: 1; transform: translateY(0) scale(1); }
       }
       @keyframes logo-glow {
-        0%, 100% { filter: drop-shadow(0 0 8px rgba(94,191,163,0.3)); }
-        50%       { filter: drop-shadow(0 0 18px rgba(94,191,163,0.5)); }
+        0%, 100% { filter: drop-shadow(0 0 8px rgba(12,122,82,0.25)); }
+        50%       { filter: drop-shadow(0 0 18px rgba(12,122,82,0.45)); }
       }
       @keyframes bounce-in {
         0%   { transform: scale(0.5); opacity: 0; }
@@ -96,18 +98,18 @@ function GlobalStyles() {
         100% { transform: scale(1);   opacity: 1; }
       }
       @keyframes mic-pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(94,191,163,0.35), 0 0 20px rgba(94,191,163,0.2); }
-        50%       { box-shadow: 0 0 0 12px rgba(94,191,163,0), 0 0 30px rgba(94,191,163,0.3); }
+        0%, 100% { box-shadow: 0 0 0 0 rgba(12,122,82,0.28), 0 0 20px rgba(12,122,82,0.12); }
+        50%       { box-shadow: 0 0 0 12px rgba(12,122,82,0), 0 0 28px rgba(12,122,82,0.18); }
       }
       input:focus, select:focus, textarea:focus {
         outline: none !important;
         border-color: ${theme.accent} !important;
-        box-shadow: 0 0 0 3px rgba(94,191,163,0.1) !important;
+        box-shadow: 0 0 0 3px rgba(12,122,82,0.12) !important;
       }
       * { box-sizing: border-box; }
       ::-webkit-scrollbar { width: 4px; }
       ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: rgba(94,191,163,0.2); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb { background: rgba(12,122,82,0.18); border-radius: 4px; }
     `}</style>
   )
 }
@@ -136,19 +138,19 @@ function Card3D({ children, style, delay = 0, glow }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.55, delay: delay / 1000, ease: [0.23, 1, 0.32, 1] }}
-      whileHover={{ y: -5, boxShadow: glow ? '0 24px 60px rgba(94,191,163,0.18)' : '0 20px 48px rgba(0,0,0,0.1)', transition: { duration: 0.2 } }}
+      whileHover={{ y: -5, boxShadow: glow ? '0 12px 40px rgba(12,122,82,0.12)' : '0 8px 24px rgba(0,0,0,0.08)', transition: { duration: 0.2 } }}
       style={{
         position: 'relative', overflow: 'hidden',
-        background: '#1A2E20',
-        border: `1px solid ${glow ? 'rgba(94,191,163,0.3)' : 'rgba(94,191,163,0.1)'}`,
+        background: '#FFFFFF',
+        border: `1px solid ${glow ? 'rgba(12,122,82,0.25)' : theme.border}`,
         borderRadius: 20,
-        boxShadow: glow ? '0 8px 40px rgba(94,191,163,0.08)' : '0 2px 12px rgba(0,0,0,0.04)',
+        boxShadow: glow ? '0 8px 40px rgba(12,122,82,0.06)' : '0 2px 12px rgba(0,0,0,0.04)',
         willChange: 'transform',
         ...style,
       }}>
       <div style={{
         position: 'absolute', inset: 0, borderRadius: 20, pointerEvents: 'none', zIndex: 0,
-        background: `radial-gradient(circle at ${spotlight.x}% ${spotlight.y}%, rgba(94,191,163,0.08) 0%, transparent 60%)`,
+        background: `radial-gradient(circle at ${spotlight.x}% ${spotlight.y}%, rgba(12,122,82,0.05) 0%, transparent 60%)`,
         opacity: spotlight.opacity, transition: 'opacity 0.3s ease',
       }} />
       <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
@@ -161,11 +163,11 @@ function Card3D({ children, style, delay = 0, glow }) {
 function Card({ children, style, glow }) {
   return (
     <div style={{
-      background: '#1A2E20',
-      border: `1px solid ${glow ? 'rgba(94,191,163,0.25)' : theme.border}`,
+      background: '#FFFFFF',
+      border: `1px solid ${glow ? 'rgba(12,122,82,0.22)' : theme.border}`,
       borderRadius: 16,
       padding: '20px 24px',
-      boxShadow: glow ? '0 0 0 2px rgba(94,191,163,0.08), 0 4px 20px rgba(0,0,0,0.06)' : '0 2px 12px rgba(0,0,0,0.05)',
+      boxShadow: glow ? '0 0 0 2px rgba(12,122,82,0.06), 0 4px 20px rgba(0,0,0,0.04)' : '0 1px 4px rgba(0,0,0,0.06)',
       ...style,
     }}>
       {children}
@@ -207,29 +209,29 @@ function Btn({ children, onClick, variant = 'primary', disabled, style }) {
   const variants = {
     primary: {
       background: hovered && !disabled
-        ? 'linear-gradient(135deg, #0d5c1e, #117025)'
-        : 'linear-gradient(135deg, #117025, #0d5c1e)',
+        ? 'linear-gradient(135deg, #0A6142, #0C7A52)'
+        : 'linear-gradient(135deg, #0C7A52, #0A6142)',
       color: '#fff',
-      boxShadow: hovered && !disabled ? '0 4px 20px rgba(94,191,163,0.35), 0 2px 8px rgba(0,0,0,0.1)' : '0 2px 10px rgba(94,191,163,0.2)',
+      boxShadow: hovered && !disabled ? '0 4px 20px rgba(12,122,82,0.28), 0 2px 8px rgba(0,0,0,0.08)' : '0 2px 10px rgba(12,122,82,0.16)',
     },
     teal: {
       background: hovered && !disabled
-        ? 'linear-gradient(135deg, #117025, #77AA83)'
-        : 'linear-gradient(135deg, #117025, #0d5c1e)',
+        ? 'linear-gradient(135deg, #0C7A52, #10B981)'
+        : 'linear-gradient(135deg, #0C7A52, #0A6142)',
       color: '#fff',
-      boxShadow: hovered && !disabled ? '0 4px 20px rgba(94,191,163,0.3)' : '0 2px 10px rgba(94,191,163,0.15)',
+      boxShadow: hovered && !disabled ? '0 4px 20px rgba(12,122,82,0.25)' : '0 2px 10px rgba(12,122,82,0.12)',
     },
     danger: {
       background: hovered && !disabled
         ? 'linear-gradient(135deg, #DC2626, #b91c1c)'
         : 'linear-gradient(135deg, #DC2626, #991b1b)',
       color: '#fff',
-      boxShadow: hovered && !disabled ? '0 4px 20px rgba(220,38,38,0.35)' : '0 2px 10px rgba(220,38,38,0.15)',
+      boxShadow: hovered && !disabled ? '0 4px 20px rgba(220,38,38,0.28)' : '0 2px 10px rgba(220,38,38,0.12)',
     },
     ghost: {
-      background: hovered && !disabled ? 'rgba(94,191,163,0.06)' : 'transparent',
+      background: hovered && !disabled ? 'rgba(12,122,82,0.06)' : 'transparent',
       color: theme.accent,
-      border: `1px solid ${hovered ? 'rgba(94,191,163,0.35)' : 'rgba(94,191,163,0.2)'}`,
+      border: `1px solid ${hovered ? 'rgba(12,122,82,0.3)' : 'rgba(12,122,82,0.18)'}`,
     },
     muted: {
       background: hovered && !disabled ? theme.surfaceHover : theme.surface,
@@ -237,11 +239,11 @@ function Btn({ children, onClick, variant = 'primary', disabled, style }) {
     },
     abdm: {
       background: hovered && !disabled
-        ? 'linear-gradient(135deg, #117025, #77AA83)'
-        : 'linear-gradient(135deg, #0d5c1e, #117025)',
+        ? 'linear-gradient(135deg, #0C7A52, #10B981)'
+        : 'linear-gradient(135deg, #0A6142, #0C7A52)',
       color: '#fff',
-      border: '1px solid rgba(94,191,163,0.2)',
-      boxShadow: hovered && !disabled ? '0 4px 20px rgba(94,191,163,0.3)' : '0 2px 10px rgba(94,191,163,0.1)',
+      border: '1px solid rgba(12,122,82,0.2)',
+      boxShadow: hovered && !disabled ? '0 4px 20px rgba(12,122,82,0.25)' : '0 2px 10px rgba(12,122,82,0.1)',
     },
   }
   return (
@@ -257,7 +259,7 @@ function Spinner({ size = 14 }) {
   return (
     <span style={{
       display: 'inline-block', width: size, height: size,
-      border: '2px solid rgba(94,191,163,0.15)', borderTopColor: theme.accent,
+      border: `2px solid ${theme.border}`, borderTopColor: theme.accent,
       borderRadius: '50%', animation: 'spin 0.7s linear infinite',
     }} />
   )
@@ -435,9 +437,9 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
   const [error, setError] = useState('')
 
   const inputStyle = {
-    width: '100%', background: 'rgba(8,22,14,0.75)',
+    width: '100%', background: '#FFFFFF',
     border: `1px solid ${theme.border}`, borderRadius: 12,
-    padding: '13px 16px', color: '#EFF8F4', fontSize: 14.5,
+    padding: '13px 16px', color: theme.text, fontSize: 14.5,
     fontFamily: 'inherit', transition: 'border-color 0.22s, box-shadow 0.22s',
     lineHeight: 1.5, letterSpacing: '0.005em',
   }
@@ -561,13 +563,13 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
   // Chip row primitive
   const Chip = ({ active, onClick, children, tone = 'accent' }) => {
     const toneColor = tone === 'warning' ? theme.warning : tone === 'danger' ? theme.danger : theme.accent
-    const toneDim = tone === 'warning' ? 'rgba(245,158,11,0.1)' : tone === 'danger' ? 'rgba(239,68,68,0.1)' : theme.accentDim
+    const toneDim = tone === 'warning' ? 'rgba(180,83,9,0.08)' : tone === 'danger' ? 'rgba(220,38,38,0.08)' : theme.accentDim
     return (
       <button type="button" onClick={onClick} style={{
         padding: '9px 18px', borderRadius: 999, fontSize: 13.5, fontFamily: 'inherit',
-        border: `1px solid ${active ? toneColor : 'rgba(255,255,255,0.1)'}`,
-        background: active ? toneDim : 'rgba(255,255,255,0.04)',
-        color: active ? toneColor : '#AAC9B8',
+        border: `1px solid ${active ? toneColor : theme.border}`,
+        background: active ? toneDim : theme.surface,
+        color: active ? toneColor : theme.textMuted,
         fontWeight: active ? 600 : 500, cursor: 'pointer',
         transition: 'all .18s ease', letterSpacing: '0.01em',
       }}>{children}</button>
@@ -576,7 +578,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
   // Labels + fields
   const Label = ({ children, required }) => (
-    <label style={{ fontSize: 11.5, color: '#8FB8A4', display: 'block', marginBottom: 9, fontFamily: theme.mono, letterSpacing: '0.11em', textTransform: 'uppercase', fontWeight: 600 }}>
+    <label style={{ fontSize: 11.5, color: theme.textMuted, display: 'block', marginBottom: 9, fontFamily: theme.mono, letterSpacing: '0.11em', textTransform: 'uppercase', fontWeight: 600 }}>
       {children}{required && <span style={{ color: theme.accent, marginLeft: 5 }}>•</span>}
     </label>
   )
@@ -585,13 +587,13 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 8,
         padding: '5px 14px', borderRadius: 99,
-        background: 'rgba(94,191,163,0.08)',
-        border: '1px solid rgba(94,191,163,0.22)',
+        background: theme.accentDim,
+        border: `1px solid rgba(12,122,82,0.18)`,
         flexShrink: 0,
       }}>
         <span style={{ fontSize: 11, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>{children}</span>
       </div>
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, rgba(94,191,163,0.2), transparent)` }} />
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, rgba(12,122,82,0.18), transparent)` }} />
     </div>
   )
 
@@ -613,31 +615,32 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       {/* ── TOP BAR ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'rgba(8,18,13,0.88)', backdropFilter: 'saturate(160%) blur(16px)',
+        background: 'rgba(242,245,243,0.95)', backdropFilter: 'saturate(160%) blur(16px)',
         borderBottom: `1px solid ${theme.border}`,
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 24 }}>
           <button onClick={onBack} style={{
             display: 'inline-flex', alignItems: 'center', gap: 7,
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-            color: '#AAC9B8', cursor: 'pointer',
+            background: theme.surface, border: `1px solid ${theme.border}`,
+            color: theme.textMuted, cursor: 'pointer',
             fontSize: 13.5, fontFamily: 'inherit', padding: '7px 14px', borderRadius: 10,
             transition: 'all .15s',
           }}>← Back</button>
 
-          <div style={{ height: 22, width: 1, background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ height: 22, width: 1, background: theme.border }} />
 
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Patient Intake</div>
-            <div style={{ fontSize: 13.5, color: '#AAC9B8', marginTop: 3 }}>
+            <div style={{ fontSize: 13.5, color: theme.textMuted, marginTop: 3 }}>
               {doneReq} of 3 required filled
               {doneReq === 3 && <span style={{ color: theme.accent, marginLeft: 10 }}>· ready to hand to doctor</span>}
             </div>
           </div>
 
           <select style={{
-            background: 'rgba(8,22,14,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
-            padding: '9px 14px', color: '#EFF8F4', fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
+            background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 10,
+            padding: '9px 14px', color: theme.text, fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
           }} value={intake.language} onChange={set('language')}>
             {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
           </select>
@@ -662,11 +665,11 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
           {/* ── VOICE HERO STRIP ── */}
           <div style={{
-            background: `linear-gradient(135deg, rgba(94,191,163,0.10) 0%, rgba(94,191,163,0.04) 100%)`,
-            border: `1px solid rgba(94,191,163,0.25)`,
+            background: '#FFFFFF',
+            border: `1px solid rgba(12,122,82,0.2)`,
             borderRadius: 20, padding: '28px 32px',
             position: 'relative', overflow: 'hidden',
-            boxShadow: `0 24px 60px -30px rgba(94,191,163,0.12), inset 0 1px 0 rgba(255,255,255,0.04)`,
+            boxShadow: `0 2px 16px rgba(0,0,0,0.06)`,
           }}>
             {isProcessing ? (
               <div style={{ textAlign: 'center', padding: '12px 0' }}>
@@ -696,10 +699,10 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 16, color: '#EFF8F4', fontWeight: 650, marginBottom: 6, letterSpacing: '-0.01em' }}>
+                  <div style={{ fontSize: 16, color: theme.text, fontWeight: 650, marginBottom: 6, letterSpacing: '-0.01em' }}>
                     {isRecording ? 'Listening…' : 'Tap and tell us about the patient'}
                   </div>
-                  <div style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.6 }}>
                     {isRecording
                       ? 'Name · age · what\'s bothering them · medications · allergies'
                       : 'Speak naturally in any language — the form fills as you go.'}
@@ -712,8 +715,8 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
                           <div key={i} style={{
                             flex: 1, maxWidth: 4,
                             height: Math.max(4, h * 0.6), borderRadius: 2,
-                            background: `linear-gradient(to top, ${theme.accent}, ${theme.accent2})`,
-                            transition: 'height 0.08s ease', opacity: 0.9,
+                            background: `linear-gradient(to top, ${theme.accent}, ${theme.tealLight})`,
+                            transition: 'height 0.08s ease', opacity: 0.85,
                           }} />
                         ))}
                       </div>
@@ -727,7 +730,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
             {mode === 'confirm' && transcript && !isProcessing && (
               <div style={{
                 marginTop: 18, padding: '12px 16px',
-                background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 12,
+                background: theme.cardSubtle, border: `1px solid ${theme.border}`, borderRadius: 12,
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.accent, marginBottom: 6, fontFamily: theme.mono }}>
                   What we heard
@@ -843,10 +846,10 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
         }}>
           {/* Live patient card */}
           <div style={{
-            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
-            border: `1px solid rgba(255,255,255,0.08)`,
+            background: '#FFFFFF',
+            border: `1px solid ${theme.border}`,
             borderRadius: 20, padding: 28,
-            boxShadow: '0 24px 60px -30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04)',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Patient preview</div>
@@ -858,14 +861,14 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
             {/* Identity */}
             <div style={{ marginBottom: 22 }}>
-              <div style={{ fontSize: 26, color: '#EFF8F4', fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                {intake.name.trim() || <span style={{ color: '#6E9A82', fontStyle: 'italic', fontWeight: 400, fontSize: 22 }}>Patient name…</span>}
+              <div style={{ fontSize: 26, color: theme.text, fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                {intake.name.trim() || <span style={{ color: theme.textDim, fontStyle: 'italic', fontWeight: 400, fontSize: 22 }}>Patient name…</span>}
               </div>
-              <div style={{ color: '#AAC9B8', fontSize: 14, marginTop: 5 }}>
+              <div style={{ color: theme.textMuted, fontSize: 14, marginTop: 5 }}>
                 {intake.age && `${intake.age}y`}
                 {intake.age && intake.gender && ' · '}
                 {intake.gender && intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}
-                {!intake.age && !intake.gender && <span style={{ color: '#6E9A82' }}>Age · gender</span>}
+                {!intake.age && !intake.gender && <span style={{ color: theme.textDim }}>Age · gender</span>}
               </div>
               {intake.abhaId.trim() && (
                 <div style={{ fontFamily: theme.mono, fontSize: 12, color: theme.textDim, marginTop: 6 }}>
@@ -894,10 +897,10 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 
           {/* Readiness checklist */}
           <div style={{
-            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
-            border: `1px solid rgba(255,255,255,0.08)`,
+            background: '#FFFFFF',
+            border: `1px solid ${theme.border}`,
             borderRadius: 20, padding: 24,
-            boxShadow: '0 16px 40px -24px rgba(0,0,0,0.3)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
           }}>
             <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>Readiness</div>
             <div style={{ display: 'grid', gap: 8 }}>
@@ -912,8 +915,9 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
       {/* ── STICKY FOOTER ── */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        background: 'rgba(8,18,13,0.94)', backdropFilter: 'saturate(160%) blur(16px)',
+        background: 'rgba(242,245,243,0.96)', backdropFilter: 'saturate(160%) blur(16px)',
         borderTop: `1px solid ${theme.border}`,
+        boxShadow: '0 -1px 0 rgba(0,0,0,0.06)',
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 20 }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', flex: 1, minWidth: 0 }}
@@ -928,7 +932,7 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
             }}>
               {intake.consentGiven && <span style={{ color: '#fff', fontSize: 13, fontWeight: 700 }}>✓</span>}
             </div>
-            <span style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.5 }}>
+            <span style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.5 }}>
               Patient has given verbal consent for AI-assisted documentation (ABDM compliant).
             </span>
           </label>
@@ -959,11 +963,11 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
 function PreviewRow({ label, value, placeholder = '—', warn, last, theme }) {
   const hasValue = value && (typeof value === 'string' ? value.trim() : true)
   return (
-    <div style={{ paddingBottom: 14, marginBottom: 14, borderBottom: last ? 'none' : `1px solid rgba(255,255,255,0.06)` }}>
-      <div style={{ fontSize: 10, color: warn && hasValue ? theme.warning : '#6E9A82', fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ paddingBottom: 14, marginBottom: 14, borderBottom: last ? 'none' : `1px solid ${theme.border}` }}>
+      <div style={{ fontSize: 10, color: warn && hasValue ? theme.warning : theme.textDim, fontFamily: theme.mono, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
         {warn && hasValue && <span>⚠</span>}{label}
       </div>
-      <div style={{ fontSize: 14, color: hasValue ? (warn ? theme.warning : '#EFF8F4') : '#6E9A82', lineHeight: 1.6, fontStyle: hasValue ? 'normal' : 'italic', fontWeight: warn && hasValue ? 500 : 400 }}>
+      <div style={{ fontSize: 14, color: hasValue ? (warn ? theme.warning : theme.text) : theme.textDim, lineHeight: 1.6, fontStyle: hasValue ? 'normal' : 'italic', fontWeight: warn && hasValue ? 500 : 400 }}>
         {hasValue ? value : placeholder}
       </div>
     </div>
@@ -976,11 +980,11 @@ function ChecklistRow({ label, ok, required, theme }) {
       <span style={{
         width: 19, height: 19, borderRadius: 6, flexShrink: 0,
         background: ok ? theme.accent : 'transparent',
-        border: `1.5px solid ${ok ? theme.accent : 'rgba(255,255,255,0.15)'}`,
+        border: `1.5px solid ${ok ? theme.accent : theme.border}`,
         display: 'grid', placeItems: 'center', color: theme.accentInk, fontSize: 11, fontWeight: 800,
         transition: 'all .18s',
       }}>{ok ? '✓' : ''}</span>
-      <span style={{ color: ok ? '#EFF8F4' : '#AAC9B8', transition: 'color .18s' }}>{label}</span>
+      <span style={{ color: ok ? theme.text : theme.textMuted, transition: 'color .18s' }}>{label}</span>
       {required && !ok && <span style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.12em', marginLeft: 'auto', opacity: 0.8 }}>REQUIRED</span>}
     </div>
   )
@@ -1033,28 +1037,29 @@ function ConsultationScreen({ onStop, intake, analyser }) {
       <div aria-hidden style={{
         position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-10%)',
         width: 700, height: 700,
-        background: `radial-gradient(circle, rgba(94,191,163,0.07) 0%, transparent 65%)`,
+        background: `radial-gradient(circle, rgba(12,122,82,0.04) 0%, transparent 65%)`,
         filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0,
       }} />
       <div aria-hidden style={{
         position: 'absolute', bottom: '5%', left: '30%',
         width: 400, height: 400,
-        background: `radial-gradient(circle, rgba(94,191,163,0.04) 0%, transparent 65%)`,
+        background: `radial-gradient(circle, rgba(12,122,82,0.03) 0%, transparent 65%)`,
         filter: 'blur(50px)', pointerEvents: 'none', zIndex: 0,
       }} />
 
       {/* ── TOP BAR ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: 'rgba(8,18,13,0.92)', backdropFilter: 'saturate(180%) blur(20px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        background: 'rgba(242,245,243,0.95)', backdropFilter: 'saturate(160%) blur(16px)',
+        borderBottom: `1px solid ${theme.border}`,
+        boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
       }}>
         <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'stretch', height: 62, gap: 24 }}>
           {/* Step label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div>
               <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700 }}>Step 2 of 3</div>
-              <div style={{ fontSize: 14, color: '#EFF8F4', fontWeight: 500, marginTop: 2, letterSpacing: '-0.01em' }}>Consultation in session</div>
+              <div style={{ fontSize: 14, color: theme.text, fontWeight: 500, marginTop: 2, letterSpacing: '-0.01em' }}>Consultation in session</div>
             </div>
           </div>
 
@@ -1063,9 +1068,9 @@ function ConsultationScreen({ onStop, intake, analyser }) {
             {['Intake', 'Consultation', 'Review'].map((s, i) => (
               <div key={i} style={{
                 padding: '4px 12px', borderRadius: 99, fontSize: 11.5, fontWeight: 600,
-                background: i === 1 ? 'rgba(94,191,163,0.12)' : 'transparent',
-                color: i === 1 ? theme.accent : 'rgba(255,255,255,0.22)',
-                border: `1px solid ${i === 1 ? 'rgba(94,191,163,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                background: i === 1 ? theme.accentDim : 'transparent',
+                color: i === 1 ? theme.accent : theme.textDim,
+                border: `1px solid ${i === 1 ? 'rgba(12,122,82,0.25)' : theme.border}`,
                 letterSpacing: '0.02em',
               }}>{i === 1 && <span style={{ marginRight: 5, opacity: 0.7 }}>●</span>}{s}</div>
             ))}
@@ -1078,17 +1083,16 @@ function ConsultationScreen({ onStop, intake, analyser }) {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
               padding: '8px 18px', borderRadius: 10,
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.28)',
+              background: 'rgba(220,38,38,0.06)',
+              border: '1px solid rgba(220,38,38,0.22)',
             }}>
               <span style={{
-                width: 7, height: 7, borderRadius: '50%', background: '#EF4444',
-                boxShadow: '0 0 0 0 rgba(239,68,68,0.5)',
+                width: 7, height: 7, borderRadius: '50%', background: '#DC2626',
                 animation: 'mic-pulse 1.4s ease-in-out infinite', flexShrink: 0,
               }} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: '#F87171', letterSpacing: '0.14em', fontFamily: theme.mono }}>REC</span>
-              <span style={{ width: 1, height: 14, background: 'rgba(239,68,68,0.25)' }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#EFF8F4', letterSpacing: '0.06em', fontFamily: theme.mono }}>{fmt(seconds)}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#DC2626', letterSpacing: '0.14em', fontFamily: theme.mono }}>REC</span>
+              <span style={{ width: 1, height: 14, background: 'rgba(220,38,38,0.2)' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: theme.text, letterSpacing: '0.06em', fontFamily: theme.mono }}>{fmt(seconds)}</span>
             </div>
           </div>
         </div>
@@ -1108,35 +1112,35 @@ function ConsultationScreen({ onStop, intake, analyser }) {
         }}>
           {/* Patient card */}
           <div style={{
-            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#FFFFFF',
+            border: `1px solid ${theme.border}`,
             borderRadius: 20, padding: '22px 24px',
-            boxShadow: '0 24px 60px -30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
           }}>
             <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 16 }}>
               Patient on record
             </div>
 
             {/* Identity block */}
-            <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ fontSize: 23, color: '#EFF8F4', fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${theme.border}` }}>
+              <div style={{ fontSize: 23, color: theme.text, fontWeight: 650, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                 {intake.name || 'Unnamed patient'}
               </div>
-              <div style={{ color: '#AAC9B8', fontSize: 13.5, marginTop: 5, display: 'flex', gap: 6, alignItems: 'center' }}>
+              <div style={{ color: theme.textMuted, fontSize: 13.5, marginTop: 5, display: 'flex', gap: 6, alignItems: 'center' }}>
                 {intake.age && <span>{intake.age}y</span>}
                 {intake.age && intake.gender && <span style={{ opacity: 0.4 }}>·</span>}
                 {intake.gender && <span>{intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1)}</span>}
               </div>
               {intake.abhaId && (
-                <div style={{ fontFamily: theme.mono, fontSize: 11.5, color: '#6E9A82', marginTop: 7, letterSpacing: '0.04em' }}>
+                <div style={{ fontFamily: theme.mono, fontSize: 11.5, color: theme.textDim, marginTop: 7, letterSpacing: '0.04em' }}>
                   ABHA · {intake.abhaId}
                 </div>
               )}
             </div>
 
             <ContextRow label="Chief complaint" theme={theme}>
-              {intake.chiefComplaint || <em style={{ color: '#6E9A82' }}>not captured</em>}
-              {intake.duration && <span style={{ color: '#AAC9B8' }}> · {intake.duration}</span>}
+              {intake.chiefComplaint || <em style={{ color: theme.textDim }}>not captured</em>}
+              {intake.duration && <span style={{ color: theme.textMuted }}> · {intake.duration}</span>}
               {intake.severity && <span style={{ color: intake.severity === 'severe' ? theme.danger : intake.severity === 'moderate' ? theme.warning : theme.accent, textTransform: 'capitalize' }}> · {intake.severity}</span>}
             </ContextRow>
 
@@ -1159,19 +1163,19 @@ function ConsultationScreen({ onStop, intake, analyser }) {
 
           {/* Tips card */}
           <div style={{
-            background: 'rgba(94,191,163,0.05)',
-            border: '1px solid rgba(94,191,163,0.15)',
+            background: theme.accentDim,
+            border: `1px solid rgba(12,122,82,0.15)`,
             borderRadius: 16, padding: '14px 18px',
             display: 'flex', gap: 12, alignItems: 'flex-start',
           }}>
             <div style={{
               width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 1,
-              background: 'rgba(94,191,163,0.1)', border: '1px solid rgba(94,191,163,0.2)',
+              background: 'rgba(12,122,82,0.1)', border: '1px solid rgba(12,122,82,0.18)',
               display: 'grid', placeItems: 'center', fontSize: 13,
             }}>💡</div>
             <div>
               <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 5 }}>Tips</div>
-              <div style={{ fontSize: 12.5, color: '#AAC9B8', lineHeight: 1.65 }}>
+              <div style={{ fontSize: 12.5, color: theme.textMuted, lineHeight: 1.65 }}>
                 Speak naturally — English, Tamil, or mixed all work. Background noise is fine. The AI follows your pace.
               </div>
             </div>
@@ -1188,17 +1192,17 @@ function ConsultationScreen({ onStop, intake, analyser }) {
                 position: 'absolute',
                 inset: -(i * 18),
                 borderRadius: '50%',
-                border: `1px solid rgba(94,191,163,${0.18 - i * 0.035})`,
+                border: `1px solid rgba(12,122,82,${0.15 - i * 0.03})`,
                 animation: `pulse-ring ${1.8 + i * 0.45}s ease-out ${i * 0.28}s infinite`,
               }} />
             ))}
             {/* Mic circle */}
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 40% 35%, rgba(94,191,163,0.16) 0%, rgba(94,191,163,0.04) 60%, transparent 100%)`,
-              border: '1.5px solid rgba(94,191,163,0.35)',
+              background: `radial-gradient(circle at 40% 35%, rgba(12,122,82,0.1) 0%, rgba(12,122,82,0.03) 60%, transparent 100%)`,
+              border: '1.5px solid rgba(12,122,82,0.28)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: `0 0 80px -10px rgba(94,191,163,0.22), inset 0 1px 0 rgba(255,255,255,0.08)`,
+              boxShadow: `0 0 60px -10px rgba(12,122,82,0.15)`,
             }}>
               <svg width="44" height="54" viewBox="0 0 44 54" fill="none" style={{ color: theme.accent }}>
                 <rect x="13" y="1" width="18" height="30" rx="9" fill="currentColor" opacity="0.9"/>
@@ -1213,7 +1217,7 @@ function ConsultationScreen({ onStop, intake, analyser }) {
           <div style={{
             fontSize: 'clamp(72px, 9vw, 100px)', fontWeight: 800, fontFamily: theme.mono,
             letterSpacing: '-0.05em', lineHeight: 1, marginBottom: 30,
-            background: `linear-gradient(135deg, rgba(94,191,163,0.8) 0%, ${theme.accent} 40%, ${theme.accent2} 100%)`,
+            background: `linear-gradient(135deg, ${theme.tealLight} 0%, ${theme.accent} 40%, ${theme.accent2} 100%)`,
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
             {fmt(seconds)}
@@ -1235,10 +1239,10 @@ function ConsultationScreen({ onStop, intake, analyser }) {
                   borderRadius: 99,
                   background: h > 45
                     ? `linear-gradient(to top, ${theme.accent}, ${theme.accent2})`
-                    : `linear-gradient(to top, rgba(94,191,163,0.7), rgba(134,212,184,0.5))`,
+                    : `linear-gradient(to top, rgba(12,122,82,0.5), rgba(16,185,129,0.3))`,
                   opacity,
                   transition: 'height 0.07s ease',
-                  boxShadow: h > 50 ? `0 0 8px rgba(94,191,163,0.35)` : 'none',
+                  boxShadow: h > 50 ? `0 0 6px rgba(12,122,82,0.22)` : 'none',
                 }} />
               )
             })}
@@ -1246,10 +1250,10 @@ function ConsultationScreen({ onStop, intake, analyser }) {
 
           {/* Status text */}
           <div style={{ textAlign: 'center', marginBottom: 30, maxWidth: 480 }}>
-            <div style={{ fontSize: 17, color: '#EFF8F4', fontWeight: 600, marginBottom: 8, letterSpacing: '-0.01em' }}>
+            <div style={{ fontSize: 17, color: theme.text, fontWeight: 600, marginBottom: 8, letterSpacing: '-0.01em' }}>
               Listening to the consultation…
             </div>
-            <div style={{ fontSize: 13.5, color: '#AAC9B8', lineHeight: 1.68 }}>
+            <div style={{ fontSize: 13.5, color: theme.textMuted, lineHeight: 1.68 }}>
               Both doctor and patient should speak naturally. The AI is drafting the note in the background.
             </div>
           </div>
@@ -1257,10 +1261,10 @@ function ConsultationScreen({ onStop, intake, analyser }) {
           {/* "Being captured" panel */}
           <div style={{
             width: '100%', maxWidth: 520, marginBottom: 36,
-            background: `linear-gradient(160deg, ${theme.card} 0%, ${theme.surface} 100%)`,
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: '#FFFFFF',
+            border: `1px solid ${theme.border}`,
             borderRadius: 18, padding: '20px 24px',
-            boxShadow: '0 20px 50px -28px rgba(0,0,0,0.35)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           }}>
             <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 14 }}>
               Being captured
@@ -1273,17 +1277,17 @@ function ConsultationScreen({ onStop, intake, analyser }) {
                   <div style={{
                     display: 'inline-grid', placeItems: 'center',
                     width: 30, height: 30, borderRadius: 9, flexShrink: 0,
-                    background: c.active ? (c.warn ? 'rgba(245,158,11,0.1)' : 'rgba(94,191,163,0.1)') : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${c.active ? (c.warn ? 'rgba(245,158,11,0.28)' : 'rgba(94,191,163,0.28)') : 'rgba(255,255,255,0.08)'}`,
+                    background: c.active ? (c.warn ? 'rgba(180,83,9,0.08)' : theme.accentDim) : theme.cardSubtle,
+                    border: `1px solid ${c.active ? (c.warn ? 'rgba(180,83,9,0.22)' : 'rgba(12,122,82,0.22)') : theme.border}`,
                     fontSize: 14,
                   }}>{c.icon}</div>
                   <span style={{
                     fontSize: 13.5, fontWeight: c.active ? 500 : 400,
-                    color: c.active ? (c.warn ? theme.warning : '#EFF8F4') : '#6E9A82',
+                    color: c.active ? (c.warn ? theme.warning : theme.text) : theme.textDim,
                     letterSpacing: '-0.005em',
                   }}>{c.label}</span>
                   {c.active && !c.warn && (
-                    <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: 99, background: theme.accent, flexShrink: 0, boxShadow: `0 0 8px ${theme.accentGlow}` }} />
+                    <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: 99, background: theme.accent, flexShrink: 0, boxShadow: `0 0 6px ${theme.accentGlow}` }} />
                   )}
                 </div>
               ))}
@@ -1296,23 +1300,23 @@ function ConsultationScreen({ onStop, intake, analyser }) {
             background: theme.accent, color: theme.accentInk,
             fontSize: 15, fontFamily: 'inherit', fontWeight: 700, letterSpacing: '-0.01em',
             cursor: 'pointer',
-            boxShadow: `0 16px 40px -14px rgba(94,191,163,0.45), 0 4px 12px -4px rgba(0,0,0,0.3)`,
+            boxShadow: `0 12px 32px -10px rgba(12,122,82,0.38), 0 2px 8px rgba(0,0,0,0.08)`,
             transition: 'transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s ease',
             display: 'inline-flex', alignItems: 'center', gap: 11,
           }}
             onMouseEnter={e => {
               e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)'
-              e.currentTarget.style.boxShadow = `0 22px 50px -14px rgba(94,191,163,0.55), 0 4px 12px -4px rgba(0,0,0,0.3)`
+              e.currentTarget.style.boxShadow = `0 18px 40px -10px rgba(12,122,82,0.48), 0 2px 8px rgba(0,0,0,0.08)`
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'none'
-              e.currentTarget.style.boxShadow = `0 16px 40px -14px rgba(94,191,163,0.45), 0 4px 12px -4px rgba(0,0,0,0.3)`
+              e.currentTarget.style.boxShadow = `0 12px 32px -10px rgba(12,122,82,0.38), 0 2px 8px rgba(0,0,0,0.08)`
             }}
           >
-            <span style={{ display: 'inline-block', width: 11, height: 11, background: theme.accentInk, borderRadius: 3, flexShrink: 0 }} />
+            <span style={{ display: 'inline-block', width: 11, height: 11, background: '#FFFFFF', borderRadius: 3, flexShrink: 0 }} />
             Stop & generate note
           </button>
-          <div style={{ fontSize: 12, color: '#6E9A82', marginTop: 14, letterSpacing: '0.01em' }}>
+          <div style={{ fontSize: 12, color: theme.textDim, marginTop: 14, letterSpacing: '0.01em' }}>
             The draft will appear for your review — nothing is saved until you approve.
           </div>
         </section>
@@ -1374,18 +1378,18 @@ function ProcessingScreen() {
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 16,
                   padding: '16px 20px', borderRadius: 14,
-                  background: inProgress ? 'rgba(94,191,163,0.05)' : done ? 'rgba(94,191,163,0.03)' : '#FFFFFF',
-                  border: `1px solid ${inProgress ? 'rgba(94,191,163,0.25)' : done ? 'rgba(94,191,163,0.12)' : theme.border}`,
+                  background: inProgress ? theme.accentDim : done ? 'rgba(12,122,82,0.04)' : '#FFFFFF',
+                  border: `1px solid ${inProgress ? 'rgba(12,122,82,0.22)' : done ? 'rgba(12,122,82,0.12)' : theme.border}`,
                   transition: 'all 0.4s ease',
-                  boxShadow: inProgress ? '0 4px 20px rgba(94,191,163,0.08)' : '0 2px 8px rgba(0,0,0,0.04)',
+                  boxShadow: inProgress ? '0 4px 16px rgba(12,122,82,0.08)' : '0 1px 4px rgba(0,0,0,0.05)',
                 }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: done || inProgress ? 'rgba(94,191,163,0.08)' : theme.surface,
-                    border: `1.5px solid ${done ? theme.accent : inProgress ? 'rgba(94,191,163,0.4)' : theme.border}`,
+                    background: done || inProgress ? theme.accentDim : theme.surface,
+                    border: `1.5px solid ${done ? theme.accent : inProgress ? 'rgba(12,122,82,0.35)' : theme.border}`,
                     color: done ? theme.accent : inProgress ? theme.accent : theme.textDim,
-                    boxShadow: inProgress ? '0 0 12px rgba(94,191,163,0.15)' : 'none',
+                    boxShadow: inProgress ? '0 0 10px rgba(12,122,82,0.12)' : 'none',
                   }}>
                     {done ? '✓' : inProgress ? <Spinner /> : step.icon}
                   </div>
@@ -1398,7 +1402,7 @@ function ProcessingScreen() {
                 {i < steps.length - 1 && (
                   <div style={{
                     width: 2, height: 8, margin: '0 auto',
-                    background: i < active ? `linear-gradient(to bottom, ${theme.accent}, rgba(94,191,163,0.15))` : theme.border,
+                    background: i < active ? `linear-gradient(to bottom, ${theme.accent}, rgba(12,122,82,0.1))` : theme.border,
                     transition: 'background 0.6s ease',
                   }} />
                 )}
@@ -1422,7 +1426,7 @@ function InpText({ value, onChange, style = {} }) {
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={{
-        background: 'rgba(255,255,255,0.04)',
+        background: '#FFFFFF',
         border: `1px solid ${focused ? theme.accent : theme.border}`,
         borderRadius: 7, color: theme.text, fontFamily: 'inherit',
         fontSize: 13.5, padding: '6px 10px', outline: 'none',
@@ -1442,7 +1446,7 @@ function InpArea({ value, onChange, rows = 3, style = {} }) {
       onBlur={() => setFocused(false)}
       rows={rows}
       style={{
-        background: 'rgba(255,255,255,0.04)',
+        background: '#FFFFFF',
         border: `1px solid ${focused ? theme.accent : theme.border}`,
         borderRadius: 7, color: theme.text, fontFamily: 'inherit',
         fontSize: 13.5, padding: '8px 12px', outline: 'none',
@@ -1706,9 +1710,9 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
               <Field label="Date of Examination" value={dateStr} />
             </div>
             {intake.allergies && (
-              <div style={{ marginTop: 14, padding: '10px 16px', background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.30)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ marginTop: 14, padding: '10px 16px', background: 'rgba(180,83,9,0.06)', border: '1px solid rgba(180,83,9,0.25)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: theme.warning, fontFamily: theme.mono, flexShrink: 0 }}>⚠ ALLERGY ALERT</span>
-                <span style={{ fontSize: 14, color: '#FDE68A', fontWeight: 600 }}>{intake.allergies}</span>
+                <span style={{ fontSize: 14, color: theme.warning, fontWeight: 600 }}>{intake.allergies}</span>
               </div>
             )}
 
@@ -2178,8 +2182,9 @@ function PatientSummaryCard({ clinicalData, intake }) {
 
   return (
     <div style={{
-      background: 'rgba(94,191,163,0.03)', border: '1px solid rgba(94,191,163,0.15)',
+      background: '#FFFFFF', border: `1px solid ${theme.border}`,
       borderRadius: 14, padding: 20, marginBottom: 16, textAlign: 'left',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -2362,11 +2367,11 @@ function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewCo
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{
             width: 72, height: 72, borderRadius: '50%',
-            background: 'rgba(94,191,163,0.08)',
+            background: theme.accentDim,
             border: `2px solid ${theme.accent}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 20px', fontSize: 32,
-            boxShadow: '0 0 40px rgba(94,191,163,0.15)',
+            margin: '0 auto 20px', fontSize: 32, color: theme.accent,
+            boxShadow: `0 0 32px ${theme.accentGlow}`,
             animation: 'bounce-in 0.5s cubic-bezier(0.4,0,0.2,1) both',
           }}>✓</div>
 
@@ -2389,7 +2394,7 @@ function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewCo
 
         {/* ABDM Upload section */}
         <div style={{
-          background: 'rgba(94,191,163,0.04)', border: '1px solid rgba(94,191,163,0.2)',
+          background: theme.accentDim, border: `1px solid rgba(12,122,82,0.18)`,
           borderRadius: 14, padding: '20px', marginBottom: 28, textAlign: 'left',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>

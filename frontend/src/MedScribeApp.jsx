@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import HomeScreen from './screens/HomeScreen'
-import logoImg from '../logo.PNG'
 
 const theme = {
   bg: '#0B1A14',
@@ -364,17 +363,24 @@ function IntroScreen({ onComplete }) {
           transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           style={{
             width: 100, height: 100, borderRadius: 24,
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.18)',
+            background: 'rgba(94,191,163,0.08)',
+            border: '1px solid rgba(94,191,163,0.22)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-          <motion.img
-            src={logoImg}
-            alt="ibuscribe"
-            animate={{ filter: ['drop-shadow(0 0 0px rgba(255,255,255,0))', 'drop-shadow(0 0 20px rgba(255,255,255,0.5))', 'drop-shadow(0 0 8px rgba(255,255,255,0.2))'] }}
+          <motion.div
+            animate={{ filter: ['drop-shadow(0 0 0px rgba(94,191,163,0))', 'drop-shadow(0 0 22px rgba(94,191,163,0.65))', 'drop-shadow(0 0 8px rgba(94,191,163,0.28))'] }}
             transition={{ duration: 1.4, times: [0, 0.45, 1], delay: 0.3 }}
-            style={{ width: 68, height: 68, objectFit: 'contain', display: 'block' }}
-          />
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="62" height="62" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="62" height="62" rx="15" fill="rgba(94,191,163,0.1)"/>
+              <rect width="62" height="62" rx="15" stroke="rgba(94,191,163,0.35)" strokeWidth="1.5" fill="none"/>
+              <path
+                d="M 5,31 L 15,31 L 19.5,19 L 24.5,43 L 29.5,19 L 35,31 L 57,31"
+                stroke="#5EBFA3" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"
+              />
+            </svg>
+          </motion.div>
         </motion.div>
 
         <motion.div
@@ -382,10 +388,10 @@ function IntroScreen({ onComplete }) {
           animate={{ opacity: 1, letterSpacing: '-0.025em' }}
           transition={{ duration: 0.9, delay: 0.25, ease: [0.23, 1, 0.32, 1] }}
           style={{
-            color: '#fff', fontSize: 'clamp(42px, 6vw, 60px)', fontWeight: 900,
-            fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1,
+            fontSize: 'clamp(42px, 6vw, 60px)', lineHeight: 1,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
           }}>
-          <span style={{ opacity: 0.45 }}>ibu</span>scribe
+          <span style={{ fontWeight: 300, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.04em' }}>ibu</span><span style={{ fontWeight: 900, color: '#5EBFA3', letterSpacing: '-0.03em' }}>scribe</span>
         </motion.div>
 
         <motion.p

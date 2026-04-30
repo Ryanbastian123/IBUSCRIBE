@@ -469,9 +469,20 @@ function StatCard({ n, label, tone, tint, detail, delay = 0 }) {
 // ─── Brand ────────────────────────────────────────────────────────────────────
 function Brand() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 700 }}>
-      <div style={{ width: 32, height: 32, borderRadius: 9, background: `linear-gradient(135deg, ${T.accent}, ${T.accentSoft})`, display: 'grid', placeItems: 'center', color: T.accentInk, fontWeight: 800, fontSize: 15 }}>i</div>
-      <span style={{ letterSpacing: '0.05em', fontSize: 15 }}>IBU<span style={{ color: T.accent }}>SCRIBE</span></span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {/* Logomark: ECG heartbeat pulse — medical listening + scribing */}
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+        <rect width="32" height="32" rx="9" fill="#091C14"/>
+        <rect width="32" height="32" rx="9" stroke={T.accent} strokeWidth="1" strokeOpacity="0.38" fill="none"/>
+        <path
+          d="M 3,16 L 8,16 L 10,10 L 12.5,22 L 15,10 L 17.5,16 L 29,16"
+          stroke={T.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        />
+      </svg>
+      {/* Wordmark: quiet prefix + bold function word */}
+      <span style={{ lineHeight: 1, userSelect: 'none', letterSpacing: 0 }}>
+        <span style={{ fontSize: 15.5, fontWeight: 300, color: T.textMuted, letterSpacing: '0.07em', fontFamily: FONT }}>ibu</span><span style={{ fontSize: 15.5, fontWeight: 800, color: T.accent, letterSpacing: '-0.02em', fontFamily: FONT }}>scribe</span>
+      </span>
     </div>
   )
 }

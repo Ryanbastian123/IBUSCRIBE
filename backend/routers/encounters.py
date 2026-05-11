@@ -6,6 +6,8 @@ from typing import Optional
 from services.whisper_stt import transcribe_audio
 from services.clinical_llm import extract_clinical_data
 from services.fhir_builder import build_fhir_bundle
+from services.snomed import get_snomed_for_diagnosis
+from services.who_icd import lookup_icd10_code
 
 router = APIRouter()
 
@@ -71,6 +73,13 @@ async def create_encounter(body: EncounterRequest):
         raise HTTPException(status_code=502, detail=f"LLM returned invalid JSON: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Clinical extraction failed: {str(e)}")
+
+    # Step 3.5: Enrich diagnoses with SNOMED CT codes
+    for dx in clinical_data.get("diagnoses", []):
+        snomed = await get_snomed_for_diagnosis(dx.get("description", ""))
+        if snomed:
+            dx["snomed_code"] = snomed["code"]
+            dx["snomed_display"] = snomed["display"]
 
     # Step 4: Build FHIR bundle
     patient = {

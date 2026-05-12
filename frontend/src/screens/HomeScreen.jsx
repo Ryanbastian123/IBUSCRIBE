@@ -1582,48 +1582,254 @@ function Features() {
   )
 }
 
-// ─── Rural ────────────────────────────────────────────────────────────────────
+// ─── Rural — District Health Field Report Folder ──────────────────────────────
+const RURAL_ITEMS = [
+  { code: 'R-01', label: 'Offline-first',        status: 'ACTIVE',   statusColor: '#059669',
+    d: 'Records while disconnected, syncs automatically when back online. Built for PHCs with patchy connectivity — not just metro clinics with fibre.' },
+  { code: 'R-02', label: '8 regional languages', status: 'ACTIVE',   statusColor: '#059669',
+    d: 'Hindi, Tamil, Telugu, Kannada, Bengali, Malayalam, Marathi, English — and mid-sentence code-switching, which is how Indian doctors actually speak.' },
+  { code: 'R-03', label: 'NHM & ABDM aligned',   status: 'VERIFIED', statusColor: '#2563EB',
+    d: 'Ayushman Bharat compliant from day one. ABHA linking, HIE push, and NHM reporting-ready. Built for the national stack, not around it.' },
+  { code: 'R-04', label: 'High-volume ready',    status: 'ACTIVE',   statusColor: '#059669',
+    d: 'Designed for 50–100 patients per day. PHC and CHC workflows, not just 20-patient private practice. Batched uploads, efficient queuing.' },
+  { code: 'R-05', label: 'Low-cost hardware',    status: 'ACTIVE',   statusColor: '#059669',
+    d: 'Runs on a ₹15,000 Android tablet or basic laptop. No GPU, no local model, no expensive server. The cloud does the heavy lifting.' },
+  { code: 'R-06', label: 'Community health fit', status: 'ACTIVE',   statusColor: '#059669',
+    d: 'Works alongside ASHA workers and ANMs. One doctor, many hands — the note still gets written, and the chain of care stays intact.' },
+]
+
 function Rural() {
-  const features = [
-    { icon: '📡', t: 'Offline-first',           d: 'Records while disconnected, syncs automatically when back online. Built for PHCs with patchy connectivity — not just metro clinics with fibre.' },
-    { icon: '🗣️', t: '8 regional languages',    d: 'Hindi, Tamil, Telugu, Kannada, Bengali, Malayalam, Marathi, English — and mid-sentence code-switching, which is how Indian doctors actually speak.' },
-    { icon: '🏛️', t: 'NHM & ABDM aligned',     d: 'Ayushman Bharat compliant from day one. ABHA linking, HIE push, and NHM reporting-ready. Built for the national stack, not around it.' },
-    { icon: '⚡', t: 'High-volume ready',       d: 'Designed for 50–100 patients per day. PHC and CHC workflows, not just 20-patient private practice. Batched uploads, efficient queuing.' },
-    { icon: '📱', t: 'Low-cost hardware',       d: 'Runs on a ₹15,000 Android tablet or basic laptop. No GPU, no local model, no expensive server. The cloud does the heavy lifting.' },
-    { icon: '🤝', t: 'Community health fit',    d: 'Works alongside ASHA workers and ANMs. One doctor, many hands — the note still gets written, and the chain of care stays intact.' },
-  ]
+  const [expanded, setExpanded] = useState(null)
+
   return (
     <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
+      <style>{`
+        @keyframes rowOpen {
+          from { opacity: 0; max-height: 0; }
+          to   { opacity: 1; max-height: 120px; }
+        }
+        .row-body { animation: rowOpen 0.24s ease forwards; overflow: hidden; }
+      `}</style>
       <Container>
-        <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', gap: 56, alignItems: 'start' }}>
-          <div className="rvl">
-            <SectionLabel>Rural & semi-urban India</SectionLabel>
-            <SectionHeading>Built for Bharat,<br /><span className="grad">not just Bengaluru.</span></SectionHeading>
-            <SectionSub>40% of India's doctors serve 70% of its population — at PHCs, CHCs, and district hospitals where the need is greatest and resources fewest.</SectionSub>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 40 }}>
-              {[
-                { n: '150k+', l: 'Primary health centres' },
-                { n: '25k+',  l: 'Community health centres' },
-                { n: '1 doc', l: 'For 30,000 patients' },
-              ].map((s, i) => (
-                <div key={i} style={{
-                  textAlign: 'center', padding: '20px 8px',
-                  background: `linear-gradient(160deg, ${T.card}, ${T.surface})`,
-                  border: `1px solid ${T.border}`, borderRadius: 16,
-                }}>
-                  <div className="grad" style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1 }}>{s.n}</div>
-                  <div style={{ color: T.textMuted, fontSize: 11.5, marginTop: 6, lineHeight: 1.4 }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Right: ExpandCard grid */}
-          <div className="rvr" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            {features.map((f, i) => (
-              <ExpandCard key={i} icon={f.icon} title={f.t} compact delay={i * 55}>
-                <p style={{ color: T.textSecondary, margin: 0, lineHeight: 1.65, fontSize: 13.5 }}>{f.d}</p>
-              </ExpandCard>
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 64px' }}>
+          <SectionLabel>Rural &amp; Semi-Urban India</SectionLabel>
+          <SectionHeading>Built for Bharat,<br />not just Bengaluru.</SectionHeading>
+          <SectionSub>40% of India's doctors serve 70% of its population — at PHCs, CHCs, and district hospitals where the need is greatest and resources fewest.</SectionSub>
+        </div>
+
+        {/* District folder */}
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+
+          {/* Folder top notch — government tag */}
+          <div style={{ display: 'flex', gap: 0, paddingLeft: 32 }}>
+            {['District Field Report', 'NHM Compliant', 'Ayushman Bharat'].map((tab, i) => (
+              <div key={i} style={{
+                fontFamily: MONO, fontSize: 10.5, fontWeight: i === 0 ? 700 : 500,
+                letterSpacing: '0.06em',
+                padding: '8px 18px',
+                borderRadius: '7px 7px 0 0',
+                border: '1px solid rgba(0,0,0,0.09)',
+                borderBottom: i === 0 ? '1px solid #FDFCF8' : '1px solid rgba(0,0,0,0.09)',
+                background: i === 0 ? '#FDFCF8' : '#E4E0D6',
+                color: i === 0 ? T.accent : T.textDim,
+                marginRight: 3,
+                marginBottom: i === 0 ? '-1px' : 0,
+                zIndex: i === 0 ? 2 : 1,
+                position: 'relative',
+              }}>
+                {tab}
+              </div>
             ))}
+          </div>
+
+          {/* Open folder */}
+          <div style={{
+            background: '#FDFCF8',
+            border: '1px solid rgba(0,0,0,0.09)',
+            borderRadius: '0 12px 12px 12px',
+            boxShadow: '0 12px 56px -16px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.04)',
+            overflow: 'hidden',
+          }}>
+
+            {/* Folder header — GOI-style document banner */}
+            <div style={{
+              background: 'linear-gradient(90deg, #04553B 0%, #047857 55%, #059669 100%)',
+              padding: '18px 32px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {/* Ashoka-style emblem placeholder */}
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: '2px solid rgba(255,255,255,0.5)',
+                  display: 'grid', placeItems: 'center',
+                  fontFamily: FEAT_FONT, fontSize: 14, color: 'rgba(255,255,255,0.9)', fontWeight: 700,
+                }}>भा</div>
+                <div>
+                  <div style={{ fontFamily: FEAT_FONT, fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    Ministry of Health &amp; Family Welfare · ibuscribe
+                  </div>
+                  <div style={{ fontFamily: FEAT_FONT, fontSize: 14, color: '#fff', fontWeight: 700, marginTop: 2 }}>
+                    Rural &amp; Semi-Urban Deployment — Field Assessment Report
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                <div style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>REF: IBU/NHM/2026/004</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {['NHM', 'ABDM', 'AYUSHMAN'].map(b => (
+                    <span key={b} style={{
+                      fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: '0.08em',
+                      padding: '2px 7px', borderRadius: 3,
+                      background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                    }}>{b}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Body — two columns */}
+            <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', minHeight: 420 }}>
+
+              {/* Left — district stats sheet */}
+              <div style={{
+                borderRight: '1px solid rgba(0,0,0,0.07)',
+                padding: '28px 24px',
+                backgroundImage: `repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.035) 28px)`,
+                backgroundSize: '100% 28px',
+              }}>
+                <div style={{ fontFamily: MONO, fontSize: 9, color: T.textDim, letterSpacing: '0.12em', marginBottom: 16 }}>
+                  NATIONAL HEALTH INFRASTRUCTURE
+                </div>
+
+                {/* Stats */}
+                {[
+                  { n: '1,50,000+', l: 'Primary Health Centres', sub: 'Across 28 states & 8 UTs' },
+                  { n: '25,000+',   l: 'Community Health Centres', sub: 'Block-level facilities' },
+                  { n: '1 doctor',  l: 'Per 30,000 patients', sub: 'Rural practitioner load' },
+                  { n: '40%',       l: 'Doctors serving 70% population', sub: 'Urban–rural disparity' },
+                ].map((s, i) => (
+                  <div key={i} style={{
+                    padding: '12px 0',
+                    borderBottom: i < 3 ? '1px dashed rgba(0,0,0,0.08)' : 'none',
+                  }}>
+                    <div style={{ fontFamily: FEAT_FONT, fontSize: 22, fontWeight: 700, color: T.accent, lineHeight: 1.1, letterSpacing: '-0.02em' }}>{s.n}</div>
+                    <div style={{ fontFamily: FEAT_FONT, fontSize: 13, color: T.text, fontWeight: 700, marginTop: 2 }}>{s.l}</div>
+                    <div style={{ fontFamily: FEAT_FONT, fontSize: 11.5, color: T.textDim, fontStyle: 'italic', marginTop: 2 }}>{s.sub}</div>
+                  </div>
+                ))}
+
+                {/* Deployment stamp */}
+                <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
+                  <div style={{
+                    border: `2px solid ${T.accent}`,
+                    borderRadius: 6, padding: '8px 16px',
+                    transform: 'rotate(-2deg)', opacity: 0.6,
+                    display: 'inline-block', textAlign: 'center',
+                  }}>
+                    <div style={{ fontFamily: FEAT_FONT, fontSize: 15, fontWeight: 700, color: T.accent, letterSpacing: '0.14em' }}>READY</div>
+                    <div style={{ fontFamily: MONO, fontSize: 8, color: T.accent, letterSpacing: '0.1em', marginTop: 2 }}>BHARAT DEPLOYMENT</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right — register / ledger rows */}
+              <div>
+                {/* Register column headers */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '72px 1fr 90px 32px',
+                  padding: '10px 20px',
+                  borderBottom: '1.5px solid rgba(0,0,0,0.1)',
+                  background: '#F3F0E8',
+                }}>
+                  {['Ref No.', 'Capability', 'Status', ''].map((h, i) => (
+                    <div key={i} style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim, letterSpacing: '0.1em', fontWeight: 700, textAlign: i === 2 ? 'center' : 'left' }}>{h}</div>
+                  ))}
+                </div>
+
+                {/* Register rows */}
+                {RURAL_ITEMS.map((item, i) => (
+                  <div key={i} style={{ borderBottom: `1px solid rgba(0,0,0,0.06)` }}>
+                    {/* Row */}
+                    <div
+                      onClick={() => setExpanded(expanded === i ? null : i)}
+                      style={{
+                        display: 'grid', gridTemplateColumns: '72px 1fr 90px 32px',
+                        padding: '14px 20px', cursor: 'pointer',
+                        background: expanded === i ? `${T.accentDim}` : 'transparent',
+                        transition: 'background .15s ease',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div style={{ fontFamily: MONO, fontSize: 10, color: T.textDim }}>{item.code}</div>
+                      <div style={{ fontFamily: FEAT_FONT, fontSize: 14.5, fontWeight: 700, color: T.text }}>{item.label}</div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <span style={{
+                          fontFamily: MONO, fontSize: 8.5, fontWeight: 700, letterSpacing: '0.08em',
+                          padding: '3px 8px', borderRadius: 3,
+                          background: `${item.statusColor}15`,
+                          color: item.statusColor,
+                          border: `1px solid ${item.statusColor}35`,
+                        }}>{item.status}</span>
+                      </div>
+                      <div style={{
+                        width: 22, height: 22, borderRadius: '50%',
+                        border: `1.5px solid rgba(0,0,0,0.13)`,
+                        display: 'grid', placeItems: 'center',
+                        color: T.textMuted, fontSize: 12, fontWeight: 700,
+                        transition: 'transform .2s ease',
+                        transform: expanded === i ? 'rotate(45deg)' : 'none',
+                        background: expanded === i ? T.accent : 'transparent',
+                        color: expanded === i ? '#fff' : T.textMuted,
+                        justifySelf: 'center',
+                      }}>+</div>
+                    </div>
+
+                    {/* Expanded description */}
+                    {expanded === i && (
+                      <div className="row-body" style={{
+                        padding: '0 20px 16px 72px',
+                        backgroundImage: `repeating-linear-gradient(transparent, transparent 23px, rgba(0,0,0,0.03) 24px)`,
+                        backgroundSize: '100% 24px',
+                      }}>
+                        <p style={{ fontFamily: FEAT_FONT, fontStyle: 'italic', fontSize: 13.5, color: T.textSecondary, lineHeight: 1.8, margin: 0 }}>
+                          {item.d}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Register footer */}
+                <div style={{
+                  padding: '10px 20px',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  borderTop: '1px solid rgba(0,0,0,0.06)',
+                  background: '#F8F6F2',
+                }}>
+                  <span style={{ fontFamily: MONO, fontSize: 9, color: T.textDim }}>
+                    {RURAL_ITEMS.length} capabilities assessed · All systems ACTIVE
+                  </span>
+                  <span style={{ fontFamily: MONO, fontSize: 9, color: T.textDim }}>
+                    Click any row to expand
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Folder footer */}
+            <div style={{
+              borderTop: '1px solid rgba(0,0,0,0.07)',
+              padding: '10px 32px',
+              background: '#F3F0E8',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>
+                Government of India · Ministry of Health &amp; Family Welfare · ibuscribe Field Deployment Assessment
+              </span>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>CONFIDENTIAL · 2026</span>
+            </div>
           </div>
         </div>
       </Container>

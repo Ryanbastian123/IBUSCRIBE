@@ -1885,163 +1885,261 @@ function PricingModal({ open, onClose, onNew }) {
   )
 }
 
-// ─── Team ─────────────────────────────────────────────────────────────────────
+// ─── Team — Personnel File Folder ─────────────────────────────────────────────
+const TEAM = [
+  {
+    initials: 'MB',
+    staffId: 'IBU-STAFF-001',
+    name: 'Max Bastian',
+    role: 'Founder',
+    qual: 'MBBS · Bengaluru',
+    dept: 'Clinical & Medical',
+    joined: 'Jan 2025',
+    clearance: 'CLINICAL',
+    clearanceColor: '#059669',
+    stat: '80+',
+    statLabel: 'patients seen per day before ibuscribe',
+    tags: ['Clinical Accuracy', 'ABDM Compliance', 'Indian Healthcare', 'OPD Workflows'],
+    bio: 'Practicing physician who lived the documentation burden first-hand — 80 patients a day, two hours of notes after. Drives clinical accuracy, Indian healthcare context, and ABDM compliance across every decision in ibuscribe.',
+    areas: [
+      { l: 'Specialisation', v: 'Primary Care · OPD' },
+      { l: 'Location',       v: 'Bengaluru, Karnataka' },
+      { l: 'Focus',          v: 'Clinical Truth & Safety' },
+      { l: 'Status',         v: 'Active — Full-time' },
+    ],
+  },
+  {
+    initials: 'RCB',
+    staffId: 'IBU-STAFF-002',
+    name: 'Ryan Chrisden Bastian',
+    role: 'Co-Founder',
+    qual: 'AI & Data Science Engineer',
+    dept: 'Engineering & Product',
+    joined: 'Jan 2025',
+    clearance: 'ENGINEERING',
+    clearanceColor: '#2563EB',
+    stat: '100%',
+    statLabel: 'of the stack — built from the ground up',
+    tags: ['Clinical NLP', 'FHIR R4', 'Ambient AI', 'FastAPI · React'],
+    bio: 'Built ibuscribe from the ground up — the ambient recording pipeline, clinical NLP, FHIR R4 builder, and the full-stack product. Obsessed with making AI genuinely useful where the need is greatest.',
+    areas: [
+      { l: 'Specialisation', v: 'AI / ML · Full-Stack' },
+      { l: 'Location',       v: 'Bengaluru, Karnataka' },
+      { l: 'Focus',          v: 'Pipeline & Product' },
+      { l: 'Status',         v: 'Active — Full-time' },
+    ],
+  },
+]
+
 function Team() {
-  const [openIdx, setOpenIdx] = useState(-1)
-  const founders = [
-    {
-      initials: 'MB',
-      num: '01',
-      name: 'Max Bastian',
-      title: 'Founder & Chief Medical Officer',
-      sub: 'MBBS · Bengaluru',
-      stat: { value: '80+', label: 'patients per day — lived the burden first-hand' },
-      tags: ['Clinical Accuracy', 'ABDM Compliance', 'Indian Healthcare'],
-      bio: 'Practicing physician who lived the documentation burden first-hand — 80 patients a day, two hours of notes after. Drives clinical accuracy, Indian healthcare context, and ABDM compliance across every line of ibuscribe.',
-    },
-    {
-      initials: 'RCB',
-      num: '02',
-      name: 'Ryan Chrisden Bastian',
-      title: 'Co-Founder & Head of Engineering',
-      sub: 'AI & Data Science Engineer · Bangalore',
-      stat: { value: '100%', label: 'of the stack — built from the ground up' },
-      tags: ['Clinical NLP', 'FHIR R4', 'Ambient AI'],
-      bio: 'Built ibuscribe from the ground up — the ambient recording pipeline, clinical NLP, FHIR R4 builder, and the full-stack product. Obsessed with making AI genuinely useful where the need is greatest.',
-    },
-  ]
-
   return (
-    <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, overflow: 'hidden' }}>
-      {/* Background radial glow */}
-      <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: 700, height: 700, borderRadius: '50%', background: `radial-gradient(circle, rgba(16,240,156,0.05) 0%, transparent 68%)`, pointerEvents: 'none' }} />
-
+    <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
       <Container>
         {/* Header */}
-        <div className="rv" style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 72px' }}>
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 64px' }}>
           <SectionLabel>Who we are</SectionLabel>
           <SectionHeading>Two people. One mission.</SectionHeading>
           <SectionSub>A doctor and an engineer who believe the pen has outpaced the stethoscope for far too long.</SectionSub>
         </div>
 
-        {/* Cards grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, maxWidth: 980, margin: '0 auto' }}>
-          {founders.map((f, i) => {
-            const isOpen = openIdx === i
-            return (
-            <div
-              key={i}
-              className={i === 0 ? 'rvl' : 'rvr'}
-              style={{
-                transitionDelay: `${i * 120}ms`,
-                background: isOpen
-                  ? `linear-gradient(160deg, ${T.cardMid} 0%, ${T.card} 100%)`
-                  : `linear-gradient(160deg, ${T.card} 0%, ${T.surface} 100%)`,
-                border: `1px solid ${isOpen ? T.borderAccent : T.border}`,
-                borderRadius: 24,
-                padding: '32px 32px',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'border-color .3s, background .3s, box-shadow .3s',
-                boxShadow: isOpen ? `0 20px 60px -30px ${T.accentGlow}` : 'none',
-              }}
-            >
-              {/* Left accent strip — only visible when open */}
-              {isOpen && <div style={{ position: 'absolute', left: 0, top: 48, bottom: 48, width: 3, background: `linear-gradient(to bottom, transparent, ${T.accent} 40%, ${T.accent} 60%, transparent)`, borderRadius: '0 2px 2px 0', opacity: 0.7 }} />}
+        {/* Folder shell */}
+        <div style={{ maxWidth: 980, margin: '0 auto' }}>
 
-              {/* Header row: avatar + identity + expand toggle */}
-              <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
-                {/* Monogram */}
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                  <div style={{
-                    width: 62, height: 62, borderRadius: 17,
-                    background: T.accentDim,
-                    border: `1.5px solid ${T.borderAccent}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: `0 0 24px -8px ${T.accentGlow}`,
-                  }}>
-                    <span style={{ fontFamily: MONO, fontSize: f.initials.length > 2 ? 12 : 16, fontWeight: 700, color: T.accent, letterSpacing: '-0.02em' }}>{f.initials}</span>
-                  </div>
-                  <div style={{ position: 'absolute', inset: -6, borderRadius: 22, border: `1px solid ${T.borderAccent}`, opacity: 0.3, pointerEvents: 'none' }} />
+          {/* Folder tab */}
+          <div style={{ display: 'flex', gap: 3, paddingLeft: 28 }}>
+            {['Personnel Files', 'Confidential', 'ibuscribe · 2025'].map((tab, i) => (
+              <div key={i} style={{
+                fontFamily: MONO, fontSize: 10.5,
+                fontWeight: i === 0 ? 700 : 400,
+                letterSpacing: '0.06em',
+                padding: '8px 18px',
+                borderRadius: '7px 7px 0 0',
+                border: '1px solid rgba(0,0,0,0.09)',
+                borderBottom: i === 0 ? '1px solid #FDFCF8' : '1px solid rgba(0,0,0,0.09)',
+                background: i === 0 ? '#FDFCF8' : '#E4E0D6',
+                color: i === 0 ? T.accent : T.textDim,
+                marginRight: 3,
+                marginBottom: i === 0 ? '-1px' : 0,
+                position: 'relative', zIndex: i === 0 ? 2 : 1,
+              }}>{tab}</div>
+            ))}
+          </div>
+
+          {/* Open folder */}
+          <div style={{
+            background: '#FDFCF8',
+            border: '1px solid rgba(0,0,0,0.09)',
+            borderRadius: '0 12px 12px 12px',
+            boxShadow: '0 12px 56px -16px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.04)',
+            overflow: 'hidden',
+          }}>
+
+            {/* Header strip */}
+            <div style={{
+              background: 'linear-gradient(90deg, #111827 0%, #1E293B 100%)',
+              padding: '16px 32px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: 8,
+                  background: T.accent,
+                  display: 'grid', placeItems: 'center',
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 96 96" fill="none">
+                    <rect width="96" height="96" rx="22" fill="#059669"/>
+                    <path d="M16 24 C16 19 19.5 16 24 16 L72 16 C76.5 16 80 19 80 24 L80 60 C80 65 76.5 68 72 68 L50 68 L38 82 L38 68 L24 68 C19.5 68 16 65 16 60 Z" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="2.8" strokeLinejoin="round"/>
+                    <polyline points="22,44 31,44 36,31 41,57 46,19 52,66 57,44 63,44 68,34 72,52 76,44 86,44" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
-
-                {/* Name + title */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: T.text, letterSpacing: '-0.025em', marginBottom: 5, lineHeight: 1.2 }}>{f.name}</div>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: T.accent, letterSpacing: '0.11em', textTransform: 'uppercase', fontFamily: MONO, marginBottom: 4 }}>{f.title}</div>
-                  <div style={{ fontSize: 12, color: T.textMuted }}>{f.sub}</div>
+                <div>
+                  <div style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>ibuscribe · STAFF REGISTRY</div>
+                  <div style={{ fontFamily: FEAT_FONT, fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 1 }}>Founding Team — Personnel Dossier</div>
                 </div>
-
-                {/* Expand/collapse button */}
-                <button
-                  onClick={() => setOpenIdx(isOpen ? -1 : i)}
-                  aria-label={isOpen ? 'Collapse' : 'Expand'}
-                  style={{
-                    width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                    background: isOpen ? T.accentDim : T.card,
-                    border: `1px solid ${isOpen ? T.borderAccent : T.border}`,
-                    color: isOpen ? T.accent : T.textMuted,
-                    fontSize: 22, lineHeight: 1,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    transition: 'background .2s, border-color .2s, color .2s, transform .25s',
-                    transform: isOpen ? 'rotate(45deg)' : 'none',
-                    cursor: 'pointer',
-                  }}
-                >+</button>
               </div>
-
-              {/* Expandable content */}
-              {isOpen && (
-                <div style={{ animation: 'contentIn .28s cubic-bezier(.16,1,.3,1)' }}>
-                  {/* Divider */}
-                  <div style={{ height: 1, background: `linear-gradient(to right, ${T.borderAccent}, ${T.border}, transparent)`, margin: '28px 0 24px' }} />
-
-                  {/* Bio */}
-                  <p style={{ color: T.textSecondary, fontSize: 14.5, lineHeight: 1.78, margin: '0 0 24px' }}>{f.bio}</p>
-
-                  {/* Tags */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
-                    {f.tags.map((tag, ti) => (
-                      <span key={ti} style={{
-                        background: T.accentDim,
-                        border: `1px solid ${T.borderAccent}`,
-                        color: T.accentSoft,
-                        fontSize: 11,
-                        fontWeight: 500,
-                        padding: '4px 11px',
-                        borderRadius: 999,
-                        letterSpacing: '0.04em',
-                        fontFamily: MONO,
-                      }}>{tag}</span>
-                    ))}
-                  </div>
-
-                  {/* Stat block */}
-                  <div style={{
-                    background: T.surface,
-                    border: `1px solid ${T.border}`,
-                    borderRadius: 14,
-                    padding: '14px 18px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 14,
-                  }}>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: T.accent, letterSpacing: '-0.04em', fontFamily: MONO, flexShrink: 0, lineHeight: 1 }}>{f.stat.value}</div>
-                    <div style={{ width: 1, height: 26, background: T.border, flexShrink: 0 }} />
-                    <div style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.55 }}>{f.stat.label}</div>
-                  </div>
-                </div>
-              )}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>REF: IBU/HR/2025/001</span>
+                <span style={{
+                  fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
+                  padding: '3px 8px', borderRadius: 3,
+                  background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}>CONFIDENTIAL</span>
+              </div>
             </div>
-          )})}
-        </div>
 
-        {/* Footer tagline */}
-        <div className="rv" style={{ textAlign: 'center', marginTop: 56, transitionDelay: '280ms' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 36, height: 1, background: T.textDim, opacity: 0.4 }} />
-            <span style={{ fontSize: 12, color: T.textDim, letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: MONO }}>Bengaluru · Founded 2025</span>
-            <div style={{ width: 36, height: 1, background: T.textDim, opacity: 0.4 }} />
+            {/* Two personnel files side by side */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr' }}>
+
+              {TEAM.map((p, idx) => (
+                <>
+                  {/* File card */}
+                  <div key={p.staffId} style={{
+                    padding: '32px 28px',
+                    backgroundImage: `repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.035) 28px)`,
+                    backgroundSize: '100% 28px',
+                  }}>
+                    {/* File header row */}
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', marginBottom: 24 }}>
+                      {/* Monogram — passport photo style */}
+                      <div style={{
+                        width: 72, height: 88, borderRadius: 6, flexShrink: 0,
+                        background: `${p.clearanceColor}12`,
+                        border: `1.5px solid ${p.clearanceColor}30`,
+                        display: 'grid', placeItems: 'center',
+                        position: 'relative',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                      }}>
+                        <span style={{ fontFamily: MONO, fontSize: p.initials.length > 2 ? 13 : 18, fontWeight: 700, color: p.clearanceColor, letterSpacing: '-0.01em' }}>{p.initials}</span>
+                        {/* Photo corner marks */}
+                        {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h], ci) => (
+                          <div key={ci} style={{
+                            position: 'absolute', [v]: 4, [h]: 4,
+                            width: 8, height: 8,
+                            borderTop: v === 'top' ? `1.5px solid ${p.clearanceColor}60` : 'none',
+                            borderBottom: v === 'bottom' ? `1.5px solid ${p.clearanceColor}60` : 'none',
+                            borderLeft: h === 'left' ? `1.5px solid ${p.clearanceColor}60` : 'none',
+                            borderRight: h === 'right' ? `1.5px solid ${p.clearanceColor}60` : 'none',
+                          }}/>
+                        ))}
+                      </div>
+
+                      {/* Identity block */}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: MONO, fontSize: 9, color: T.textDim, letterSpacing: '0.1em', marginBottom: 6 }}>{p.staffId}</div>
+                        <div style={{ fontFamily: FEAT_FONT, fontSize: 20, fontWeight: 700, color: T.text, lineHeight: 1.15, marginBottom: 4 }}>{p.name}</div>
+                        <div style={{
+                          display: 'inline-block',
+                          fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+                          padding: '3px 10px', borderRadius: 4,
+                          background: `${p.clearanceColor}15`,
+                          color: p.clearanceColor,
+                          border: `1px solid ${p.clearanceColor}30`,
+                          marginBottom: 6,
+                          textTransform: 'uppercase',
+                        }}>{p.role}</div>
+                        <div style={{ fontFamily: FEAT_FONT, fontSize: 12.5, color: T.textMuted, fontStyle: 'italic' }}>{p.qual}</div>
+                      </div>
+                    </div>
+
+                    {/* Filed rows — like a form */}
+                    <div style={{ marginBottom: 20 }}>
+                      {p.areas.map((row, ri) => (
+                        <div key={ri} style={{
+                          display: 'flex', justifyContent: 'space-between',
+                          alignItems: 'baseline', padding: '7px 0',
+                          borderBottom: ri < p.areas.length - 1 ? '1px dashed rgba(0,0,0,0.08)' : 'none',
+                        }}>
+                          <span style={{ fontFamily: FEAT_FONT, fontSize: 11, color: T.textDim, fontStyle: 'italic', minWidth: 100 }}>{row.l}</span>
+                          <span style={{ fontFamily: FEAT_FONT, fontSize: 12.5, color: T.textSecondary, fontWeight: 700, textAlign: 'right' }}>{row.v}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Bio */}
+                    <p style={{ fontFamily: FEAT_FONT, fontSize: 13.5, lineHeight: 1.8, color: T.textSecondary, fontStyle: 'italic', margin: '0 0 18px', borderTop: '1px dashed rgba(0,0,0,0.08)', paddingTop: 16 }}>
+                      {p.bio}
+                    </p>
+
+                    {/* Tags */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
+                      {p.tags.map((tag, ti) => (
+                        <span key={ti} style={{
+                          fontFamily: MONO, fontSize: 9.5, fontWeight: 600,
+                          letterSpacing: '0.06em',
+                          padding: '3px 9px', borderRadius: 3,
+                          background: `${p.clearanceColor}10`,
+                          color: p.clearanceColor,
+                          border: `1px solid ${p.clearanceColor}25`,
+                        }}>{tag}</span>
+                      ))}
+                    </div>
+
+                    {/* Stat + stamp row */}
+                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                      <div style={{
+                        background: `${p.clearanceColor}08`,
+                        border: `1px solid ${p.clearanceColor}20`,
+                        borderRadius: 8, padding: '10px 14px',
+                        flex: 1, marginRight: 16,
+                      }}>
+                        <div style={{ fontFamily: FEAT_FONT, fontSize: 24, fontWeight: 700, color: p.clearanceColor, lineHeight: 1, letterSpacing: '-0.02em' }}>{p.stat}</div>
+                        <div style={{ fontFamily: FEAT_FONT, fontSize: 11.5, color: T.textMuted, fontStyle: 'italic', marginTop: 4, lineHeight: 1.4 }}>{p.statLabel}</div>
+                      </div>
+                      {/* Rubber stamp */}
+                      <div style={{
+                        border: `2.5px solid ${p.clearanceColor}`,
+                        borderRadius: 6, padding: '7px 12px',
+                        transform: 'rotate(-5deg)',
+                        opacity: 0.6, flexShrink: 0,
+                        textAlign: 'center',
+                      }}>
+                        <div style={{ fontFamily: FEAT_FONT, fontSize: 13, fontWeight: 700, color: p.clearanceColor, letterSpacing: '0.14em' }}>CLEARED</div>
+                        <div style={{ fontFamily: MONO, fontSize: 7.5, color: p.clearanceColor, letterSpacing: '0.1em', marginTop: 2 }}>{p.clearance}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vertical divider between cards (only after first) */}
+                  {idx === 0 && (
+                    <div key="divider" style={{ background: 'rgba(0,0,0,0.07)', width: 1 }} />
+                  )}
+                </>
+              ))}
+            </div>
+
+            {/* Folder footer */}
+            <div style={{
+              borderTop: '1px solid rgba(0,0,0,0.07)',
+              padding: '10px 32px',
+              background: '#F3F0E8',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>
+                ibuscribe · Founding Team · Bengaluru · Established 2025
+              </span>
+              <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>2 of 2 records · CONFIDENTIAL</span>
+            </div>
           </div>
         </div>
       </Container>

@@ -882,21 +882,6 @@ function Rural() {
                 </div>
               ))}
             </div>
-            <figure className="rv" style={{
-              margin: '36px 0 0', padding: '22px 26px',
-              background: T.accentDim,
-              border: `1px solid ${T.borderAccent}`,
-              borderRadius: 18,
-              display: 'flex', gap: 18, alignItems: 'flex-start',
-              position: 'relative', overflow: 'hidden',
-            }}>
-              <div aria-hidden style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(5,150,105,0.07)', filter: 'blur(40px)' }} />
-              <div style={{ position: 'relative', width: 44, height: 44, borderRadius: 99, flexShrink: 0, background: `linear-gradient(135deg, ${T.accent}, ${T.accentSoft})`, display: 'grid', placeItems: 'center', color: T.accentInk, fontWeight: 700, fontSize: 16, boxShadow: `0 8px 20px -6px ${T.accentGlow}` }}>D</div>
-              <figcaption style={{ position: 'relative' }}>
-                <blockquote style={{ margin: 0, fontSize: 15.5, color: T.text, lineHeight: 1.7, fontStyle: 'italic' }}>"I see 80 patients a day. I used to stay back 2 hours writing notes. Now I'm home by 6."</blockquote>
-                <div style={{ marginTop: 10, fontSize: 12.5, color: T.textMuted }}>Dr. Deepak Rao · PHC Medical Officer · Raichur, Karnataka</div>
-              </figcaption>
-            </figure>
           </div>
           {/* Right: ExpandCard grid */}
           <div className="rvr" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>

@@ -1256,30 +1256,326 @@ function UseCases() {
   )
 }
 
-// ─── Features (click-to-expand) ───────────────────────────────────────────────
+// ─── Features — Hospital Folder UI ───────────────────────────────────────────
+const FEAT_FONT = "'Georgia', 'Times New Roman', serif"
+
+const FEATS = [
+  {
+    tab:    'Built for India',
+    ref:    'IBU-IN-001',
+    filed:  '12 May 2026',
+    dept:   'Localisation & Pharmacology',
+    color:  '#B45309',
+    badge:  'VERIFIED',
+    badgeColor: '#B45309',
+    title:  'Tuned for Indian primary care — not translated from elsewhere.',
+    body:   'Drug names, dosing schedules, and disease prevalence that match what you actually see in your OPD. Dolo 650, Pan-D, Augmentin 625, Metformin SR 500 — not "acetaminophen" or "omeprazole PO." Built from the ground up for the Indian formulary, with ICD-10-IN codes and SNOMED CT dual-coding.',
+    keyPoints: ['Indian formulary (CIMS / MIMS-IN)', 'ICD-10-IN + SNOMED CT dual coding', 'Tanglish, Hinglish & regional code-switch', 'Mosquito-borne, TB, dengue prevalence weighting'],
+    stamp: 'INDIA',
+  },
+  {
+    tab:    'Doctor in Control',
+    ref:    'IBU-DC-002',
+    filed:  '12 May 2026',
+    dept:   'Safety & Clinical Governance',
+    color:  '#059669',
+    badge:  'APPROVED',
+    badgeColor: '#059669',
+    title:  'The AI drafts. You decide. Nothing moves without your signature.',
+    body:   'Every field is editable before it leaves your screen. No auto-save, no background push, no silent submission. The pipeline physically cannot push a FHIR bundle to the HIE without an explicit physician approval action. This is a hard architectural constraint — not a UI toggle that can be turned off.',
+    keyPoints: ['No data leaves without explicit approval', 'All AI output editable before save', 'Full audit trail per consultation', 'DPDP & health data consent compliant'],
+    stamp: 'APPROVED',
+  },
+  {
+    tab:    'ABDM Native',
+    ref:    'IBU-AB-003',
+    filed:  '12 May 2026',
+    dept:   'Interoperability & HIE',
+    color:  '#2563EB',
+    badge:  'FHIR R4',
+    badgeColor: '#2563EB',
+    title:  'FHIR R4 bundles — generated, not retrofitted.',
+    body:   'Every encounter produces a FHIR R4 bundle from the first line of code — not bolted on as an export step. Patient, Encounter, Condition, MedicationRequest, and Observation resources are built inline. ABHA ID linking and consent-first HIE push are part of the core pipeline, ready for Phase 3 deployment.',
+    keyPoints: ['FHIR R4 Condition + MedicationRequest + Observation', 'ABHA ID linking built in', 'Consent-first HIE push architecture', 'Regional data residency, DPDP-compliant'],
+    stamp: 'FHIR R4',
+  },
+  {
+    tab:    'Transcription',
+    ref:    'IBU-TR-004',
+    filed:  '12 May 2026',
+    dept:   'Speech & Language',
+    color:  '#7C3AED',
+    badge:  'LIVE',
+    badgeColor: '#7C3AED',
+    title:  'You finish the consultation. The transcript is already done.',
+    body:   'Groq-hosted Whisper large-v3 delivers near-real-time transcription — typically under 4 seconds for a 5-minute consultation. Handles mid-sentence code-switching between English, Hindi, Tamil, Telugu, Kannada, Bengali, Malayalam and Marathi. Noisy OPD backgrounds, multiple speakers, and accented speech are not edge cases — they\'re the training distribution.',
+    keyPoints: ['Whisper large-v3 on Groq fast inference', '8 Indian languages + code-switching', 'Sub-4s for 5-min audio on fast network', 'Noise-robust for busy OPD settings'],
+    stamp: 'LIVE',
+  },
+  {
+    tab:    'Medications',
+    ref:    'IBU-MR-005',
+    filed:  '12 May 2026',
+    dept:   'Prescription Intelligence',
+    color:  '#DC2626',
+    badge:  'VERIFIED',
+    badgeColor: '#DC2626',
+    title:  'Frequency, duration, instructions — extracted exactly as spoken.',
+    body:   'The model recognises BD, TDS, QID, OD, SOS and less common schedules like ALTERNATE DAY and WEEKLY dosing. Duration suffixes — ×5d, ×14d, for 1 month — are captured and mapped. With-food, before-food, after-food and at-bedtime instructions are extracted verbatim in the language you speak them, then normalised for the prescription output.',
+    keyPoints: ['BD / TDS / QID / OD / SOS / Weekly', 'Duration: ×5d, ×14d, for 1 month', 'Food instruction normalisation', 'Drug name fuzzy match (spelling variance)'],
+    stamp: 'Rx',
+  },
+  {
+    tab:    'Structured Output',
+    ref:    'IBU-SO-006',
+    filed:  '12 May 2026',
+    dept:   'Clinical Documentation',
+    color:  '#059669',
+    badge:  'STRUCTURED',
+    badgeColor: '#059669',
+    title:  'Complaint → HPI → Assessment → Plan. Separated. Editable. Exportable.',
+    body:   'Speech goes in as a single stream. What comes out is a fully separated SOAP-style note: chief complaint, history of presenting illness, examination findings, assessment, and management plan — each in its own field, each editable, each ready for EMR export, PDF prescription, or WhatsApp summary without reformatting or rewriting by hand.',
+    keyPoints: ['SOAP-structured output (CC / HPI / A / P)', 'Every field individually editable', 'PDF prescription + WhatsApp summary', 'EMR-ready JSON (HL7 FHIR R4)'],
+    stamp: 'SOAP',
+  },
+]
+
 function Features() {
-  const feats = [
-    { i: '🇮🇳', t: 'Built for India',            d: 'Dolo, Pan-D, Augmentin, Metformin SR. Indian drug names, local disease prevalence, pharmacology you actually prescribe — not an American model with a translator bolted on.' },
-    { i: '🧑‍⚕️', t: 'Doctor stays in control',    d: 'Nothing is saved, signed or pushed until you approve it. The AI drafts — you decide, every single time. This is a hard architectural invariant, not a toggle.' },
-    { i: '🔗', t: 'ABDM-native',                  d: 'FHIR R4 bundles generated from day one. Push to Health Information Exchange, ABHA linking, consent-first architecture. Regional data residency built in.' },
-    { i: '🎧', t: 'Real-time transcription',      d: 'Whisper large-v3 on fast inference. You finish the visit, the transcript is already done. Handles accents, code-switching, and noisy OPD environments.' },
-    { i: '💊', t: 'Medication intelligence',      d: 'Recognises BD, TDS, QID, OD dosing. Duration (×5d, ×14d). With-food, before-food, after-food instructions. In any of 8 Indian languages you speak them.' },
-    { i: '📐', t: 'Structured from speech',       d: 'Chief complaint, HPI, vitals, assessment, plan — all separated, all editable, all ready for EMR export. No reformatting. No rewriting.' },
-  ]
+  const [active, setActive] = useState(0)
+  const feat = FEATS[active]
+
   return (
     <section style={{ padding: '120px 0', position: 'relative', zIndex: 1 }}>
+      <style>{`
+        @keyframes pageFlip {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .feat-page { animation: pageFlip 0.28s ease forwards; }
+      `}</style>
       <Container>
-        <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 56px' }}>
+        {/* Header */}
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto 64px' }}>
           <SectionLabel>Features</SectionLabel>
           <SectionHeading>Everything a primary care doctor in India actually needs.</SectionHeading>
-          <SectionSub>Click any feature to dig deeper.</SectionSub>
+          <SectionSub>Open each section of the folder to read more.</SectionSub>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          {feats.map((f, i) => (
-            <ExpandCard key={i} icon={f.i} title={f.t} delay={i * 60}>
-              <p style={{ color: T.textSecondary, margin: 0, lineHeight: 1.7, fontSize: 14.5 }}>{f.d}</p>
-            </ExpandCard>
-          ))}
+
+        {/* Folder shell */}
+        <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto' }}>
+
+          {/* Folder Tabs row */}
+          <div style={{ display: 'flex', gap: 3, paddingLeft: 24, position: 'relative', zIndex: 2 }}>
+            {FEATS.map((f, i) => (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                style={{
+                  fontFamily: FONT, fontSize: 12.5, fontWeight: i === active ? 700 : 500,
+                  padding: '9px 16px',
+                  borderRadius: '8px 8px 0 0',
+                  border: `1px solid ${i === active ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.07)'}`,
+                  borderBottom: i === active ? '1px solid #FFFFFF' : `1px solid rgba(0,0,0,0.07)`,
+                  background: i === active ? '#FFFFFF' : '#E8E4DA',
+                  color: i === active ? f.color : T.textMuted,
+                  cursor: 'pointer', outline: 'none',
+                  transition: 'all .18s ease',
+                  marginBottom: i === active ? '-1px' : 0,
+                  position: 'relative', zIndex: i === active ? 3 : 1,
+                  whiteSpace: 'nowrap',
+                  boxShadow: i === active ? '0 -2px 8px rgba(0,0,0,0.05)' : 'none',
+                }}
+              >
+                {f.tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Folder body — the "open folder" paper */}
+          <div style={{
+            background: '#FFFFFF',
+            border: '1px solid rgba(0,0,0,0.1)',
+            borderRadius: '0 12px 12px 12px',
+            boxShadow: '0 8px 48px -12px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.04)',
+            position: 'relative', zIndex: 2, overflow: 'hidden',
+          }}>
+            {/* Folder header strip — coloured top bar */}
+            <div style={{
+              background: `linear-gradient(90deg, ${feat.color}18 0%, ${feat.color}08 100%)`,
+              borderBottom: `2px solid ${feat.color}30`,
+              padding: '16px 32px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {/* File label */}
+                <div style={{
+                  background: feat.color, color: '#fff',
+                  fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+                  padding: '3px 10px', borderRadius: 4,
+                }}>
+                  {feat.ref}
+                </div>
+                <div style={{ fontFamily: FEAT_FONT, fontSize: 12, color: T.textMuted, fontStyle: 'italic' }}>
+                  Dept: {feat.dept}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, color: T.textDim }}>Filed: {feat.filed}</div>
+                {/* FHIR + ABDM badges */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {['FHIR R4', 'ABDM'].map(b => (
+                    <span key={b} style={{
+                      fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
+                      padding: '2px 7px', borderRadius: 3,
+                      border: `1px solid ${feat.color}40`, color: feat.color,
+                    }}>{b}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Ruled paper content */}
+            <div className="feat-page" key={active} style={{
+              padding: '36px 40px 40px',
+              backgroundImage: `repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.04) 28px)`,
+              backgroundSize: '100% 28px',
+              backgroundPositionY: '0px',
+              minHeight: 360,
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 48 }}>
+
+                {/* Left — typed document */}
+                <div>
+                  {/* Section heading */}
+                  <div style={{ fontFamily: FEAT_FONT, fontSize: 11, color: T.textDim, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>
+                    Clinical System Specification
+                  </div>
+                  <h3 style={{
+                    fontFamily: FEAT_FONT, fontSize: 22, fontWeight: 700,
+                    color: T.text, lineHeight: 1.3, margin: '0 0 20px',
+                    borderBottom: `1.5px solid ${feat.color}30`, paddingBottom: 14,
+                  }}>
+                    {feat.title}
+                  </h3>
+                  <p style={{
+                    fontFamily: FEAT_FONT, fontSize: 15, lineHeight: 1.85,
+                    color: T.textSecondary, margin: '0 0 28px', fontStyle: 'italic',
+                  }}>
+                    {feat.body}
+                  </p>
+
+                  {/* Key points — typed list */}
+                  <div style={{ borderTop: `1px dashed rgba(0,0,0,0.12)`, paddingTop: 20 }}>
+                    <div style={{ fontFamily: MONO, fontSize: 10, color: T.textDim, letterSpacing: '0.1em', marginBottom: 12 }}>
+                      KEY SPECIFICATIONS
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px' }}>
+                      {feat.keyPoints.map((kp, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                          <span style={{ color: feat.color, fontWeight: 700, fontSize: 14, lineHeight: 1.4, flexShrink: 0 }}>✓</span>
+                          <span style={{ fontFamily: FEAT_FONT, fontSize: 13.5, color: T.textMuted, lineHeight: 1.5 }}>{kp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right — file card with stamp */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Patient file card */}
+                  <div style={{
+                    border: `1px solid rgba(0,0,0,0.1)`,
+                    borderRadius: 10,
+                    background: '#FDFCF9',
+                    overflow: 'hidden',
+                  }}>
+                    {/* Card header */}
+                    <div style={{
+                      background: `${feat.color}12`,
+                      borderBottom: `1px solid ${feat.color}25`,
+                      padding: '10px 14px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    }}>
+                      <span style={{ fontFamily: MONO, fontSize: 10, color: feat.color, fontWeight: 700, letterSpacing: '0.08em' }}>
+                        FEATURE CARD
+                      </span>
+                      <span style={{ fontFamily: MONO, fontSize: 9, color: T.textDim }}>{feat.ref}</span>
+                    </div>
+                    <div style={{ padding: '16px 14px' }}>
+                      {[
+                        { l: 'Module', v: feat.tab },
+                        { l: 'Department', v: feat.dept.split(' & ')[0] },
+                        { l: 'Status', v: 'Active — Phase 1' },
+                        { l: 'Compliance', v: 'ABDM / FHIR R4' },
+                      ].map((row, i) => (
+                        <div key={i} style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                          borderBottom: i < 3 ? `1px solid rgba(0,0,0,0.06)` : 'none',
+                          padding: '7px 0',
+                        }}>
+                          <span style={{ fontFamily: FEAT_FONT, fontSize: 11, color: T.textDim, fontStyle: 'italic' }}>{row.l}</span>
+                          <span style={{ fontFamily: FEAT_FONT, fontSize: 12, color: T.textSecondary, fontWeight: 700, textAlign: 'right', maxWidth: 130 }}>{row.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Rubber stamp */}
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+                    <div style={{
+                      border: `3px solid ${feat.badgeColor}`,
+                      borderRadius: 8,
+                      padding: '10px 20px',
+                      transform: 'rotate(-4deg)',
+                      opacity: 0.75,
+                      display: 'inline-block',
+                    }}>
+                      <div style={{
+                        fontFamily: FEAT_FONT, fontSize: 20, fontWeight: 700,
+                        color: feat.badgeColor, letterSpacing: '0.14em',
+                        textTransform: 'uppercase', lineHeight: 1,
+                      }}>
+                        {feat.badge}
+                      </div>
+                      <div style={{
+                        fontFamily: MONO, fontSize: 8, color: feat.badgeColor,
+                        letterSpacing: '0.12em', textAlign: 'center', marginTop: 3,
+                      }}>
+                        ibuscribe · {feat.filed}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Feature index dots */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
+                    {FEATS.map((_, i) => (
+                      <button key={i} onClick={() => setActive(i)} style={{
+                        width: i === active ? 20 : 6, height: 6, borderRadius: 3,
+                        background: i === active ? feat.color : 'rgba(0,0,0,0.12)',
+                        border: 'none', cursor: 'pointer', padding: 0,
+                        transition: 'all .2s ease',
+                      }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Folder footer — ruled line + page ref */}
+            <div style={{
+              borderTop: `1px solid rgba(0,0,0,0.07)`,
+              padding: '10px 32px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: '#FAFAF8',
+            }}>
+              <span style={{ fontFamily: MONO, fontSize: 10, color: T.textDim }}>
+                ibuscribe Clinical System Documentation · Confidential
+              </span>
+              <span style={{ fontFamily: MONO, fontSize: 10, color: T.textDim }}>
+                Page {active + 1} of {FEATS.length}
+              </span>
+            </div>
+          </div>
         </div>
       </Container>
     </section>

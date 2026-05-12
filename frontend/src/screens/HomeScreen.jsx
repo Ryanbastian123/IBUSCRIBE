@@ -852,26 +852,200 @@ function Problem() {
   )
 }
 
-// ─── How It Works (click-to-expand) ───────────────────────────────────────────
+// ─── How It Works ─────────────────────────────────────────────────────────────
 function HowItWorks() {
+  const [active, setActive] = useState(0)
+
   const steps = [
-    { n: '01', icon: '🎙️', t: 'Talk naturally', d: 'Hit record and consult the way you always have. Hindi, English, Tamil, Kannada — or switch mid-sentence. IBUSCRIBE follows every word, every pharmacology term, every Indian drug name.' },
-    { n: '02', icon: '✦', t: 'AI writes the note', d: 'In the time it takes to say goodbye to the patient, the full clinical note is drafted — chief complaint, HPI, vitals, assessment, plan. Structured, coded, and ready.' },
-    { n: '03', icon: '✓', t: 'Review & approve', d: 'Scan it, edit anything that needs a tweak, then approve with one click. Nothing is ever saved or pushed without your explicit sign-off. Doctor always stays in control.' },
-  ]
-  return (
-    <section id="how" style={{ padding: '120px 0', position: 'relative', zIndex: 1 }}>
-      <Container>
-        <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 56px' }}>
-          <SectionLabel>How it works</SectionLabel>
-          <SectionHeading>Three steps. About two minutes.</SectionHeading>
-          <SectionSub>Click any step to see how it works under the hood.</SectionSub>
+    {
+      n: '01', color: T.accent, colorDim: T.accentDim,
+      label: 'Record',
+      title: 'Just talk. ibuscribe listens.',
+      desc: 'Tap record and consult as you always do. Hindi, English, Tamil, Kannada — or mid-sentence code-switching. ibuscribe follows every word, every drug name, every clinical detail without interrupting your flow.',
+      tags: ['8 Indian languages', 'Background recording', 'No special hardware'],
+      visual: (
+        <div style={{ background: '#fff', borderRadius: 16, padding: 20, border: `1px solid ${T.border}`, boxShadow: '0 8px 24px -10px rgba(0,0,0,0.08)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 99, padding: '4px 12px' }}>
+              <span style={{ width: 7, height: 7, borderRadius: 99, background: '#DC2626', animation: 'pulseDot 1.2s infinite', display: 'inline-block' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#DC2626', fontFamily: MONO, letterSpacing: '0.1em' }}>LIVE</span>
+            </div>
+            <span style={{ fontFamily: MONO, color: T.textMuted, fontSize: 12 }}>02:14</span>
+          </div>
+          <p style={{ fontSize: 13.5, color: T.text, lineHeight: 1.75, margin: '0 0 14px', fontStyle: 'italic' }}>
+            "…<span style={{ color: T.accent, fontWeight: 600 }}>BP 152/94</span> today. Patient complains of <span style={{ color: T.accent, fontWeight: 600 }}>headache</span> since 3 days, <span style={{ color: '#DC2626', fontWeight: 600 }}>no chest pain</span>…"
+          </p>
+          <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 36 }}>
+            {[0.3,0.7,0.5,1,0.6,0.9,0.4,0.8,0.5,0.7,0.3,0.6,0.9,0.4,0.7,0.5,1,0.6,0.8,0.3,0.7,0.9,0.5,0.6].map((h,i) => (
+              <div key={i} style={{ flex: 1, borderRadius: 2, background: `linear-gradient(to top, ${T.accent}, ${T.accentSoft})`, height: `${h*100}%`, opacity: 0.65, animation: `waveBar ${0.5+(i%5)*0.1}s ease-in-out ${i*0.04}s infinite` }} />
+            ))}
+          </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+      ),
+    },
+    {
+      n: '02', color: '#2563EB', colorDim: 'rgba(37,99,235,0.07)',
+      label: 'Extract',
+      title: 'AI reads the conversation, not you.',
+      desc: 'In under 3 seconds, the clinical LLM extracts every relevant detail — symptoms, examination findings, diagnosis, medications, follow-up plan. If something wasn\'t mentioned, it\'s left blank. No hallucinations.',
+      tags: ['Groq Llama 3 · 70B', 'SNOMED CT coded', 'ICD-10 assigned'],
+      visual: (
+        <div style={{ background: '#fff', borderRadius: 16, padding: 20, border: '1px solid rgba(37,99,235,0.15)', boxShadow: '0 8px 24px -10px rgba(37,99,235,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 99, background: '#2563EB', animation: 'pulseDot 1.4s infinite' }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#2563EB', fontFamily: MONO, letterSpacing: '0.1em' }}>EXTRACTING</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: T.textDim, fontFamily: MONO }}>2.1s</span>
+          </div>
+          {[
+            { l: 'Symptoms', v: 'Headache × 3d, elevated BP', c: T.text },
+            { l: 'Vitals', v: 'BP 152/94 mmHg', c: '#DC2626' },
+            { l: 'Assessment', v: 'Essential hypertension', c: '#2563EB' },
+            { l: 'ICD-10', v: 'I10  ·  SNOMED 38341003', c: T.accent },
+            { l: 'Plan', v: 'Amlodipine 5mg OD · BP log', c: T.text },
+          ].map((r,i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, padding: '6px 0', borderBottom: i<4 ? `1px solid ${T.border}` : 'none', alignItems: 'baseline' }}>
+              <span style={{ fontSize: 10, fontFamily: MONO, color: T.textDim, minWidth: 72, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{r.l}</span>
+              <span style={{ fontSize: 13, color: r.c, fontWeight: r.c !== T.text ? 600 : 400 }}>{r.v}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      n: '03', color: T.accent, colorDim: T.accentDim,
+      label: 'Review',
+      title: 'You approve. Nothing else moves.',
+      desc: 'The complete clinical note lands on your screen. Read it, edit anything, add what\'s missing — then click Approve. Only then is anything saved or sent. The physician is always the final authority.',
+      tags: ['Edit any field', 'One-click approval', 'Nothing auto-saves'],
+      visual: (
+        <div style={{ background: '#fff', borderRadius: 16, padding: 20, border: `1px solid ${T.borderAccent}`, boxShadow: `0 8px 24px -10px ${T.accentGlow}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: T.text }}>Clinical Note — Ready for Review</span>
+            <span style={{ fontSize: 10, fontFamily: MONO, color: T.accent, background: T.accentDim, border: `1px solid ${T.borderAccent}`, borderRadius: 6, padding: '2px 8px' }}>FHIR R4</span>
+          </div>
+          {[
+            { l: '👤 Patient', v: 'Rajan Pillai, 63 M' },
+            { l: '🩺 Complaint', v: 'Headache × 3d, BP elevated' },
+            { l: '📊 Vitals', v: 'BP 152/94 · PR 78/min' },
+            { l: '🔬 Diagnosis', v: 'Essential Hypertension · I10' },
+            { l: '💊 Rx', v: 'Amlodipine 5mg OD · review 2w' },
+          ].map((r,i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, padding: '5px 0', borderBottom: i<4 ? `1px solid ${T.border}` : 'none' }}>
+              <span style={{ fontSize: 12, color: T.textDim, minWidth: 100 }}>{r.l}</span>
+              <span style={{ fontSize: 12.5, color: T.text, fontWeight: 500 }}>{r.v}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 14, background: T.accent, borderRadius: 10, padding: '10px 16px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.02em', boxShadow: `0 6px 18px -6px ${T.accentGlow}` }}>
+            ✓ Approve &amp; Save to ABDM
+          </div>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <section id="how" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
+      <Container>
+        {/* Header */}
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto 72px' }}>
+          <SectionLabel>How it works</SectionLabel>
+          <SectionHeading>From consultation to clinical record<br />in three steps.</SectionHeading>
+          <SectionSub>No forms. No typing. No reformatting. Just talk — ibuscribe handles everything in between.</SectionSub>
+        </div>
+
+        {/* Step selector pills */}
+        <div className="rv" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 52 }}>
           {steps.map((s, i) => (
-            <ExpandCard key={i} num={s.n} icon={s.icon} title={s.t} delay={i * 100}>
-              <p style={{ color: T.textSecondary, lineHeight: 1.7, margin: 0, fontSize: 14.5 }}>{s.d}</p>
-            </ExpandCard>
+            <button key={i} onClick={() => setActive(i)} style={{
+              display: 'flex', alignItems: 'center', gap: 9,
+              padding: '10px 22px', borderRadius: 999, cursor: 'pointer',
+              background: active === i ? s.color : '#fff',
+              color: active === i ? '#fff' : T.textMuted,
+              border: `1.5px solid ${active === i ? s.color : T.border}`,
+              fontWeight: 600, fontSize: 14,
+              transition: 'all .25s cubic-bezier(.16,1,.3,1)',
+              boxShadow: active === i ? `0 8px 24px -8px ${s.color}55` : 'none',
+              fontFamily: FONT,
+            }}>
+              <span style={{ fontFamily: MONO, fontSize: 10, opacity: 0.7, letterSpacing: '0.1em' }}>{s.n}</span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Main content grid */}
+        {steps.map((s, i) => (
+          <div key={i} className="rv" style={{
+            display: active === i ? 'grid' : 'none',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 56, alignItems: 'center',
+            animation: 'contentIn .45s cubic-bezier(.16,1,.3,1)',
+          }}>
+            {/* Left — text */}
+            <div>
+              {/* Step number + label */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: s.colorDim, border: `1.5px solid ${s.color}44`, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 16, fontWeight: 700, color: s.color }}>{s.n}</span>
+                </div>
+                <div style={{ height: 1, flex: 1, background: `linear-gradient(to right, ${s.color}44, transparent)` }} />
+                <span style={{ fontFamily: MONO, fontSize: 11, color: s.color, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', background: s.colorDim, padding: '4px 12px', borderRadius: 99, border: `1px solid ${s.color}30` }}>{s.label}</span>
+              </div>
+
+              <h3 style={{ fontSize: 'clamp(24px, 3vw, 38px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: s.color, margin: '0 0 18px' }}>{s.title}</h3>
+              <p style={{ fontSize: 17, lineHeight: 1.72, color: T.textSecondary, margin: '0 0 28px' }}>{s.desc}</p>
+
+              {/* Tags */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 36 }}>
+                {s.tags.map((tag, ti) => (
+                  <span key={ti} style={{ fontSize: 12.5, color: s.color, background: s.colorDim, border: `1px solid ${s.color}28`, borderRadius: 8, padding: '5px 13px', fontWeight: 500 }}>{tag}</span>
+                ))}
+              </div>
+
+              {/* Step navigation dots */}
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                {steps.map((_, di) => (
+                  <button key={di} onClick={() => setActive(di)} style={{
+                    width: active === di ? 28 : 8, height: 8, borderRadius: 99,
+                    background: active === di ? s.color : T.borderMid,
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    transition: 'all .35s cubic-bezier(.16,1,.3,1)',
+                  }} />
+                ))}
+                <span style={{ marginLeft: 8, fontSize: 12, color: T.textDim, fontFamily: MONO }}>{i + 1} / {steps.length}</span>
+              </div>
+            </div>
+
+            {/* Right — visual card */}
+            <div style={{ position: 'relative' }}>
+              {/* Glow behind card */}
+              <div style={{ position: 'absolute', inset: -30, background: `radial-gradient(60% 60% at 50% 50%, ${s.color}12, transparent 70%)`, filter: 'blur(20px)', borderRadius: 30 }} />
+              <div style={{ position: 'relative', transform: 'perspective(900px) rotateY(-4deg) rotateX(2deg)', transition: 'transform .4s ease' }}>
+                {s.visual}
+                {/* Bottom shadow reflection */}
+                <div style={{ position: 'absolute', bottom: -16, left: '10%', right: '10%', height: 24, background: `radial-gradient(ellipse at 50% 0%, ${s.color}18, transparent 70%)`, filter: 'blur(8px)' }} />
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Bottom progress bar */}
+        <div className="rv" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginTop: 64, maxWidth: 600, margin: '64px auto 0' }}>
+          {steps.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+              <button onClick={() => setActive(i)} style={{
+                width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                background: active === i ? s.color : active > i ? T.accentDim : '#fff',
+                border: `1.5px solid ${active >= i ? s.color : T.border}`,
+                color: active === i ? '#fff' : active > i ? T.accent : T.textMuted,
+                fontFamily: MONO, fontSize: 12, fontWeight: 700,
+                cursor: 'pointer', transition: 'all .3s ease',
+                boxShadow: active === i ? `0 6px 20px -6px ${s.color}66` : 'none',
+              }}>{active > i ? '✓' : s.n}</button>
+              {i < steps.length - 1 && (
+                <div style={{ flex: 1, height: 2, background: active > i ? `linear-gradient(to right, ${T.accent}, ${steps[i+1].color})` : T.border, transition: 'background .4s ease', margin: '0 4px' }} />
+              )}
+            </div>
           ))}
         </div>
       </Container>

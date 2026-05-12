@@ -507,18 +507,23 @@ function StatCard({ n, label, tone, tint, detail, delay = 0 }) {
 function Brand() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {/* Logomark: ECG heartbeat pulse — medical listening + scribing */}
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-        <rect width="32" height="32" rx="9" fill="#E8F5F0"/>
-        <rect width="32" height="32" rx="9" stroke={T.accent} strokeWidth="1" strokeOpacity="0.45" fill="none"/>
-        <path
-          d="M 3,16 L 8,16 L 10,10 L 12.5,22 L 15,10 L 17.5,16 L 29,16"
-          stroke={T.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        />
+      {/* Logomark: green box — speech bubble + ECG + pen */}
+      <svg width="36" height="36" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+        <rect width="96" height="96" rx="22" fill="#059669"/>
+        <path d="M16 24 C16 19 19.5 16 24 16 L72 16 C76.5 16 80 19 80 24 L80 60 C80 65 76.5 68 72 68 L50 68 L38 82 L38 68 L24 68 C19.5 68 16 65 16 60 Z"
+              fill="rgba(255,255,255,0.14)" stroke="white" strokeWidth="2.8" strokeLinejoin="round"/>
+        <polyline points="22,44 31,44 36,31 41,57 46,19 52,66 57,44 63,44 68,34 72,52 76,44 86,44"
+                  fill="none" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <g transform="translate(78,18) rotate(42)">
+          <rect x="-4" y="-14" width="8" height="20" rx="2.5" fill="white" opacity="0.92"/>
+          <rect x="-4" y="-14" width="8" height="5" rx="2" fill="rgba(255,255,255,0.6)"/>
+          <polygon points="0,9 -4,6 4,6" fill="rgba(255,255,255,0.65)"/>
+          <circle cx="0" cy="10.5" r="1.5" fill="rgba(255,255,255,0.4)"/>
+        </g>
       </svg>
-      {/* Wordmark: quiet prefix + bold function word */}
+      {/* Wordmark */}
       <span style={{ lineHeight: 1, userSelect: 'none', letterSpacing: 0 }}>
-        <span style={{ fontSize: 15.5, fontWeight: 300, color: T.textMuted, letterSpacing: '0.07em', fontFamily: FONT }}>ibu</span><span style={{ fontSize: 15.5, fontWeight: 800, color: T.accent, letterSpacing: '-0.02em', fontFamily: FONT }}>scribe</span>
+        <span style={{ fontSize: 15.5, fontWeight: 300, color: T.textMuted, letterSpacing: '0.04em', fontFamily: FONT }}>ibu</span><span style={{ fontSize: 15.5, fontWeight: 800, color: T.accent, letterSpacing: '-0.02em', fontFamily: FONT }}>scribe</span>
       </span>
     </div>
   )

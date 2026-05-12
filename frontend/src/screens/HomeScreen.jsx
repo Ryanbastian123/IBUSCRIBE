@@ -1340,8 +1340,79 @@ const FEATS = [
   },
 ]
 
+function FolderTab({ label, color }) {
+  return (
+    <div style={{ paddingLeft: 24 }}>
+      <div style={{
+        display: 'inline-block',
+        fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.07em',
+        padding: '8px 20px', borderRadius: '7px 7px 0 0',
+        border: '1px solid rgba(0,0,0,0.09)', borderBottom: '1px solid #FDFCF8',
+        background: '#FDFCF8', color: color || T.accent,
+        marginBottom: '-1px', position: 'relative', zIndex: 2,
+      }}>{label}</div>
+    </div>
+  )
+}
+
+function FolderClosedCover({ onClick, docType, coverTitle, fileCount, color, headerContent }) {
+  return (
+    <div onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div style={{
+        background: '#FDFCF8',
+        border: '1px solid rgba(0,0,0,0.09)',
+        borderRadius: '0 12px 12px 12px',
+        boxShadow: '0 16px 56px -20px rgba(0,0,0,0.12)',
+        overflow: 'hidden',
+        transition: 'box-shadow .2s ease, transform .2s ease',
+      }}>
+        {headerContent}
+        {/* Cover body */}
+        <div style={{ padding: '44px 40px 36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 9, color: T.textDim, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 12 }}>
+              {docType}
+            </div>
+            <div style={{ fontFamily: FEAT_FONT, fontSize: 22, fontWeight: 700, color: T.text, lineHeight: 1.25, marginBottom: 8 }}>
+              {coverTitle}
+            </div>
+            <div style={{ fontFamily: FEAT_FONT, fontSize: 13.5, color: T.textMuted, fontStyle: 'italic' }}>
+              {fileCount}
+            </div>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 32,
+            fontFamily: FONT, fontSize: 13, fontWeight: 600, color: color || T.accent,
+            padding: '10px 22px', borderRadius: 8,
+            border: `1px solid ${color ? color + '35' : T.borderAccent}`,
+            background: color ? color + '0D' : T.accentDim,
+            userSelect: 'none',
+          }}>
+            Open folder
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke={color || T.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        {/* Paper stack at bottom */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0, padding: '0 20px', marginBottom: 0 }}>
+          {[18, 12, 6].map((inset, i) => (
+            <div key={i} style={{
+              height: 7, marginLeft: inset, marginRight: inset,
+              background: i === 0 ? '#fff' : `rgba(240,238,233,${0.8 - i * 0.2})`,
+              border: '1px solid rgba(0,0,0,0.07)', borderBottom: 'none',
+              borderRadius: '3px 3px 0 0',
+            }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Features() {
   const [active, setActive] = useState(0)
+  const [isOpen, setIsOpen] = useState(false)
   const feat = FEATS[active]
 
   return (
@@ -1351,25 +1422,54 @@ function Features() {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes folderOpen {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
         .feat-page { animation: pageFlip 0.28s ease forwards; }
+        .folder-open { animation: folderOpen 0.3s cubic-bezier(.16,1,.3,1) forwards; }
       `}</style>
       <Container>
         {/* Header */}
         <div className="rv" style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto 64px' }}>
           <SectionLabel>Features</SectionLabel>
           <SectionHeading>Everything a primary care doctor in India actually needs.</SectionHeading>
-          <SectionSub>Open each section of the folder to read more.</SectionSub>
+          <SectionSub>Click the folder to explore each specification.</SectionSub>
         </div>
 
         {/* Folder shell */}
         <div style={{ position: 'relative', maxWidth: 900, margin: '0 auto' }}>
 
-          {/* Folder Tabs row */}
-          <div style={{ display: 'flex', gap: 3, paddingLeft: 24, position: 'relative', zIndex: 2 }}>
-            {FEATS.map((f, i) => (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
+          {!isOpen ? (
+            <>
+              <FolderTab label="Features" color={T.accent} />
+              <FolderClosedCover
+                onClick={() => setIsOpen(true)}
+                docType="Clinical System Specifications"
+                coverTitle="6 capabilities built for Indian primary care."
+                fileCount="6 specifications inside — Built for India · ABDM-native · Transcription · Medications"
+                color={T.accent}
+                headerContent={
+                  <div style={{ background: `linear-gradient(90deg, ${T.accent}18 0%, ${T.accent}08 100%)`, borderBottom: `2px solid ${T.accent}30`, padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ background: T.accent, color: '#fff', fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', padding: '3px 10px', borderRadius: 4 }}>IBU-FEAT</div>
+                      <div style={{ fontFamily: FEAT_FONT, fontSize: 12, color: T.textMuted, fontStyle: 'italic' }}>Dept: Product &amp; Engineering</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {['FHIR R4', 'ABDM'].map(b => <span key={b} style={{ fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', padding: '2px 7px', borderRadius: 3, border: `1px solid ${T.accent}40`, color: T.accent }}>{b}</span>)}
+                    </div>
+                  </div>
+                }
+              />
+            </>
+          ) : (
+            <div className="folder-open">
+              {/* Tabs row + close button */}
+              <div style={{ display: 'flex', gap: 3, paddingLeft: 24, position: 'relative', zIndex: 2, alignItems: 'flex-end' }}>
+                {FEATS.map((f, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
                 style={{
                   fontFamily: FONT, fontSize: 12.5, fontWeight: i === active ? 700 : 500,
                   padding: '9px 16px',
@@ -1389,9 +1489,11 @@ function Features() {
                 {f.tab}
               </button>
             ))}
-          </div>
+                {/* Close button */}
+                <button onClick={() => setIsOpen(false)} style={{ marginLeft: 'auto', marginBottom: 4, fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '5px 12px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)', background: '#E8E4DA', color: T.textMuted, cursor: 'pointer' }}>✕ Close</button>
+              </div>
 
-          {/* Folder body — the "open folder" paper */}
+              {/* Folder body — the "open folder" paper */}
           <div style={{
             background: '#FFFFFF',
             border: '1px solid rgba(0,0,0,0.1)',
@@ -1576,6 +1678,8 @@ function Features() {
               </span>
             </div>
           </div>
+            </div>
+          )}
         </div>
       </Container>
     </section>
@@ -1600,6 +1704,25 @@ const RURAL_ITEMS = [
 
 function Rural() {
   const [expanded, setExpanded] = useState(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const ruralHeader = (
+    <div style={{ background: 'linear-gradient(90deg, #04553B 0%, #047857 55%, #059669 100%)', padding: '18px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.5)', display: 'grid', placeItems: 'center', fontFamily: FEAT_FONT, fontSize: 14, color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>भा</div>
+        <div>
+          <div style={{ fontFamily: FEAT_FONT, fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Ministry of Health &amp; Family Welfare · ibuscribe</div>
+          <div style={{ fontFamily: FEAT_FONT, fontSize: 14, color: '#fff', fontWeight: 700, marginTop: 2 }}>Rural &amp; Semi-Urban Deployment — Field Assessment Report</div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        <div style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>REF: IBU/NHM/2026/004</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {['NHM', 'ABDM', 'AYUSHMAN'].map(b => <span key={b} style={{ fontFamily: MONO, fontSize: 8, fontWeight: 700, letterSpacing: '0.08em', padding: '2px 7px', borderRadius: 3, background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.2)' }}>{b}</span>)}
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
@@ -1620,27 +1743,27 @@ function Rural() {
         {/* District folder */}
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
 
-          {/* Folder top notch — government tag */}
-          <div style={{ display: 'flex', gap: 0, paddingLeft: 32 }}>
-            {['District Field Report', 'NHM Compliant', 'Ayushman Bharat'].map((tab, i) => (
-              <div key={i} style={{
-                fontFamily: MONO, fontSize: 10.5, fontWeight: i === 0 ? 700 : 500,
-                letterSpacing: '0.06em',
-                padding: '8px 18px',
-                borderRadius: '7px 7px 0 0',
-                border: '1px solid rgba(0,0,0,0.09)',
-                borderBottom: i === 0 ? '1px solid #FDFCF8' : '1px solid rgba(0,0,0,0.09)',
-                background: i === 0 ? '#FDFCF8' : '#E4E0D6',
-                color: i === 0 ? T.accent : T.textDim,
-                marginRight: 3,
-                marginBottom: i === 0 ? '-1px' : 0,
-                zIndex: i === 0 ? 2 : 1,
-                position: 'relative',
-              }}>
-                {tab}
+          {!isOpen ? (
+            <>
+              <FolderTab label="District Field Report" color={T.accent} />
+              <FolderClosedCover
+                onClick={() => setIsOpen(true)}
+                docType="Ministry of Health & Family Welfare · ibuscribe"
+                coverTitle="Built for Bharat, not just Bengaluru."
+                fileCount="6 capabilities assessed — Offline-first · NHM aligned · 8 languages · PHC & CHC ready"
+                color={T.accent}
+                headerContent={ruralHeader}
+              />
+            </>
+          ) : (
+            <div className="folder-open">
+              {/* Single tab + close */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', paddingLeft: 32, gap: 0 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', padding: '8px 18px', borderRadius: '7px 7px 0 0', border: '1px solid rgba(0,0,0,0.09)', borderBottom: '1px solid #FDFCF8', background: '#FDFCF8', color: T.accent, marginBottom: '-1px', position: 'relative', zIndex: 2 }}>
+                  District Field Report
+                </div>
+                <button onClick={() => setIsOpen(false)} style={{ marginLeft: 8, marginBottom: 4, fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '5px 12px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)', background: '#E8E4DA', color: T.textMuted, cursor: 'pointer' }}>✕ Close</button>
               </div>
-            ))}
-          </div>
 
           {/* Open folder */}
           <div style={{
@@ -1831,6 +1954,8 @@ function Rural() {
               <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>CONFIDENTIAL · 2026</span>
             </div>
           </div>
+            </div>
+          )}
         </div>
       </Container>
     </section>
@@ -1932,6 +2057,27 @@ const TEAM = [
 ]
 
 function Team() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const teamHeader = (
+    <div style={{ background: 'linear-gradient(90deg, #111827 0%, #1E293B 100%)', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: T.accent, display: 'grid', placeItems: 'center' }}>
+          <svg width="16" height="16" viewBox="0 0 96 96" fill="none">
+            <rect width="96" height="96" rx="22" fill="#059669"/>
+            <path d="M16 24 C16 19 19.5 16 24 16 L72 16 C76.5 16 80 19 80 24 L80 60 C80 65 76.5 68 72 68 L50 68 L38 82 L38 68 L24 68 C19.5 68 16 65 16 60 Z" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="2.8" strokeLinejoin="round"/>
+            <polyline points="22,44 31,44 36,31 41,57 46,19 52,66 57,44 63,44 68,34 72,52 76,44 86,44" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>ibuscribe · STAFF REGISTRY</div>
+          <div style={{ fontFamily: FEAT_FONT, fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 1 }}>Founding Team — Personnel Dossier</div>
+        </div>
+      </div>
+      <span style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>REF: IBU/HR/2025/001</span>
+    </div>
+  )
+
   return (
     <section style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}` }}>
       <Container>
@@ -1945,25 +2091,27 @@ function Team() {
         {/* Folder shell */}
         <div style={{ maxWidth: 980, margin: '0 auto' }}>
 
-          {/* Folder tab */}
-          <div style={{ display: 'flex', gap: 3, paddingLeft: 28 }}>
-            {['Personnel Files', 'Confidential', 'ibuscribe · 2025'].map((tab, i) => (
-              <div key={i} style={{
-                fontFamily: MONO, fontSize: 10.5,
-                fontWeight: i === 0 ? 700 : 400,
-                letterSpacing: '0.06em',
-                padding: '8px 18px',
-                borderRadius: '7px 7px 0 0',
-                border: '1px solid rgba(0,0,0,0.09)',
-                borderBottom: i === 0 ? '1px solid #FDFCF8' : '1px solid rgba(0,0,0,0.09)',
-                background: i === 0 ? '#FDFCF8' : '#E4E0D6',
-                color: i === 0 ? T.accent : T.textDim,
-                marginRight: 3,
-                marginBottom: i === 0 ? '-1px' : 0,
-                position: 'relative', zIndex: i === 0 ? 2 : 1,
-              }}>{tab}</div>
-            ))}
-          </div>
+          {!isOpen ? (
+            <>
+              <FolderTab label="Personnel Files" color={T.accent} />
+              <FolderClosedCover
+                onClick={() => setIsOpen(true)}
+                docType="ibuscribe · Staff Registry · Founding Team"
+                coverTitle="Two people. One mission."
+                fileCount="2 personnel files inside — Founder · Co-Founder · Bengaluru · Est. 2025"
+                color="#111827"
+                headerContent={teamHeader}
+              />
+            </>
+          ) : (
+            <div className="folder-open">
+              {/* Single tab + close */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', paddingLeft: 28, gap: 8 }}>
+                <div style={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', padding: '8px 18px', borderRadius: '7px 7px 0 0', border: '1px solid rgba(0,0,0,0.09)', borderBottom: '1px solid #FDFCF8', background: '#FDFCF8', color: T.accent, marginBottom: '-1px', position: 'relative', zIndex: 2 }}>
+                  Personnel Files
+                </div>
+                <button onClick={() => setIsOpen(false)} style={{ marginBottom: 4, fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '5px 12px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)', background: '#E8E4DA', color: T.textMuted, cursor: 'pointer' }}>✕ Close</button>
+              </div>
 
           {/* Open folder */}
           <div style={{
@@ -1974,39 +2122,7 @@ function Team() {
             overflow: 'hidden',
           }}>
 
-            {/* Header strip */}
-            <div style={{
-              background: 'linear-gradient(90deg, #111827 0%, #1E293B 100%)',
-              padding: '16px 32px',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 8,
-                  background: T.accent,
-                  display: 'grid', placeItems: 'center',
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 96 96" fill="none">
-                    <rect width="96" height="96" rx="22" fill="#059669"/>
-                    <path d="M16 24 C16 19 19.5 16 24 16 L72 16 C76.5 16 80 19 80 24 L80 60 C80 65 76.5 68 72 68 L50 68 L38 82 L38 68 L24 68 C19.5 68 16 65 16 60 Z" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="2.8" strokeLinejoin="round"/>
-                    <polyline points="22,44 31,44 36,31 41,57 46,19 52,66 57,44 63,44 68,34 72,52 76,44 86,44" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <div>
-                  <div style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>ibuscribe · STAFF REGISTRY</div>
-                  <div style={{ fontFamily: FEAT_FONT, fontSize: 13, color: '#fff', fontWeight: 700, marginTop: 1 }}>Founding Team — Personnel Dossier</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontFamily: MONO, fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>REF: IBU/HR/2025/001</span>
-                <span style={{
-                  fontFamily: MONO, fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
-                  padding: '3px 8px', borderRadius: 3,
-                  background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                }}>CONFIDENTIAL</span>
-              </div>
-            </div>
+            {teamHeader}
 
             {/* Two personnel files side by side */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr' }}>
@@ -2141,6 +2257,8 @@ function Team() {
               <span style={{ fontFamily: MONO, fontSize: 9.5, color: T.textDim }}>2 of 2 records · CONFIDENTIAL</span>
             </div>
           </div>
+            </div>
+          )}
         </div>
       </Container>
     </section>

@@ -222,7 +222,7 @@ const SectionLabel = ({ children }) => (
   <div style={{ fontFamily: MONO, fontSize: 11.5, color: T.accent, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 14 }}>{children}</div>
 )
 const SectionHeading = ({ children, style }) => (
-  <h2 style={{ fontSize: 'clamp(30px, 4.2vw, 52px)', lineHeight: 1.08, letterSpacing: '-0.03em', margin: 0, fontWeight: 700, ...style }}>{children}</h2>
+  <h2 style={{ fontSize: 'clamp(30px, 4.2vw, 52px)', lineHeight: 1.08, letterSpacing: '-0.03em', margin: 0, fontWeight: 700, color: T.accent, ...style }}>{children}</h2>
 )
 const SectionSub = ({ children }) => (
   <p style={{ color: T.textMuted, fontSize: 17.5, lineHeight: 1.65, maxWidth: 700, margin: '16px 0 0' }}>{children}</p>
@@ -786,7 +786,7 @@ function Hero({ onNew }) {
             <span style={{ animation: 'pulseDot 2.2s infinite', display: 'inline-block', width: 7, height: 7, borderRadius: 99, background: T.accent }} />
             Built for Indian primary care
           </div>
-          <h1 style={{ fontSize: 'clamp(38px, 5.5vw, 68px)', lineHeight: 1.04, letterSpacing: '-0.038em', margin: '0 0 22px', fontWeight: 700 }}>
+          <h1 style={{ fontSize: 'clamp(38px, 5.5vw, 68px)', lineHeight: 1.04, letterSpacing: '-0.038em', margin: '0 0 22px', fontWeight: 700, color: T.accent }}>
             Your last 2 hours of paperwork,{' '}
             <span className="grad">done in&nbsp;2&nbsp;minutes.</span>
           </h1>

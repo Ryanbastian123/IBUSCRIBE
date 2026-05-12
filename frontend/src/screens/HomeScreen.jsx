@@ -575,73 +575,190 @@ function Nav({ onNew, onOpenPricing }) {
 // ─── Hero Visual (3-step animated card) ───────────────────────────────────────
 function HeroVisual({ tilt }) {
   const [step, setStep] = useState(0)
+  const [tick, setTick] = useState(0)
   useEffect(() => {
-    const id = setInterval(() => setStep(s => (s + 1) % 3), 3600)
+    const id = setInterval(() => setStep(s => (s + 1) % 3), 4200)
     return () => clearInterval(id)
   }, [])
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 80)
+    return () => clearInterval(id)
+  }, [])
+
   const floatStyle = tilt
     ? { transition: 'transform 0.18s ease', transform: `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }
     : { animation: 'float3d 7s ease-in-out infinite' }
 
   const card = {
     position: 'absolute', inset: 0,
-    background: `linear-gradient(160deg, ${T.card} 0%, ${T.cardMid} 100%)`,
-    border: `1px solid ${T.border}`,
-    borderRadius: 22, padding: 28,
-    boxShadow: `0 40px 100px -40px rgba(0,0,0,0.12), 0 0 0 1px rgba(5,150,105,0.06), inset 0 1px 0 rgba(255,255,255,0.8)`,
-    transition: 'opacity .75s ease, transform .75s ease',
+    background: '#FFFFFF',
+    border: `1px solid rgba(0,0,0,0.09)`,
+    borderRadius: 24, padding: '24px 26px',
+    boxShadow: `0 32px 80px -24px rgba(0,0,0,0.13), 0 0 0 1px rgba(5,150,105,0.07), inset 0 1px 0 rgba(255,255,255,1)`,
+    transition: 'opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1)',
+    overflow: 'hidden',
   }
-  return (
-    <div style={{ position: 'relative', height: 440, width: '100%', ...floatStyle }}>
-      <div style={{ position: 'absolute', inset: -40, background: `radial-gradient(60% 60% at 50% 50%, ${T.accentDim}, transparent 70%)`, filter: 'blur(20px)', animation: 'glow 4s ease-in-out infinite' }} />
 
-      <div style={{ ...card, opacity: step === 0 ? 1 : 0, transform: step === 0 ? 'scale(1)' : 'scale(.96) translateY(8px)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
-          <Badge tone="accent">
-            <span style={{ width: 8, height: 8, borderRadius: 99, background: T.danger, animation: 'pulseDot 1.4s infinite', display: 'inline-block' }} />
-            RECORDING
-          </Badge>
-          <span style={{ fontFamily: MONO, color: T.textMuted, fontSize: 13 }}>00:42</span>
+  // Waveform heights — fixed so they don't re-render
+  const barHeights = Array.from({ length: 38 }, (_, i) => 0.14 + Math.abs(Math.sin(i * 0.72)) * 0.86)
+
+  return (
+    <div style={{ position: 'relative', height: 500, width: '100%', ...floatStyle }}>
+      {/* Ambient glow behind card */}
+      <div style={{ position: 'absolute', inset: -50, background: `radial-gradient(55% 55% at 50% 50%, rgba(5,150,105,0.1), transparent 70%)`, filter: 'blur(24px)', animation: 'glow 5s ease-in-out infinite' }} />
+
+      {/* ── CARD 1: LIVE RECORDING ── */}
+      <div style={{ ...card, opacity: step === 0 ? 1 : 0, transform: step === 0 ? 'scale(1) translateY(0)' : 'scale(.97) translateY(10px)' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.18)', borderRadius: 99, padding: '5px 12px' }}>
+              <span style={{ width: 7, height: 7, borderRadius: 99, background: '#DC2626', animation: 'pulseDot 1.2s infinite', display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#DC2626', letterSpacing: '0.1em', fontFamily: MONO }}>RECORDING</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontFamily: MONO, color: T.textMuted, fontSize: 13, fontWeight: 500 }}>01:24</span>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(220,38,38,0.07)', display: 'grid', placeItems: 'center' }}>
+              <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" rx="2" fill="#DC2626" opacity="0.8"/></svg>
+            </div>
+          </div>
         </div>
-        <div style={{ color: T.textDim, fontSize: 11, marginBottom: 10, fontFamily: MONO, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Live transcript</div>
-        <p style={{ color: T.text, fontSize: 15, lineHeight: 1.7, margin: 0 }}>
-          "Patient came in with complaint of <span style={{ color: T.accent }}>fever since 3 days</span>, body ache as well… temperature <span style={{ color: T.accent }}>101.2°F</span>…"
-        </p>
-        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 56, marginTop: 28 }}>
-          {Array.from({ length: 44 }).map((_, i) => (
-            <div key={i} style={{ flex: 1, background: T.accent, borderRadius: 2, height: '100%', transformOrigin: 'bottom', animation: `waveBar ${0.55 + (i % 6) * 0.11}s ease-in-out ${i * 0.036}s infinite`, opacity: 0.75 }} />
+
+        {/* Patient chip */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: T.accentDim, border: `1px solid ${T.borderAccent}`, borderRadius: 12, marginBottom: 18 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accent, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>RK</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.2 }}>Rajesh Kumar, 52 M</div>
+            <div style={{ fontSize: 11, color: T.textMuted, marginTop: 1 }}>ABHA · 43-2891-7765-3302</div>
+          </div>
+          <div style={{ marginLeft: 'auto', fontSize: 10, color: T.accent, fontFamily: MONO, fontWeight: 600, letterSpacing: '0.06em' }}>OPD #047</div>
+        </div>
+
+        {/* Live transcript bubble */}
+        <div style={{ background: T.surface, borderRadius: 14, padding: '14px 16px', marginBottom: 16, border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 10, fontFamily: MONO, color: T.textDim, letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 8 }}>Live Transcript</div>
+          <p style={{ color: T.text, fontSize: 14.5, lineHeight: 1.75, margin: 0 }}>
+            "Doc, I'm having{' '}
+            <span style={{ background: 'rgba(5,150,105,0.1)', color: T.accent, borderRadius: 4, padding: '1px 5px', fontWeight: 600 }}>fever since 4 days</span>
+            {', chills at night. Also '}
+            <span style={{ background: 'rgba(5,150,105,0.1)', color: T.accent, borderRadius: 4, padding: '1px 5px', fontWeight: 600 }}>severe body ache</span>
+            {'. Checked temp — '}
+            <span style={{ background: 'rgba(220,38,38,0.08)', color: '#DC2626', borderRadius: 4, padding: '1px 5px', fontWeight: 600 }}>102.4 °F</span>
+            {'…"}'}
+          </p>
+        </div>
+
+        {/* Waveform */}
+        <div style={{ display: 'flex', gap: 2.5, alignItems: 'flex-end', height: 48, padding: '0 2px' }}>
+          {barHeights.map((h, i) => (
+            <div key={i} style={{
+              flex: 1, borderRadius: 3,
+              background: `linear-gradient(to top, ${T.accent}, ${T.accentSoft})`,
+              height: `${h * 100}%`,
+              transformOrigin: 'bottom',
+              animation: `waveBar ${0.5 + (i % 7) * 0.09}s ease-in-out ${i * 0.03}s infinite`,
+              opacity: 0.7 + h * 0.3,
+            }} />
           ))}
         </div>
       </div>
 
-      <div style={{ ...card, opacity: step === 1 ? 1 : 0, transform: step === 1 ? 'scale(1)' : 'scale(.96) translateY(8px)' }}>
-        <Badge tone="blue">Transcribing · Whisper large-v3</Badge>
-        <div style={{ marginTop: 24, display: 'grid', gap: 14 }}>
+      {/* ── CARD 2: AI PROCESSING ── */}
+      <div style={{ ...card, opacity: step === 1 ? 1 : 0, transform: step === 1 ? 'scale(1) translateY(0)' : 'scale(.97) translateY(10px)' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.18)', borderRadius: 99, padding: '5px 12px' }}>
+            <svg width="10" height="10" viewBox="0 0 10 10" style={{ animation: 'pulseDot 1.4s infinite' }}><circle cx="5" cy="5" r="5" fill="#2563EB"/></svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#2563EB', letterSpacing: '0.1em', fontFamily: MONO }}>AI PROCESSING</span>
+          </div>
+          <span style={{ fontFamily: MONO, fontSize: 11, color: T.textMuted }}>Whisper large-v3</span>
+        </div>
+
+        {/* Progress steps */}
+        <div style={{ display: 'grid', gap: 10, marginBottom: 18 }}>
           {[
-            { t: '0:00', txt: 'Doctor, I have had fever for 3 days now' },
-            { t: '0:08', txt: 'Headache and body pain as well' },
-            { t: '0:22', txt: 'Temp checked: 101.2 F. No cough.' },
-            { t: '0:42', txt: 'Tab Dolo 650 mg TDS for 5 days' },
-          ].map((l, i) => (
-            <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <span style={{ fontFamily: MONO, color: T.textDim, fontSize: 12, minWidth: 36, paddingTop: 2 }}>{l.t}</span>
-              <span style={{ color: T.textSecondary, fontSize: 14, lineHeight: 1.5 }}>{l.txt}</span>
+            { label: 'Speech-to-text', done: true, time: '0.8s' },
+            { label: 'Clinical NLP extraction', done: true, time: '1.2s' },
+            { label: 'SNOMED CT coding', done: true, time: '0.3s' },
+            { label: 'FHIR R4 bundle build', done: false, time: '…' },
+          ].map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: s.done ? 'rgba(5,150,105,0.05)' : T.surface, border: `1px solid ${s.done ? T.borderAccent : T.border}`, borderRadius: 10 }}>
+              <div style={{ width: 20, height: 20, borderRadius: 6, background: s.done ? T.accent : 'transparent', border: `1.5px solid ${s.done ? T.accent : T.borderMid}`, display: 'grid', placeItems: 'center', flexShrink: 0, transition: 'all .3s' }}>
+                {s.done && <svg width="10" height="8" viewBox="0 0 10 8"><polyline points="1,4 4,7 9,1" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                {!s.done && <div style={{ width: 6, height: 6, borderRadius: 99, background: T.borderMid, animation: 'pulseDot 1.1s infinite' }}/>}
+              </div>
+              <span style={{ fontSize: 13.5, color: s.done ? T.text : T.textMuted, flex: 1, fontWeight: s.done ? 500 : 400 }}>{s.label}</span>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: s.done ? T.accent : T.textDim }}>{s.time}</span>
             </div>
           ))}
         </div>
+
+        {/* Detected entities strip */}
+        <div style={{ background: T.surface, borderRadius: 12, padding: '11px 14px', border: `1px solid ${T.border}` }}>
+          <div style={{ fontSize: 10, fontFamily: MONO, color: T.textDim, letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 9 }}>Detected Entities</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {[
+              { t: 'Fever', c: T.accent }, { t: '102.4 °F', c: '#DC2626' }, { t: 'Body ache', c: T.accent },
+              { t: 'Dengue screen', c: T.blue }, { t: 'Dolo 650 mg', c: T.purple }, { t: 'R50.9', c: T.textMuted },
+            ].map((e, i) => (
+              <span key={i} style={{ fontSize: 11.5, fontWeight: 500, color: e.c, background: `${e.c}14`, border: `1px solid ${e.c}30`, borderRadius: 6, padding: '3px 9px' }}>{e.t}</span>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div style={{ ...card, opacity: step === 2 ? 1 : 0, transform: step === 2 ? 'scale(1)' : 'scale(.96) translateY(8px)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <Badge tone="accent">✓ Clinical note ready</Badge>
-          <span style={{ fontFamily: MONO, color: T.textMuted, fontSize: 12 }}>FHIR R4</span>
+      {/* ── CARD 3: CLINICAL NOTE READY ── */}
+      <div style={{ ...card, opacity: step === 2 ? 1 : 0, transform: step === 2 ? 'scale(1) translateY(0)' : 'scale(.97) translateY(10px)' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'rgba(5,150,105,0.08)', border: `1px solid ${T.borderAccent}`, borderRadius: 99, padding: '5px 12px' }}>
+            <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#059669"/></svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: '0.1em', fontFamily: MONO }}>NOTE READY · 2.3s</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.15)', borderRadius: 8, padding: '4px 9px' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#2563EB', fontFamily: MONO, letterSpacing: '0.08em' }}>FHIR R4</span>
+          </div>
         </div>
-        <div style={{ display: 'grid', gap: 14 }}>
-          <Row label="Chief complaint" value="Fever × 3 days, body ache" />
-          <Row label="Vitals" value="T 101.2 °F · no respiratory distress" accent />
-          <Row label="Assessment" value="Viral fever · R50.9" />
-          <Row label="Plan" value="Tab Dolo 650 mg TDS × 5d · rest · review 48h" accent />
+
+        {/* Clinical rows */}
+        <div style={{ display: 'grid', gap: 0, border: `1px solid ${T.border}`, borderRadius: 14, overflow: 'hidden', marginBottom: 14 }}>
+          {[
+            { label: 'Patient', value: 'Rajesh Kumar · 52 M · ABHA verified', accent: false, icon: '👤' },
+            { label: 'Chief Complaint', value: 'Fever × 4 days, chills, severe body ache', accent: false, icon: '🩺' },
+            { label: 'Vitals', value: 'Temp 102.4 °F · PR 96/min · BP 128/82', accent: true, icon: '📊' },
+            { label: 'Assessment', value: 'Viral fever, dengue suspected · R50.9', accent: true, icon: '🔬' },
+            { label: 'Medications', value: 'Tab Dolo 650 mg TDS × 5d · ORS sachets', accent: false, icon: '💊' },
+            { label: 'Follow-up', value: 'CBC + Dengue NS1 · Review in 48 hours', accent: false, icon: '📋' },
+          ].map((r, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '108px 1fr', borderBottom: i < 5 ? `1px solid ${T.border}` : 'none', background: r.accent ? 'rgba(5,150,105,0.04)' : '#fff' }}>
+              <div style={{ padding: '9px 12px', borderRight: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12 }}>{r.icon}</span>
+                <span style={{ fontSize: 10.5, color: T.textDim, fontFamily: MONO, letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 600 }}>{r.label}</span>
+              </div>
+              <div style={{ padding: '9px 12px', fontSize: 12.5, color: r.accent ? T.accent : T.text, lineHeight: 1.4, fontWeight: r.accent ? 600 : 400 }}>{r.value}</div>
+            </div>
+          ))}
         </div>
+
+        {/* Approve button */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1, background: T.accent, borderRadius: 10, padding: '10px', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#fff', letterSpacing: '0.02em', cursor: 'pointer', boxShadow: `0 6px 20px -8px ${T.accentGlow}` }}>
+            ✓ Approve &amp; Save
+          </div>
+          <div style={{ width: 40, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, display: 'grid', placeItems: 'center', cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke={T.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Step dots */}
+      <div style={{ position: 'absolute', bottom: -28, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 7, alignItems: 'center' }}>
+        {[0,1,2].map(i => (
+          <div key={i} onClick={() => setStep(i)} style={{ width: step === i ? 20 : 6, height: 6, borderRadius: 99, background: step === i ? T.accent : T.borderMid, transition: 'all .4s cubic-bezier(.16,1,.3,1)', cursor: 'pointer' }} />
+        ))}
       </div>
     </div>
   )

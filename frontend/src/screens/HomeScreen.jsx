@@ -79,6 +79,11 @@ function GlobalStyles() {
       @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
       @keyframes fadeUp   { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
       @keyframes glow     { 0%,100%{box-shadow:0 0 20px rgba(5,150,105,.08)} 50%{box-shadow:0 0 60px rgba(5,150,105,.18)} }
+      @keyframes waveDrift1 { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(-80px) translateY(18px)} 100%{transform:translateX(0) translateY(0)} }
+      @keyframes waveDrift2 { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(60px) translateY(-14px)} 100%{transform:translateX(0) translateY(0)} }
+      @keyframes waveDrift3 { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(-40px) translateY(24px)} 100%{transform:translateX(0) translateY(0)} }
+      @keyframes waveDrift4 { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(70px) translateY(-20px)} 100%{transform:translateX(0) translateY(0)} }
+      @keyframes waveDrift5 { 0%{transform:translateX(0) translateY(0)} 50%{transform:translateX(-55px) translateY(12px)} 100%{transform:translateX(0) translateY(0)} }
       @keyframes borderSpin {
         0%   { background-position: 0% 50%; }
         100% { background-position: 200% 50%; }
@@ -127,15 +132,47 @@ function useReveal() {
 }
 
 // ─── Animated Background ──────────────────────────────────────────────────────
+function WaveLines() {
+  // Each wave: a wide sinusoidal SVG path that drifts slowly
+  const waves = [
+    { d: 'M-200,180 C0,80 200,280 400,180 S800,80 1000,180 S1400,280 1600,180 S2000,80 2200,180', anim: 'waveDrift1', dur: '18s', opacity: 0.18, stroke: 2 },
+    { d: 'M-200,320 C100,200 300,440 600,320 S1000,200 1200,320 S1600,440 1800,320 S2200,200 2400,320', anim: 'waveDrift2', dur: '24s', opacity: 0.13, stroke: 1.5 },
+    { d: 'M-200,460 C150,340 350,580 650,460 S1050,340 1300,460 S1700,580 1950,460 S2300,340 2500,460', anim: 'waveDrift3', dur: '20s', opacity: 0.10, stroke: 1 },
+    { d: 'M-200,600 C200,480 400,720 700,600 S1100,480 1400,600 S1800,720 2050,600 S2400,480 2600,600', anim: 'waveDrift4', dur: '28s', opacity: 0.15, stroke: 1.5 },
+    { d: 'M-200,740 C100,620 300,860 600,740 S1000,620 1250,740 S1650,860 1900,740 S2250,620 2500,740', anim: 'waveDrift5', dur: '22s', opacity: 0.08, stroke: 1 },
+    { d: 'M-200,100 C250,20  450,200 750,100  S1150,20  1400,100 S1800,200 2050,100 S2400,20  2600,100', anim: 'waveDrift2', dur: '30s', opacity: 0.12, stroke: 2 },
+    { d: 'M-200,880 C200,760 400,1000 700,880 S1100,760 1350,880 S1750,1000 2000,880 S2350,760 2550,880', anim: 'waveDrift1', dur: '26s', opacity: 0.09, stroke: 1 },
+  ]
+  return (
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none" viewBox="0 0 1400 1000">
+      {waves.map((w, i) => (
+        <path
+          key={i}
+          d={w.d}
+          fill="none"
+          stroke="#059669"
+          strokeWidth={w.stroke}
+          strokeOpacity={w.opacity}
+          style={{ animation: `${w.anim} ${w.dur} ease-in-out infinite`, animationDelay: `${i * -3.2}s` }}
+        />
+      ))}
+    </svg>
+  )
+}
+
 function AnimatedBg() {
   return (
     <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      {/* Soft radial glow at top */}
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 90% 45% at 50% -5%, rgba(5,150,105,0.07) 0%, transparent 70%)` }} />
-      <div style={{ position: 'absolute', width: 900, height: 900, top: '-22%', left: '-18%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.06) 0%, transparent 65%)', filter: 'blur(70px)', animation: 'orb1 26s ease-in-out infinite' }} />
-      <div style={{ position: 'absolute', width: 700, height: 700, top: '28%', right: '-14%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.04) 0%, transparent 65%)', filter: 'blur(60px)', animation: 'orb2 32s ease-in-out infinite' }} />
-      <div style={{ position: 'absolute', width: 600, height: 600, bottom: '-12%', left: '28%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.045) 0%, transparent 65%)', filter: 'blur(50px)', animation: 'orb3 22s ease-in-out infinite' }} />
-      <div className="grid-bg" style={{ position: 'absolute', inset: 0 }} />
-      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 130% 130% at 50% 50%, transparent 40%, ${T.bg} 100%)`, opacity: 0.45 }} />
+      {/* Floating colour orbs */}
+      <div style={{ position: 'absolute', width: 900, height: 900, top: '-22%', left: '-18%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.05) 0%, transparent 65%)', filter: 'blur(70px)', animation: 'orb1 26s ease-in-out infinite' }} />
+      <div style={{ position: 'absolute', width: 700, height: 700, top: '28%', right: '-14%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.03) 0%, transparent 65%)', filter: 'blur(60px)', animation: 'orb2 32s ease-in-out infinite' }} />
+      <div style={{ position: 'absolute', width: 600, height: 600, bottom: '-12%', left: '28%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.04) 0%, transparent 65%)', filter: 'blur(50px)', animation: 'orb3 22s ease-in-out infinite' }} />
+      {/* Wavy green lines */}
+      <WaveLines />
+      {/* Edge vignette to fade waves at borders */}
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 110% 110% at 50% 50%, transparent 45%, ${T.bg} 100%)`, opacity: 0.6 }} />
     </div>
   )
 }

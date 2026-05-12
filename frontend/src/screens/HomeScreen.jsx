@@ -880,58 +880,200 @@ function HowItWorks() {
 }
 
 // ─── Use Cases ────────────────────────────────────────────────────────────────
+const FOLDER_FONT = "'Georgia', 'Times New Roman', serif"
 const USE_CASES = {
-  diabetes: { label: 'Diabetes',    snippet: '"Fasting sugar is 186, post-meal 248. HbA1c has been 8.4 for the past 3 months. Complaints of polyuria and nocturia. Fatigue as well."', cc: 'Polyuria, nocturia, fatigue × 3 months',  dx: 'Type 2 Diabetes Mellitus — uncontrolled', icd: 'E11.9',  plan: 'Metformin SR 500 mg BD · Glimepiride 1 mg OD · HbA1c recheck 3 mo · diet counselling' },
-  gastro:   { label: 'Gastro',      snippet: '"Epigastric pain, burning sensation, gets worse after eating. Acidity is there since 2 weeks. No vomiting."',                      cc: 'Epigastric burning × 2 weeks, post-prandial', dx: 'Gastritis / functional dyspepsia',       icd: 'K29.70', plan: 'Pan-D 40 mg OD × 14d · avoid NSAIDs · lifestyle advice' },
-  htn:      { label: 'Hypertension', snippet: '"BP 158 by 96 today. Headache in the mornings. Family history of hypertension. No chest pain."',                                cc: 'Morning headaches, elevated BP (158/96)',   dx: 'Essential Hypertension — Stage 1',      icd: 'I10',    plan: 'Amlodipine 5 mg OD · home BP log × 2w · low salt diet' },
-  peds:     { label: 'Pediatric',   snippet: '"Child has had fever for 2 days, loose motions as well — 4–5 times. Weight 12 kg. No vomiting, feeds are okay."',               cc: 'Fever × 2 days + loose stools × 2 days',  dx: 'Acute gastroenteritis with fever',      icd: 'A09',    plan: 'ORS sachets · Zinc 20 mg OD × 14d · Cifran suspension per weight' },
+  diabetes: {
+    label: 'Diabetes', icon: '🩸', color: '#D97706', colorDim: 'rgba(217,119,6,0.08)',
+    patient: 'Suresh Nair, 58 M', opd: 'OPD #112', date: '12 May 2026',
+    heard: 'Fasting sugar is 186 today, post-meal was 248 yesterday. HbA1c last checked 3 months ago — it was 8.4. Complaints of increased urination, especially at night. Also feeling very tired and thirsty all the time.',
+    scribble: 'DM2 unc / MF SR 500 BD / Gli 1 OD / rev 3m',
+    fields: [
+      { l: 'Chief Complaint', v: 'Polyuria, polydipsia, fatigue × 3 months', hi: false },
+      { l: 'Vitals', v: 'FBS 186 mg/dL · PPBS 248 mg/dL · HbA1c 8.4%', hi: true },
+      { l: 'Assessment', v: 'Type 2 Diabetes Mellitus — uncontrolled', hi: true },
+      { l: 'ICD-10 / SNOMED', v: 'E11.9  ·  44054006', hi: false },
+      { l: 'Medications', v: 'Tab Metformin SR 500 mg BD after food\nTab Glimepiride 1 mg OD before breakfast', hi: false },
+      { l: 'Follow-up', v: 'HbA1c recheck in 3 months · dietary counselling · foot exam', hi: false },
+    ],
+  },
+  gastro: {
+    label: 'Gastro', icon: '🫁', color: '#059669', colorDim: 'rgba(5,150,105,0.08)',
+    patient: 'Meena Iyer, 34 F', opd: 'OPD #089', date: '12 May 2026',
+    heard: 'Epigastric pain and burning since 2 weeks, gets worse right after eating. Acidity is there throughout the day. No vomiting, no blood. Taking antacids from pharmacy but only temporary relief.',
+    scribble: 'Gastritis? Pan-D 40 OD 14d / avoid NSAID / rev 2w',
+    fields: [
+      { l: 'Chief Complaint', v: 'Epigastric burning + acidity × 2 weeks, post-prandial', hi: false },
+      { l: 'Vitals', v: 'Abdomen soft · epigastric tenderness +', hi: true },
+      { l: 'Assessment', v: 'Gastritis / Functional dyspepsia', hi: true },
+      { l: 'ICD-10 / SNOMED', v: 'K29.70  ·  235595009', hi: false },
+      { l: 'Medications', v: 'Tab Pan-D 40 mg OD before breakfast × 14 days\nAvoid NSAIDs, spicy food, late meals', hi: false },
+      { l: 'Follow-up', v: 'Review in 2 weeks · endoscopy if no improvement', hi: false },
+    ],
+  },
+  htn: {
+    label: 'Hypertension', icon: '❤️', color: '#DC2626', colorDim: 'rgba(220,38,38,0.07)',
+    patient: 'Rajan Pillai, 63 M', opd: 'OPD #054', date: '12 May 2026',
+    heard: 'BP was 158 by 96 when I checked it this morning. Headache is there since a few days, mostly in the mornings. Family history — father had hypertension and a stroke. No chest pain or shortness of breath.',
+    scribble: 'HTN St1 / Amlo 5 OD / BP log 2w / low salt',
+    fields: [
+      { l: 'Chief Complaint', v: 'Morning headaches × 1 week, elevated BP on home monitoring', hi: false },
+      { l: 'Vitals', v: 'BP 158/96 mmHg · PR 78/min · No papilloedema', hi: true },
+      { l: 'Assessment', v: 'Essential Hypertension — Stage 1', hi: true },
+      { l: 'ICD-10 / SNOMED', v: 'I10  ·  38341003', hi: false },
+      { l: 'Medications', v: 'Tab Amlodipine 5 mg OD morning\nLow-sodium diet · avoid alcohol', hi: false },
+      { l: 'Follow-up', v: 'Home BP log twice daily × 2 weeks · renal function + lipid profile', hi: false },
+    ],
+  },
+  peds: {
+    label: 'Pediatric', icon: '👶', color: '#7C3AED', colorDim: 'rgba(124,58,237,0.07)',
+    patient: 'Aryan Sharma, 4 Y M', opd: 'OPD #031', date: '12 May 2026',
+    heard: 'Child has been having fever for 2 days, 101 to 102 degree. Loose motions also started yesterday — 4 to 5 times. Weight is 16 kg. No vomiting. Feeds are okay, he is drinking water. Urine output is normal.',
+    scribble: 'AGE + fever / ORS / Zinc 20 OD 14d / Cifran susp wt',
+    fields: [
+      { l: 'Chief Complaint', v: 'Fever × 2 days (101–102 °F) + loose stools × 1 day (4–5 episodes)', hi: false },
+      { l: 'Vitals', v: 'Weight 16 kg · Temp 101.6 °F · No dehydration · active', hi: true },
+      { l: 'Assessment', v: 'Acute gastroenteritis with fever', hi: true },
+      { l: 'ICD-10 / SNOMED', v: 'A09  ·  25374005', hi: false },
+      { l: 'Medications', v: 'ORS sachets after each loose stool\nTab Zinc 20 mg OD × 14 days\nCiprofloxacin suspension per weight × 5 days', hi: false },
+      { l: 'Follow-up', v: 'Return if no feeds, lethargy, or worsening stools · review in 48 hrs', hi: false },
+    ],
+  },
 }
 
 function UseCases() {
   const [tab, setTab] = useState('diabetes')
+  const [prev, setPrev] = useState('diabetes')
   const uc = USE_CASES[tab]
+
+  const switchTab = (k) => { setPrev(tab); setTab(k) }
+
   return (
-    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(5,150,105,0.04), transparent)` }}>
+    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(5,150,105,0.035), transparent)` }}>
       <Container>
-        <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 48px' }}>
+        {/* Header */}
+        <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 56px' }}>
           <SectionLabel>Clinical use cases</SectionLabel>
-          <SectionHeading>Trained on the visits you actually see.</SectionHeading>
-          <SectionSub>Indian drug names, Indian disease prevalence, Hindi-English code-switching. Not an American model with a translator bolted on.</SectionSub>
+          <SectionHeading>Every consultation, structured in seconds.</SectionHeading>
+          <SectionSub>Real Indian patients, real drug names, real disease patterns. ibuscribe is trained on how doctors in India actually speak and prescribe.</SectionSub>
         </div>
-        <div className="rv" style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 32 }}>
-          {Object.entries(USE_CASES).map(([k, v]) => {
-            const active = tab === k
-            return (
-              <button key={k} onClick={() => setTab(k)} style={{
-                padding: '9px 20px', borderRadius: 999,
-                background: active ? T.accent : T.card,
-                color: active ? T.accentInk : T.textMuted,
-                border: `1px solid ${active ? T.accent : T.border}`,
-                fontWeight: active ? 600 : 500, fontSize: 14,
-                transition: 'all .22s cubic-bezier(.16,1,.3,1)',
-                boxShadow: active ? `0 8px 24px -10px ${T.accentGlow}` : 'none',
-              }}>{v.label}</button>
-            )
-          })}
-        </div>
-        <div className="rv" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-          <div style={{ background: `linear-gradient(155deg, ${T.card}, ${T.surface})`, border: `1px solid ${T.border}`, borderRadius: 20, padding: 30 }}>
-            <div style={{ fontFamily: MONO, color: T.textDim, fontSize: 11, letterSpacing: '0.18em', marginBottom: 14, textTransform: 'uppercase' }}>What the doctor heard</div>
-            <p style={{ color: T.textSecondary, fontSize: 15.5, lineHeight: 1.75, margin: 0 }}>{uc.snippet}</p>
-            <div style={{ marginTop: 28, padding: 16, border: `1px dashed rgba(255,255,255,0.1)`, borderRadius: 12, color: T.textDim, fontFamily: MONO, fontSize: 12.5, lineHeight: 1.7 }}>
-              {'// Traditional scribble:\n// "fev 3d, dolo ×5d, rev 48h"\n// Illegible · no codes · no structure'}
-            </div>
+
+        {/* Folder with tabs */}
+        <div className="rv" style={{ maxWidth: 980, margin: '0 auto' }}>
+
+          {/* Folder tabs row */}
+          <div style={{ display: 'flex', gap: 0, alignItems: 'flex-end', paddingLeft: 24 }}>
+            {Object.entries(USE_CASES).map(([k, v], i) => {
+              const active = tab === k
+              return (
+                <button key={k} onClick={() => switchTab(k)} style={{
+                  padding: '10px 22px',
+                  borderRadius: '10px 10px 0 0',
+                  background: active ? '#FFFFFF' : `rgba(0,0,0,0.04)`,
+                  color: active ? v.color : T.textMuted,
+                  border: `1px solid ${active ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.07)'}`,
+                  borderBottom: active ? '1px solid #FFFFFF' : `1px solid rgba(0,0,0,0.07)`,
+                  fontWeight: active ? 700 : 500,
+                  fontSize: 13.5,
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  transition: 'all .2s ease',
+                  marginRight: 3,
+                  position: 'relative', zIndex: active ? 2 : 1,
+                  transform: active ? 'translateY(1px)' : 'translateY(0)',
+                  boxShadow: active ? '0 -4px 12px -4px rgba(0,0,0,0.06)' : 'none',
+                  fontFamily: FONT,
+                }}>
+                  <span style={{ fontSize: 15 }}>{v.icon}</span>
+                  {v.label}
+                </button>
+              )
+            })}
           </div>
-          <div style={{ background: `linear-gradient(155deg, ${T.cardMid}, ${T.card})`, border: `1px solid ${T.borderAccent}`, borderRadius: 20, padding: 30, boxShadow: `0 20px 60px -30px ${T.accentGlow}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Badge>IBUSCRIBE output</Badge>
-              <span style={{ fontFamily: MONO, color: T.textMuted, fontSize: 12 }}>~11s</span>
+
+          {/* Folder body */}
+          <div style={{
+            background: '#FFFFFF',
+            border: '1px solid rgba(0,0,0,0.10)',
+            borderRadius: '0 16px 16px 16px',
+            boxShadow: '0 20px 60px -20px rgba(0,0,0,0.10), 0 4px 16px -8px rgba(0,0,0,0.06)',
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
+
+            {/* Folder header bar */}
+            <div style={{ background: `linear-gradient(135deg, ${uc.colorDim}, rgba(255,255,255,0))`, borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: uc.colorDim, border: `1px solid ${uc.color}28`, display: 'grid', placeItems: 'center', fontSize: 20 }}>{uc.icon}</div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: T.text, fontFamily: FOLDER_FONT }}>{uc.patient}</div>
+                  <div style={{ fontSize: 11.5, color: T.textMuted, marginTop: 2, fontFamily: MONO, letterSpacing: '0.06em' }}>{uc.opd} · {uc.date}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'rgba(5,150,105,0.08)', border: `1px solid ${T.borderAccent}`, borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 700, color: T.accent, fontFamily: MONO, letterSpacing: '0.08em' }}>FHIR R4</div>
+                <div style={{ background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.18)', borderRadius: 8, padding: '4px 10px', fontSize: 11, fontWeight: 700, color: '#2563EB', fontFamily: MONO, letterSpacing: '0.08em' }}>ABDM</div>
+              </div>
             </div>
-            <div style={{ display: 'grid', gap: 14 }}>
-              <Row label="Chief complaint" value={uc.cc} />
-              <Row label="Assessment" value={uc.dx} accent />
-              <Row label="ICD-10" value={uc.icd} />
-              <Row label="Plan" value={uc.plan} accent />
+
+            {/* Two-column document body */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr' }}>
+
+              {/* LEFT — what was spoken */}
+              <div style={{ padding: '28px 28px', borderRight: '1px solid rgba(0,0,0,0.07)', background: 'rgba(250,249,246,0.6)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke={T.textDim} strokeWidth="1.5"/><path d="M7 4v3l2 2" stroke={T.textDim} strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: T.textDim, letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: MONO }}>What ibuscribe heard</span>
+                </div>
+
+                {/* Transcript quote */}
+                <div style={{ position: 'relative', paddingLeft: 16, marginBottom: 22 }}>
+                  <div style={{ position: 'absolute', left: 0, top: 4, bottom: 4, width: 3, borderRadius: 2, background: `linear-gradient(to bottom, ${uc.color}, ${uc.color}44)` }} />
+                  <p style={{ fontFamily: FOLDER_FONT, fontSize: 15, lineHeight: 1.85, color: T.text, margin: 0, fontStyle: 'italic' }}>"{uc.heard}"</p>
+                </div>
+
+                {/* Old-style scribble */}
+                <div style={{ marginTop: 'auto', padding: '14px 16px', background: 'rgba(0,0,0,0.025)', border: '1px dashed rgba(0,0,0,0.10)', borderRadius: 10 }}>
+                  <div style={{ fontSize: 10, fontFamily: MONO, color: T.textDim, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>Before ibuscribe — traditional scribble</div>
+                  <div style={{ fontFamily: FOLDER_FONT, fontSize: 14, color: T.textMuted, lineHeight: 1.6, fontStyle: 'italic' }}>{uc.scribble}</div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                    {['No ICD codes', 'No structure', 'Illegible'].map(t => (
+                      <span key={t} style={{ fontSize: 10.5, color: T.danger, background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)', borderRadius: 5, padding: '2px 8px', fontFamily: MONO }}>✗ {t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT — structured clinical note */}
+              <div style={{ padding: '28px 28px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="2" stroke={T.accent} strokeWidth="1.5"/><path d="M5 5h4M5 8h3" stroke={T.accent} strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    <span style={{ fontSize: 10.5, fontWeight: 700, color: T.accent, letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: MONO }}>ibuscribe output</span>
+                  </div>
+                  <span style={{ fontSize: 11, color: T.textDim, fontFamily: MONO }}>~2.1s</span>
+                </div>
+
+                {/* Clinical rows */}
+                <div style={{ display: 'grid', gap: 0, border: '1px solid rgba(0,0,0,0.08)', borderRadius: 12, overflow: 'hidden' }}>
+                  {uc.fields.map((f, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '140px 1fr', borderBottom: i < uc.fields.length - 1 ? '1px solid rgba(0,0,0,0.06)' : 'none', background: f.hi ? `${uc.color}06` : '#fff' }}>
+                      <div style={{ padding: '10px 14px', borderRight: '1px solid rgba(0,0,0,0.06)', background: f.hi ? `${uc.color}06` : 'rgba(0,0,0,0.015)' }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: f.hi ? uc.color : T.textDim, fontFamily: MONO, letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: 1.4, display: 'block' }}>{f.l}</span>
+                      </div>
+                      <div style={{ padding: '10px 14px' }}>
+                        <span style={{ fontFamily: FOLDER_FONT, fontSize: 13.5, color: f.hi ? uc.color : T.text, lineHeight: 1.55, fontWeight: f.hi ? 600 : 400, whiteSpace: 'pre-line' }}>{f.v}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer badges */}
+                <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+                  {['ICD-10 coded', 'SNOMED CT', 'Physician review required', 'FHIR R4 ready'].map(t => (
+                    <span key={t} style={{ fontSize: 10.5, color: T.accent, background: T.accentDim, border: `1px solid ${T.borderAccent}`, borderRadius: 5, padding: '2px 8px', fontFamily: MONO }}>✓ {t}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

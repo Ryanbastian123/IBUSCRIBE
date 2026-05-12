@@ -1,34 +1,34 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-// ─── Design Tokens — deep night × vivid mint ───────────────────────────────
+// ─── Design Tokens — warm off-white × forest green ──────────────────────────
 const T = {
-  bg:           '#071410',
-  surface:      '#081310',
-  card:         '#0D1F18',
-  cardMid:      '#112619',
-  cardHover:    '#162E20',
-  border:       'rgba(255,255,255,0.07)',
-  borderMid:    'rgba(255,255,255,0.13)',
-  borderAccent: 'rgba(16,240,156,0.30)',
-  accent:       '#10F09C',
-  accentSoft:   '#7EFFD8',
-  accentDeep:   '#0EBF7A',
-  accentDim:    'rgba(16,240,156,0.08)',
-  accentGlow:   'rgba(16,240,156,0.28)',
-  accentInk:    '#011810',
-  warning:      '#FBBF24',
-  danger:       '#F87171',
-  text:         '#EDFAF4',
-  textSecondary:'#B8D9C8',
-  textMuted:    '#6E9E88',
-  textDim:      '#3D5C4A',
-  blue:         '#60A5FA',
-  purple:       '#A78BFA',
+  bg:           '#F7F5F1',
+  surface:      '#EFEDE8',
+  card:         '#FFFFFF',
+  cardMid:      '#F3F1EC',
+  cardHover:    '#EDEAE3',
+  border:       'rgba(0,0,0,0.08)',
+  borderMid:    'rgba(0,0,0,0.13)',
+  borderAccent: 'rgba(5,150,105,0.28)',
+  accent:       '#059669',
+  accentSoft:   '#10B981',
+  accentDeep:   '#047857',
+  accentDim:    'rgba(5,150,105,0.08)',
+  accentGlow:   'rgba(5,150,105,0.18)',
+  accentInk:    '#FFFFFF',
+  warning:      '#D97706',
+  danger:       '#DC2626',
+  text:         '#111827',
+  textSecondary:'#374151',
+  textMuted:    '#6B7280',
+  textDim:      '#9CA3AF',
+  blue:         '#2563EB',
+  purple:       '#7C3AED',
 }
 
 const FONT  = "'Plus Jakarta Sans', 'DM Sans', 'Segoe UI', -apple-system, sans-serif"
 const MONO  = "'DM Mono', 'JetBrains Mono', ui-monospace, monospace"
-const GRAD_T = `linear-gradient(130deg, #0EBF7A 0%, #10F09C 50%, #7EFFD8 100%)`
+const GRAD_T = `linear-gradient(130deg, #047857 0%, #059669 50%, #10B981 100%)`
 
 // ─── Global styles & keyframes ────────────────────────────────────────────────
 function GlobalStyles() {
@@ -39,10 +39,10 @@ function GlobalStyles() {
       *, *::before, *::after { box-sizing: border-box; }
       html, body, #root {
         margin:0; padding:0;
-        background:#071410; color:${T.text};
+        background:#F7F5F1; color:${T.text};
         font-family:${FONT}; -webkit-font-smoothing:antialiased; scroll-behavior:smooth;
       }
-      ::selection { background:rgba(16,240,156,0.2); color:${T.accent}; }
+      ::selection { background:rgba(5,150,105,0.15); color:${T.accentDeep}; }
       a { color:inherit; text-decoration:none; }
       button { font-family:inherit; cursor:pointer; border:0; background:none; color:inherit; }
 
@@ -58,8 +58,8 @@ function GlobalStyles() {
       /* Grid background */
       .grid-bg {
         background-image:
-          linear-gradient(rgba(16,240,156,0.035) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(16,240,156,0.035) 1px, transparent 1px);
+          linear-gradient(rgba(5,150,105,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(5,150,105,0.06) 1px, transparent 1px);
         background-size:60px 60px;
       }
 
@@ -78,7 +78,7 @@ function GlobalStyles() {
       @keyframes pulseDot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:.5} }
       @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
       @keyframes fadeUp   { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
-      @keyframes glow     { 0%,100%{box-shadow:0 0 20px rgba(16,240,156,.1)} 50%{box-shadow:0 0 60px rgba(16,240,156,.3)} }
+      @keyframes glow     { 0%,100%{box-shadow:0 0 20px rgba(5,150,105,.08)} 50%{box-shadow:0 0 60px rgba(5,150,105,.18)} }
       @keyframes borderSpin {
         0%   { background-position: 0% 50%; }
         100% { background-position: 200% 50%; }
@@ -98,7 +98,7 @@ function GlobalStyles() {
 
       /* Shimmer accent text */
       .shimmer {
-        background:linear-gradient(90deg,${T.accent},${T.accentSoft},${T.accent});
+        background:linear-gradient(90deg,${T.accentDeep},${T.accent},${T.accentDeep});
         background-size:200% auto;
         -webkit-background-clip:text; background-clip:text; color:transparent;
         animation:shimmer 3s linear infinite;
@@ -108,8 +108,8 @@ function GlobalStyles() {
       button:focus-visible,a:focus-visible { outline:2px solid ${T.accent}; outline-offset:3px; border-radius:6px; }
       ::-webkit-scrollbar { width:6px; height:6px; }
       ::-webkit-scrollbar-track { background:${T.bg}; }
-      ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:6px; }
-      ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.22); }
+      ::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.15); border-radius:6px; }
+      ::-webkit-scrollbar-thumb:hover { background:rgba(0,0,0,0.25); }
     `}</style>
   )
 }
@@ -130,12 +130,12 @@ function useReveal() {
 function AnimatedBg() {
   return (
     <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 90% 45% at 50% -5%, rgba(16,240,156,0.09) 0%, transparent 70%)` }} />
-      <div style={{ position: 'absolute', width: 900, height: 900, top: '-22%', left: '-18%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,240,156,0.08) 0%, transparent 65%)', filter: 'blur(70px)', animation: 'orb1 26s ease-in-out infinite' }} />
-      <div style={{ position: 'absolute', width: 700, height: 700, top: '28%', right: '-14%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 65%)', filter: 'blur(60px)', animation: 'orb2 32s ease-in-out infinite' }} />
-      <div style={{ position: 'absolute', width: 600, height: 600, bottom: '-12%', left: '28%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,240,156,0.055) 0%, transparent 65%)', filter: 'blur(50px)', animation: 'orb3 22s ease-in-out infinite' }} />
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 90% 45% at 50% -5%, rgba(5,150,105,0.07) 0%, transparent 70%)` }} />
+      <div style={{ position: 'absolute', width: 900, height: 900, top: '-22%', left: '-18%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.06) 0%, transparent 65%)', filter: 'blur(70px)', animation: 'orb1 26s ease-in-out infinite' }} />
+      <div style={{ position: 'absolute', width: 700, height: 700, top: '28%', right: '-14%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.04) 0%, transparent 65%)', filter: 'blur(60px)', animation: 'orb2 32s ease-in-out infinite' }} />
+      <div style={{ position: 'absolute', width: 600, height: 600, bottom: '-12%', left: '28%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.045) 0%, transparent 65%)', filter: 'blur(50px)', animation: 'orb3 22s ease-in-out infinite' }} />
       <div className="grid-bg" style={{ position: 'absolute', inset: 0 }} />
-      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 130% 130% at 50% 50%, transparent 40%, ${T.bg} 100%)`, opacity: 0.55 }} />
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 130% 130% at 50% 50%, transparent 40%, ${T.bg} 100%)`, opacity: 0.45 }} />
     </div>
   )
 }
@@ -435,7 +435,7 @@ function StatCard({ n, label, tone, tint, detail, delay = 0 }) {
           <div style={{
             width: 34, height: 34, borderRadius: 99, flexShrink: 0,
             background: open ? tone : T.bg,
-            color: open ? '#011810' : T.textMuted,
+            color: open ? T.accentInk : T.textMuted,
             border: `1px solid ${open ? tone : T.borderMid}`,
             display: 'grid', placeItems: 'center',
             fontSize: 20, lineHeight: 1,
@@ -472,8 +472,8 @@ function Brand() {
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       {/* Logomark: ECG heartbeat pulse — medical listening + scribing */}
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-        <rect width="32" height="32" rx="9" fill="#091C14"/>
-        <rect width="32" height="32" rx="9" stroke={T.accent} strokeWidth="1" strokeOpacity="0.38" fill="none"/>
+        <rect width="32" height="32" rx="9" fill="#E8F5F0"/>
+        <rect width="32" height="32" rx="9" stroke={T.accent} strokeWidth="1" strokeOpacity="0.45" fill="none"/>
         <path
           d="M 3,16 L 8,16 L 10,10 L 12.5,22 L 15,10 L 17.5,16 L 29,16"
           stroke={T.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -498,7 +498,7 @@ function Nav({ onNew, onOpenPricing }) {
   const link = (href, label) => (
     <a href={href}
       style={{ color: T.textSecondary, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
-      onMouseEnter={e => { e.target.style.color = '#ffffff' }}
+      onMouseEnter={e => { e.target.style.color = T.text }}
       onMouseLeave={e => { e.target.style.color = T.textSecondary }}>
       {label}
     </a>
@@ -506,7 +506,7 @@ function Nav({ onNew, onOpenPricing }) {
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-      background: scrolled ? 'rgba(10,26,19,0.85)' : 'transparent',
+      background: scrolled ? 'rgba(247,245,241,0.88)' : 'transparent',
       backdropFilter: scrolled ? 'saturate(160%) blur(16px)' : 'none',
       borderBottom: scrolled ? `1px solid ${T.border}` : '1px solid transparent',
       transition: 'background .3s ease, border-color .3s ease, backdrop-filter .3s ease',
@@ -517,7 +517,7 @@ function Nav({ onNew, onOpenPricing }) {
           {link('#how', 'How it works')}
           {link('#cases', 'Use cases')}
           <span onClick={onOpenPricing} style={{ color: T.textSecondary, fontSize: 14, padding: '8px 2px', cursor: 'pointer', transition: 'color .15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#ffffff' }}
+            onMouseEnter={e => { e.currentTarget.style.color = T.text }}
             onMouseLeave={e => { e.currentTarget.style.color = T.textSecondary }}>Pricing</span>
           {link('#faq', 'FAQ')}
         </nav>
@@ -546,7 +546,7 @@ function HeroVisual({ tilt }) {
     background: `linear-gradient(160deg, ${T.card} 0%, ${T.cardMid} 100%)`,
     border: `1px solid ${T.border}`,
     borderRadius: 22, padding: 28,
-    boxShadow: `0 40px 100px -40px rgba(0,0,0,0.6), 0 0 0 1px rgba(16,240,156,0.05), inset 0 1px 0 rgba(255,255,255,0.06)`,
+    boxShadow: `0 40px 100px -40px rgba(0,0,0,0.12), 0 0 0 1px rgba(5,150,105,0.06), inset 0 1px 0 rgba(255,255,255,0.8)`,
     transition: 'opacity .75s ease, transform .75s ease',
   }
   return (
@@ -732,7 +732,7 @@ function UseCases() {
   const [tab, setTab] = useState('diabetes')
   const uc = USE_CASES[tab]
   return (
-    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(18,43,31,0.4), transparent)` }}>
+    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(5,150,105,0.04), transparent)` }}>
       <Container>
         <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 48px' }}>
           <SectionLabel>Clinical use cases</SectionLabel>
@@ -853,7 +853,7 @@ function Rural() {
               display: 'flex', gap: 18, alignItems: 'flex-start',
               position: 'relative', overflow: 'hidden',
             }}>
-              <div aria-hidden style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: T.accentDim, filter: 'blur(40px)' }} />
+              <div aria-hidden style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(5,150,105,0.07)', filter: 'blur(40px)' }} />
               <div style={{ position: 'relative', width: 44, height: 44, borderRadius: 99, flexShrink: 0, background: `linear-gradient(135deg, ${T.accent}, ${T.accentSoft})`, display: 'grid', placeItems: 'center', color: T.accentInk, fontWeight: 700, fontSize: 16, boxShadow: `0 8px 20px -6px ${T.accentGlow}` }}>D</div>
               <figcaption style={{ position: 'relative' }}>
                 <blockquote style={{ margin: 0, fontSize: 15.5, color: T.text, lineHeight: 1.7, fontStyle: 'italic' }}>"I see 80 patients a day. I used to stay back 2 hours writing notes. Now I'm home by 6."</blockquote>
@@ -1134,7 +1134,7 @@ function FAQ() {
 function FinalCTA({ onNew, onOpenPricing }) {
   return (
     <section style={{ padding: '140px 0 130px', position: 'relative', overflow: 'hidden', zIndex: 1 }}>
-      <div aria-hidden style={{ position: 'absolute', inset: 0, background: `radial-gradient(70% 70% at 50% 40%, rgba(16,240,156,0.08), transparent 75%)` }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, background: `radial-gradient(70% 70% at 50% 40%, rgba(5,150,105,0.06), transparent 75%)` }} />
       <div aria-hidden className="grid-bg" style={{ position: 'absolute', inset: 0 }} />
       <Container style={{ position: 'relative', textAlign: 'center', maxWidth: 800 }}>
         <div className="rv" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: T.accentDim, border: `1px solid ${T.borderAccent}`, marginBottom: 28, fontSize: 13, color: T.accent }}>
@@ -1179,7 +1179,7 @@ function Footer() {
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 18, letterSpacing: '0.01em' }}>{c.h}</div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
                 {c.l.map((l, j) => (
-                  <li key={j}><a href="#" style={{ color: T.textMuted, fontSize: 14, transition: 'color .15s' }} onMouseEnter={e => { e.target.style.color = T.text }} onMouseLeave={e => { e.target.style.color = T.textMuted }}>{l}</a></li>
+                  <li key={j}><a href="#" style={{ color: T.textMuted, fontSize: 14, transition: 'color .15s' }} onMouseEnter={e => { e.target.style.color = T.accent }} onMouseLeave={e => { e.target.style.color = T.textMuted }}>{l}</a></li>
                 ))}
               </ul>
             </div>

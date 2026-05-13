@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import transcribe, extract, encounters, intake, abdm, summary
+from routers import transcribe, extract, encounters, intake, abdm, summary, documents
 
 app = FastAPI(
     title="ibuscribe",
@@ -33,6 +33,7 @@ app.include_router(encounters.router, prefix="/api/v1")
 app.include_router(intake.router, prefix="/api/v1")
 app.include_router(abdm.router, prefix="/api/v1")
 app.include_router(summary.router, prefix="/api/v1")
+app.include_router(documents.router, prefix="/api/v1")
 
 
 @app.get("/health")

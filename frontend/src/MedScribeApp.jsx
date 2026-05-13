@@ -2620,26 +2620,11 @@ function ordinal(n) {
 
 // ─── Document Upload Panel ────────────────────────────────────────────────────
 function DocumentUploadPanel() {
-  const [files, setFiles] = useState([])
+  const [entries, setEntries] = useState([]) // { file, status: 'uploading'|'done'|'error', result, error }
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef(null)
 
   const ACCEPTED = '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-
-  const addFiles = (incoming) => {
-    const valid = Array.from(incoming).filter(f =>
-      f.type === 'application/pdf' ||
-      f.type === 'application/msword' ||
-      f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    )
-    if (!valid.length) return
-    setFiles(prev => {
-      const names = new Set(prev.map(f => f.name))
-      return [...prev, ...valid.filter(f => !names.has(f.name))]
-    })
-  }
-
-  const removeFile = (name) => setFiles(prev => prev.filter(f => f.name !== name))
 
   const formatSize = (bytes) => {
     if (bytes < 1024) return `${bytes} B`
@@ -2647,19 +2632,53 @@ function DocumentUploadPanel() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  const fileIcon = (file) => {
-    if (file.type === 'application/pdf') return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="2" y="1" width="10" height="14" rx="1.5" fill="#FEE2E2" stroke="#DC2626" strokeWidth="1.2"/>
-        <path d="M9 1v4h3" stroke="#DC2626" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M5 8h6M5 10.5h4" stroke="#DC2626" strokeWidth="1" strokeLinecap="round"/>
-      </svg>
+  const analyseFile = async (file) => {
+    const id = file.name + file.size
+    setEntries(prev => {
+      if (prev.find(e => e.id === id)) return prev
+      return [...prev, { id, file, status: 'uploading', result: null, error: null, expanded: false }]
+    })
+    const form = new FormData()
+    form.append('file', file)
+    try {
+      const res = await fetch(`${API}/api/v1/documents/analyze`, { method: 'POST', body: form })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }))
+        throw new Error(err.detail || 'Analysis failed')
+      }
+      const data = await res.json()
+      setEntries(prev => prev.map(e => e.id === id ? { ...e, status: 'done', result: data } : e))
+    } catch (err) {
+      setEntries(prev => prev.map(e => e.id === id ? { ...e, status: 'error', error: err.message } : e))
+    }
+  }
+
+  const addFiles = (incoming) => {
+    const valid = Array.from(incoming).filter(f =>
+      f.type === 'application/pdf' ||
+      f.type === 'application/msword' ||
+      f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
+    valid.forEach(analyseFile)
+  }
+
+  const removeEntry = (id) => setEntries(prev => prev.filter(e => e.id !== id))
+  const toggleExpand = (id) => setEntries(prev => prev.map(e => e.id === id ? { ...e, expanded: !e.expanded } : e))
+
+  const flagColor = (flag) => {
+    if (flag === 'critical_high' || flag === 'critical_low') return { bg: '#FEE2E2', text: '#B91C1C', label: flag === 'critical_high' ? 'CRIT H' : 'CRIT L' }
+    if (flag === 'high') return { bg: '#FEF3C7', text: '#92400E', label: 'H' }
+    if (flag === 'low') return { bg: '#EFF6FF', text: '#1D4ED8', label: 'L' }
+    return { bg: '#F0FDF4', text: '#166534', label: 'N' }
+  }
+
+  const fileIcon = (file) => {
+    const isPdf = file.type === 'application/pdf'
     return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="2" y="1" width="10" height="14" rx="1.5" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.2"/>
-        <path d="M9 1v4h3" stroke="#1D4ED8" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M5 8h6M5 10.5h4" stroke="#1D4ED8" strokeWidth="1" strokeLinecap="round"/>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="1" width="11" height="16" rx="1.5" fill={isPdf ? '#FEE2E2' : '#DBEAFE'} stroke={isPdf ? '#DC2626' : '#1D4ED8'} strokeWidth="1.2"/>
+        <path d="M10 1v5h3" stroke={isPdf ? '#DC2626' : '#1D4ED8'} strokeWidth="1.2" strokeLinecap="round"/>
+        <path d="M5 9.5h7M5 12h5" stroke={isPdf ? '#DC2626' : '#1D4ED8'} strokeWidth="1" strokeLinecap="round"/>
       </svg>
     )
   }
@@ -2667,22 +2686,17 @@ function DocumentUploadPanel() {
   return (
     <div style={{ marginBottom: 36, background: theme.surface, border: `1.5px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ padding: '14px 20px', borderBottom: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: theme.accentDim, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 11V4M5 7l3-3 3 3" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 13h10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: theme.text }}>Upload Lab Reports / Prior Records</div>
-            <div style={{ fontSize: 11.5, color: theme.textMuted }}>PDF or Word documents · Stored locally for this session</div>
-          </div>
+      <div style={{ padding: '14px 20px', borderBottom: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: theme.accentDim, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 11V4M5 7l3-3 3 3" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M3 13h10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round"/>
+          </svg>
         </div>
-        <span style={{ fontSize: 10.5, fontFamily: theme.mono, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px', letterSpacing: '0.06em' }}>
-          COMING SOON
-        </span>
+        <div>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: theme.text }}>Upload Lab Reports / Prior Records</div>
+          <div style={{ fontSize: 11.5, color: theme.textMuted }}>PDF or Word · ibuscribe will analyse and extract clinical findings automatically</div>
+        </div>
       </div>
 
       <div style={{ padding: '16px 20px' }}>
@@ -2698,7 +2712,7 @@ function DocumentUploadPanel() {
             textAlign: 'center', cursor: 'pointer',
             background: dragging ? theme.accentDim : theme.bg,
             transition: 'border-color .15s, background .15s',
-            marginBottom: files.length ? 14 : 0,
+            marginBottom: entries.length ? 16 : 0,
           }}
         >
           <input ref={inputRef} type="file" accept={ACCEPTED} multiple onChange={e => addFiles(e.target.files)} style={{ display: 'none' }}/>
@@ -2713,30 +2727,127 @@ function DocumentUploadPanel() {
           <div style={{ fontSize: 11.5, color: theme.textDim }}>PDF, DOC, DOCX · Max 20 MB per file</div>
         </div>
 
-        {/* Uploaded files list */}
-        {files.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {files.map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '10px 14px' }}>
-                {fileIcon(f)}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: theme.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
-                  <div style={{ fontSize: 11, color: theme.textDim }}>{formatSize(f.size)}</div>
+        {/* File entries */}
+        {entries.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {entries.map(entry => (
+              <div key={entry.id} style={{ border: `1px solid ${entry.status === 'done' ? 'rgba(12,122,82,0.2)' : entry.status === 'error' ? 'rgba(220,38,38,0.2)' : theme.border}`, borderRadius: 12, overflow: 'hidden', background: theme.bg }}>
+
+                {/* File row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px' }}>
+                  {fileIcon(entry.file)}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: theme.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.file.name}</div>
+                    <div style={{ fontSize: 11, color: theme.textDim }}>{formatSize(entry.file.size)}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                    {entry.status === 'uploading' && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: theme.textMuted }}>
+                        <svg style={{ animation: 'spin 1s linear infinite' }} width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke={theme.accent} strokeWidth="1.5" strokeDasharray="8 12"/></svg>
+                        Analysing…
+                      </span>
+                    )}
+                    {entry.status === 'done' && (
+                      <button onClick={() => toggleExpand(entry.id)} style={{ fontSize: 11, fontFamily: theme.mono, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 5, padding: '2px 8px', cursor: 'pointer' }}>
+                        {entry.expanded ? 'Hide' : 'View analysis'}
+                      </button>
+                    )}
+                    {entry.status === 'error' && (
+                      <span style={{ fontSize: 11, color: theme.danger, fontFamily: theme.mono }}>Error</span>
+                    )}
+                    <button onClick={() => removeEntry(entry.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.textDim, fontSize: 18, lineHeight: 1, padding: '2px 4px' }}
+                      onMouseEnter={e => e.currentTarget.style.color = theme.danger}
+                      onMouseLeave={e => e.currentTarget.style.color = theme.textDim}
+                    >×</button>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                  <span style={{ fontSize: 10, fontFamily: theme.mono, color: theme.textDim, background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 4, padding: '2px 6px' }}>
-                    Pending analysis
-                  </span>
-                  <button onClick={(e) => { e.stopPropagation(); removeFile(f.name) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.textDim, fontSize: 16, lineHeight: 1, padding: '2px 4px', borderRadius: 4 }}
-                    onMouseEnter={e => e.currentTarget.style.color = theme.danger}
-                    onMouseLeave={e => e.currentTarget.style.color = theme.textDim}
-                  >×</button>
-                </div>
+
+                {/* Error message */}
+                {entry.status === 'error' && (
+                  <div style={{ padding: '8px 14px 12px', borderTop: `1px solid rgba(220,38,38,0.12)`, fontSize: 12, color: theme.danger, background: '#FFF5F5' }}>
+                    {entry.error}
+                  </div>
+                )}
+
+                {/* Analysis results */}
+                {entry.status === 'done' && entry.expanded && entry.result && (() => {
+                  const r = entry.result
+                  const abnormals = (r.key_findings || []).filter(f => f.flag !== 'normal')
+                  return (
+                    <div style={{ borderTop: `1px solid rgba(12,122,82,0.12)`, padding: '14px 16px', background: '#FAFDFB' }}>
+
+                      {/* Document type + summary */}
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
+                        <span style={{ fontSize: 10, fontFamily: theme.mono, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 7px', whiteSpace: 'nowrap', marginTop: 1 }}>
+                          {(r.document_type || 'DOCUMENT').replace('_', ' ').toUpperCase()}
+                        </span>
+                        <div style={{ fontSize: 13, color: theme.text, lineHeight: 1.6 }}>{r.summary}</div>
+                      </div>
+
+                      {/* Patient info strip */}
+                      {(r.patient_name || r.test_date || r.lab_name) && (
+                        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 12, padding: '8px 12px', background: theme.surface, borderRadius: 8, border: `1px solid ${theme.border}` }}>
+                          {r.patient_name && <div><div style={{ fontSize: 9, fontFamily: theme.mono, color: theme.textDim, letterSpacing: '0.1em' }}>PATIENT</div><div style={{ fontSize: 12, fontWeight: 600, color: theme.text }}>{r.patient_name}</div></div>}
+                          {r.patient_age_sex && <div><div style={{ fontSize: 9, fontFamily: theme.mono, color: theme.textDim, letterSpacing: '0.1em' }}>AGE / SEX</div><div style={{ fontSize: 12, fontWeight: 600, color: theme.text }}>{r.patient_age_sex}</div></div>}
+                          {r.test_date && <div><div style={{ fontSize: 9, fontFamily: theme.mono, color: theme.textDim, letterSpacing: '0.1em' }}>DATE</div><div style={{ fontSize: 12, fontWeight: 600, color: theme.text }}>{r.test_date}</div></div>}
+                          {r.lab_name && <div><div style={{ fontSize: 9, fontFamily: theme.mono, color: theme.textDim, letterSpacing: '0.1em' }}>LAB</div><div style={{ fontSize: 12, fontWeight: 600, color: theme.text }}>{r.lab_name}</div></div>}
+                        </div>
+                      )}
+
+                      {/* Abnormal values — highlighted */}
+                      {abnormals.length > 0 && (
+                        <div style={{ marginBottom: 12 }}>
+                          <div style={{ fontSize: 10, fontFamily: theme.mono, fontWeight: 700, color: theme.textDim, letterSpacing: '0.1em', marginBottom: 6 }}>ABNORMAL VALUES</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            {abnormals.map((f, i) => {
+                              const fc = flagColor(f.flag)
+                              return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: fc.bg, borderRadius: 7, border: `1px solid ${fc.text}22` }}>
+                                  <span style={{ fontSize: 9.5, fontFamily: theme.mono, fontWeight: 700, color: fc.text, background: `${fc.text}18`, borderRadius: 3, padding: '1px 5px', flexShrink: 0 }}>{fc.label}</span>
+                                  <span style={{ fontSize: 12.5, fontWeight: 600, color: '#111', flex: 1 }}>{f.test}</span>
+                                  <span style={{ fontSize: 12.5, fontWeight: 700, color: fc.text, fontFamily: theme.mono }}>{f.value}{f.unit ? ` ${f.unit}` : ''}</span>
+                                  {f.reference_range && <span style={{ fontSize: 10.5, color: theme.textDim }}>(ref: {f.reference_range})</span>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Recommendations */}
+                      {r.recommendations?.length > 0 && (
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: 10, fontFamily: theme.mono, fontWeight: 700, color: theme.textDim, letterSpacing: '0.1em', marginBottom: 6 }}>RECOMMENDATIONS</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                            {r.recommendations.map((rec, i) => (
+                              <div key={i} style={{ display: 'flex', gap: 8, fontSize: 12.5, color: theme.text, lineHeight: 1.5 }}>
+                                <span style={{ color: theme.accent, fontWeight: 700, flexShrink: 0 }}>·</span>
+                                <span>{rec}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Diagnoses + medications mentioned */}
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                        {r.diagnoses_mentioned?.map((d, i) => (
+                          <span key={i} style={{ fontSize: 10.5, background: '#EDE9FE', color: '#5B21B6', border: '1px solid #C4B5FD', borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono }}>{d}</span>
+                        ))}
+                        {r.medications_mentioned?.map((m, i) => (
+                          <span key={i} style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono }}>💊 {m}</span>
+                        ))}
+                      </div>
+
+                      {/* Disclaimer */}
+                      <div style={{ marginTop: 12, fontSize: 10.5, color: theme.textDim, fontStyle: 'italic', borderTop: `1px dashed ${theme.border}`, paddingTop: 8 }}>
+                        Doctor verification required — ibuscribe analysis is for reference only and must be confirmed against the original document.
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
             ))}
-            <div style={{ fontSize: 11.5, color: theme.textDim, fontStyle: 'italic', marginTop: 2, paddingLeft: 2 }}>
-              ibuscribe will automatically extract and analyse these documents in an upcoming update.
-            </div>
           </div>
         )}
       </div>

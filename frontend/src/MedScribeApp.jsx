@@ -421,7 +421,7 @@ function IntroScreen({ onComplete }) {
 
 // ── Step 1: Patient Intake (Voice-first) ──────────────────────────────────────
 
-function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
+function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatient }) {
   const [mode, setMode] = useState('voice') // 'voice' | 'manual' | 'confirm'
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -661,6 +661,36 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack }) {
               borderRadius: 12, padding: '12px 16px', marginBottom: 20,
               fontSize: 13, color: theme.danger,
             }}>{error}</div>
+          )}
+
+          {/* ── RETURNING PATIENT BANNER ── */}
+          {returningPatient && (
+            <div style={{
+              background: 'linear-gradient(90deg, rgba(12,122,82,0.08) 0%, rgba(12,122,82,0.04) 100%)',
+              border: `1.5px solid rgba(12,122,82,0.22)`,
+              borderRadius: 14, padding: '14px 20px', marginBottom: 20,
+              display: 'flex', alignItems: 'center', gap: 14,
+              animation: 'fadeIn .3s ease',
+            }}>
+              {/* Folder icon */}
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M2 5a2 2 0 012-2h3l2 2h7a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" fill={theme.accentDim} stroke={theme.accent} strokeWidth="1.5" strokeLinejoin="round"/>
+                  <path d="M6 10h8M6 13h5" stroke={theme.accent} strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: theme.text }}>Returning Patient — {ordinal(returningPatient.visitCount + 1)} visit</span>
+                  <span style={{ fontFamily: theme.mono, fontSize: 10, background: theme.accent, color: '#fff', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>FOLDER LOADED</span>
+                </div>
+                <div style={{ fontSize: 12, color: theme.textMuted, marginTop: 3 }}>
+                  Last visit {timeAgo(returningPatient.lastVisit)}
+                  {returningPatient.lastChiefComplaint && ` · "${returningPatient.lastChiefComplaint}"`}
+                  {' · '}Details pre-filled from previous record. Update the chief complaint below.
+                </div>
+              </div>
+            </div>
           )}
 
           {/* ── VOICE HERO STRIP ── */}
@@ -2494,6 +2524,254 @@ const EMPTY_INTAKE = {
   language: 'mixed', consentGiven: false,
 }
 
+// ─── Patient Record Store (localStorage, Phase 1) ─────────────────────────────
+function loadPatients() {
+  try { return JSON.parse(localStorage.getItem('ibuscribe_patients') || '[]') }
+  catch { return [] }
+}
+
+function savePatientRecord(intake, clinicalData) {
+  if (!intake.name.trim()) return
+  const patients = loadPatients()
+  const idx = patients.findIndex(p =>
+    (intake.abhaId?.trim() && p.abhaId === intake.abhaId.trim()) ||
+    p.name.toLowerCase() === intake.name.trim().toLowerCase()
+  )
+  const newDx = (clinicalData?.diagnoses || [])
+    .map(d => d.description || d.display || '').filter(Boolean).join(', ')
+  const newMeds = (clinicalData?.medications || [])
+    .map(m => [m.name, m.dosage, m.frequency].filter(Boolean).join(' ')).filter(Boolean).join('; ')
+  const existing = idx >= 0 ? patients[idx] : {}
+  const pastParts = [existing.pastHistory, newDx].filter(Boolean)
+  const record = {
+    id: existing.id || (crypto?.randomUUID?.() ?? Date.now().toString(36)),
+    name: intake.name.trim(),
+    age: intake.age || existing.age || '',
+    gender: intake.gender || existing.gender || '',
+    abhaId: intake.abhaId?.trim() || existing.abhaId || '',
+    allergies: intake.allergies?.trim() || existing.allergies || '',
+    pastHistory: pastParts.join('; '),
+    currentMedications: newMeds || existing.currentMedications || '',
+    language: intake.language || 'mixed',
+    lastVisit: new Date().toISOString(),
+    visitCount: (existing.visitCount || 0) + 1,
+    lastChiefComplaint: intake.chiefComplaint?.trim() || '',
+  }
+  if (idx >= 0) patients[idx] = record
+  else patients.unshift(record)
+  try { localStorage.setItem('ibuscribe_patients', JSON.stringify(patients.slice(0, 200))) } catch {}
+}
+
+function timeAgo(iso) {
+  if (!iso) return ''
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'Just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24)
+  if (d === 1) return 'Yesterday'
+  if (d < 7) return `${d} days ago`
+  if (d < 30) return `${Math.floor(d / 7)}w ago`
+  if (d < 365) return `${Math.floor(d / 30)} months ago`
+  return `${Math.floor(d / 365)}y ago`
+}
+
+function ordinal(n) {
+  const s = ['th','st','nd','rd'], v = n % 100
+  return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+// ─── Patient Registry Search Screen ───────────────────────────────────────────
+function PatientSearchScreen({ onSelect, onNew, onBack }) {
+  const [query, setQuery] = useState('')
+  const [patients] = useState(loadPatients)
+
+  const filtered = query.trim().length >= 1
+    ? patients.filter(p =>
+        p.name.toLowerCase().includes(query.toLowerCase()) ||
+        (p.abhaId && p.abhaId.includes(query))
+      )
+    : patients
+
+  const handleLoad = (p) => {
+    onSelect(p, {
+      ...EMPTY_INTAKE,
+      name: p.name,
+      age: p.age || '',
+      gender: p.gender || '',
+      abhaId: p.abhaId || '',
+      allergies: p.allergies || '',
+      pastHistory: p.pastHistory || '',
+      currentMedications: p.currentMedications || '',
+      language: p.language || 'mixed',
+      consentGiven: false,
+    })
+  }
+
+  const initials = (name) => name.trim().split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+
+  const GenderAge = ({ p }) => {
+    const parts = []
+    if (p.age) parts.push(`${p.age}y`)
+    if (p.gender) parts.push(p.gender.charAt(0).toUpperCase() + p.gender.slice(1))
+    return parts.length ? <span style={{ color: theme.textMuted, fontSize: 12.5 }}>{parts.join(' · ')}</span> : null
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: theme.bg, fontFamily: theme.font }}>
+      <style>{`
+        @keyframes cardIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+        .pt-card { animation: cardIn .22s ease forwards; }
+        .pt-card:hover { background: #F0F7F4 !important; border-color: rgba(12,122,82,0.22) !important; }
+        .load-btn { opacity: 0; transition: opacity .15s ease; }
+        .pt-card:hover .load-btn { opacity: 1; }
+      `}</style>
+
+      {/* Top bar */}
+      <div style={{ background: theme.surface, borderBottom: `1px solid ${theme.border}`, padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <button onClick={onBack} style={{ background: 'none', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '6px 14px', color: theme.textMuted, cursor: 'pointer', fontFamily: theme.font, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Back
+          </button>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: theme.text }}>Patient Registry</div>
+            <div style={{ fontSize: 12, color: theme.textMuted }}>
+              {patients.length === 0 ? 'No records yet' : `${patients.length} patient${patients.length !== 1 ? 's' : ''} on record`}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={onNew}
+          style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 20px', fontFamily: theme.font, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+          New Patient
+        </button>
+      </div>
+
+      {/* Main content */}
+      <div style={{ maxWidth: 780, margin: '0 auto', padding: '40px 24px' }}>
+
+        {/* Search bar */}
+        <div style={{ position: 'relative', marginBottom: 36 }}>
+          <svg style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="8" cy="8" r="5.5" stroke={theme.textDim} strokeWidth="1.7"/>
+            <path d="M12.5 12.5l3 3" stroke={theme.textDim} strokeWidth="1.7" strokeLinecap="round"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name or ABHA ID…"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            autoFocus
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '14px 16px 14px 48px',
+              background: theme.surface, border: `1.5px solid ${theme.border}`,
+              borderRadius: 14, fontSize: 15, fontFamily: theme.font,
+              color: theme.text, outline: 'none',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+              transition: 'border-color .15s',
+            }}
+            onFocus={e => e.target.style.borderColor = theme.accent}
+            onBlur={e => e.target.style.borderColor = theme.border}
+          />
+          {query && (
+            <button onClick={() => setQuery('')} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: theme.textDim, fontSize: 18, lineHeight: 1 }}>×</button>
+          )}
+        </div>
+
+        {/* Section label */}
+        {filtered.length > 0 && (
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', color: theme.textDim, marginBottom: 12, fontFamily: theme.mono, textTransform: 'uppercase' }}>
+            {query ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : 'Recent Patients'}
+          </div>
+        )}
+
+        {/* Patient list */}
+        {patients.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '72px 0' }}>
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: theme.accentDim, display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke={theme.accent} strokeWidth="2"/><path d="M4 24c0-4.4 4.5-8 10-8s10 3.6 10 8" stroke={theme.accent} strokeWidth="2" strokeLinecap="round"/></svg>
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 600, color: theme.text, marginBottom: 8 }}>No patient records yet</div>
+            <div style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 28, lineHeight: 1.6 }}>Previous patients will appear here after their first approved consultation.</div>
+            <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>Start first consultation</button>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '56px 0' }}>
+            <div style={{ fontSize: 15, color: theme.textMuted, marginBottom: 16 }}>No patients matching <strong>"{query}"</strong></div>
+            <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 13.5, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>Register as new patient</button>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: 10 }}>
+            {filtered.map((p, i) => (
+              <div
+                key={p.id}
+                className="pt-card"
+                onClick={() => handleLoad(p)}
+                style={{
+                  background: theme.surface, border: `1px solid ${theme.border}`,
+                  borderRadius: 14, padding: '16px 20px',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16,
+                  transition: 'background .15s, border-color .15s',
+                  animationDelay: `${i * 40}ms`,
+                }}
+              >
+                {/* Monogram */}
+                <div style={{
+                  width: 48, height: 48, borderRadius: 13, flexShrink: 0,
+                  background: theme.accentDim, border: `1.5px solid rgba(12,122,82,0.18)`,
+                  display: 'grid', placeItems: 'center',
+                }}>
+                  <span style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: 700, color: theme.accent }}>{initials(p.name)}</span>
+                </div>
+
+                {/* Patient info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginBottom: 3 }}>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{p.name}</span>
+                    <GenderAge p={p} />
+                    {p.abhaId && <span style={{ fontFamily: theme.mono, fontSize: 10.5, color: theme.textDim, background: '#F0F7F4', padding: '1px 7px', borderRadius: 4 }}>ABHA {p.abhaId}</span>}
+                  </div>
+                  {p.lastChiefComplaint && (
+                    <div style={{ fontSize: 12.5, color: theme.textMuted, fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 420 }}>
+                      Last visit: "{p.lastChiefComplaint}"
+                    </div>
+                  )}
+                  {(p.allergies || p.currentMedications) && (
+                    <div style={{ display: 'flex', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
+                      {p.allergies && <span style={{ fontSize: 11, background: 'rgba(180,83,9,0.08)', color: '#92400E', border: '1px solid rgba(180,83,9,0.2)', borderRadius: 4, padding: '1px 7px' }}>⚠ {p.allergies.split(';')[0].trim()}</span>}
+                      {p.currentMedications && <span style={{ fontSize: 11, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.18)`, borderRadius: 4, padding: '1px 7px' }}>💊 On medication</span>}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right — visit badge + time + load button */}
+                <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <span style={{ fontFamily: theme.mono, fontSize: 10, background: theme.accentDim, color: theme.accent, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
+                      {ordinal(p.visitCount)} visit
+                    </span>
+                    <span style={{ fontSize: 11.5, color: theme.textDim }}>{timeAgo(p.lastVisit)}</span>
+                  </div>
+                  <div className="load-btn" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: theme.accent }}>
+                    Load folder
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M8 3l3.5 3.5L8 10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function MedScribeApp() {
   const [introComplete, setIntroComplete] = useState(() => !!sessionStorage.getItem('ibus_intro'))
   const handleIntroComplete = useCallback(() => {
@@ -2504,6 +2782,7 @@ export default function MedScribeApp() {
   const [screen, setScreen] = useState('home')
   const [error, setError] = useState('')
   const [intake, setIntake] = useState(EMPTY_INTAKE)
+  const [returningPatient, setReturningPatient] = useState(null)
 
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
@@ -2601,9 +2880,19 @@ export default function MedScribeApp() {
     }
   }, [intake, showError])
 
-  const handleNew = () => { setIntake(EMPTY_INTAKE); setScreen('intake') }
-  const handleApprove = (editedData) => { if (editedData) setClinicalData(editedData); setScreen('approved') }
-  const handleDiscard = () => { setClinicalData(null); setFhirBundle(null); setEncounterId(''); setScreen('home') }
+  const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
+  const handlePatientSelect = useCallback((patient, prefilledIntake) => {
+    setReturningPatient(patient)
+    setIntake(prefilledIntake)
+    setScreen('intake')
+  }, [])
+  const handleApprove = (editedData) => {
+    const finalData = editedData || clinicalData
+    if (finalData) setClinicalData(finalData)
+    savePatientRecord(intake, finalData)
+    setScreen('approved')
+  }
+  const handleDiscard = () => { setClinicalData(null); setFhirBundle(null); setEncounterId(''); setReturningPatient(null); setScreen('home') }
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', -apple-system, sans-serif", background: theme.bg, minHeight: '100vh' }}>
@@ -2616,11 +2905,20 @@ export default function MedScribeApp() {
 
       {screen === 'home' && <HomeScreen onNew={handleNew} />}
 
+      {screen === 'search' && (
+        <PatientSearchScreen
+          onSelect={handlePatientSelect}
+          onNew={() => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('intake') }}
+          onBack={() => setScreen('home')}
+        />
+      )}
+
       {screen === 'intake' && (
         <PatientIntakeScreen
           intake={intake} setIntake={setIntake}
           onNext={startConsultation}
-          onBack={() => setScreen('home')}
+          onBack={() => setScreen('search')}
+          returningPatient={returningPatient}
         />
       )}
 

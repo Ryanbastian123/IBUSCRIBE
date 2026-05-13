@@ -2530,6 +2530,65 @@ function loadPatients() {
   catch { return [] }
 }
 
+const DEMO_PATIENTS = [
+  {
+    id: 'demo-001',
+    name: 'Priya Sharma',
+    age: '42', gender: 'female',
+    abhaId: '91-3421-7865-0012',
+    allergies: 'Penicillin',
+    pastHistory: 'Type 2 diabetes mellitus; Essential hypertension',
+    currentMedications: 'Metformin SR 500mg BD; Amlodipine 5mg OD; Telmisartan 40mg OD',
+    language: 'mixed',
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(), // 12 days ago
+    visitCount: 4,
+    lastChiefComplaint: 'Increased blood sugar levels, fatigue',
+  },
+  {
+    id: 'demo-002',
+    name: 'Rajan Pillai',
+    age: '67', gender: 'male',
+    abhaId: '91-5534-2210-8876',
+    allergies: '',
+    pastHistory: 'Coronary artery disease; COPD; Hypertension',
+    currentMedications: 'Ecosprin 75mg OD; Atorvastatin 20mg OD; Salbutamol inhaler SOS; Pan-D OD',
+    language: 'mixed',
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
+    visitCount: 6,
+    lastChiefComplaint: 'Breathlessness on exertion, mild chest discomfort',
+  },
+  {
+    id: 'demo-003',
+    name: 'Meena Iyer',
+    age: '29', gender: 'female',
+    abhaId: '',
+    allergies: 'Sulpha drugs, NSAIDs',
+    pastHistory: 'Recurrent urinary tract infection',
+    currentMedications: 'Nitrofurantoin 100mg BD',
+    language: 'ta',
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString(), // 45 days ago
+    visitCount: 2,
+    lastChiefComplaint: 'Burning urination, lower abdominal pain',
+  },
+  {
+    id: 'demo-004',
+    name: 'Arjun Kumar',
+    age: '8', gender: 'male',
+    abhaId: '91-7743-9921-3305',
+    allergies: '',
+    pastHistory: 'Recurrent upper respiratory infection; Iron deficiency anaemia',
+    currentMedications: 'Ferrous sulphate syrup 5ml OD',
+    language: 'hi',
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), // 1 week ago
+    visitCount: 3,
+    lastChiefComplaint: 'Fever for 3 days, runny nose, poor appetite',
+  },
+]
+
+function seedDemoPatients() {
+  try { localStorage.setItem('ibuscribe_patients', JSON.stringify(DEMO_PATIENTS)) } catch {}
+}
+
 function savePatientRecord(intake, clinicalData) {
   if (!intake.name.trim()) return
   const patients = loadPatients()
@@ -2586,7 +2645,12 @@ function ordinal(n) {
 // ─── Patient Registry Search Screen ───────────────────────────────────────────
 function PatientSearchScreen({ onSelect, onNew, onBack }) {
   const [query, setQuery] = useState('')
-  const [patients] = useState(loadPatients)
+  const [patients, setPatients] = useState(loadPatients)
+
+  const handleSeedDemo = () => {
+    seedDemoPatients()
+    setPatients(loadPatients())
+  }
 
   const filtered = query.trim().length >= 1
     ? patients.filter(p =>
@@ -2693,13 +2757,34 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
 
         {/* Patient list */}
         {patients.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '72px 0' }}>
+          <div style={{ textAlign: 'center', padding: '56px 0' }}>
             <div style={{ width: 64, height: 64, borderRadius: 18, background: theme.accentDim, display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
               <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke={theme.accent} strokeWidth="2"/><path d="M4 24c0-4.4 4.5-8 10-8s10 3.6 10 8" stroke={theme.accent} strokeWidth="2" strokeLinecap="round"/></svg>
             </div>
             <div style={{ fontSize: 17, fontWeight: 600, color: theme.text, marginBottom: 8 }}>No patient records yet</div>
-            <div style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 28, lineHeight: 1.6 }}>Previous patients will appear here after their first approved consultation.</div>
-            <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>Start first consultation</button>
+            <div style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 32, lineHeight: 1.6 }}>
+              Previous patients will appear here after their first approved consultation.
+            </div>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>
+                Start first consultation
+              </button>
+              <button
+                onClick={handleSeedDemo}
+                style={{ background: theme.surface, color: theme.textMuted, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '11px 24px', fontSize: 13.5, fontWeight: 500, fontFamily: theme.font, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <rect x="1" y="3" width="13" height="10" rx="2" stroke={theme.textDim} strokeWidth="1.4"/>
+                  <path d="M1 6h13" stroke={theme.textDim} strokeWidth="1.4"/>
+                  <path d="M5 1v3M10 1v3" stroke={theme.textDim} strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+                Load sample patients
+              </button>
+            </div>
+            {/* Demo hint */}
+            <div style={{ marginTop: 16, fontSize: 11.5, color: theme.textDim, fontStyle: 'italic' }}>
+              Sample data: Priya Sharma · Rajan Pillai · Meena Iyer · Arjun Kumar
+            </div>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px 0' }}>

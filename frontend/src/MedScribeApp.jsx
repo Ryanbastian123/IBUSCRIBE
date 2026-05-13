@@ -2750,12 +2750,12 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
 
         {/* Section label */}
         {filtered.length > 0 && (
-          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', color: theme.textDim, marginBottom: 12, fontFamily: theme.mono, textTransform: 'uppercase' }}>
-            {query ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : 'Recent Patients'}
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: theme.textDim, marginBottom: 24, fontFamily: theme.mono, textTransform: 'uppercase' }}>
+            {query ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : `Patient Registry — ${patients.length} file${patients.length !== 1 ? 's' : ''}`}
           </div>
         )}
 
-        {/* Patient list */}
+        {/* Patient folders */}
         {patients.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px 0' }}>
             <div style={{ width: 64, height: 64, borderRadius: 18, background: theme.accentDim, display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
@@ -2769,19 +2769,11 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
               <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>
                 Start first consultation
               </button>
-              <button
-                onClick={handleSeedDemo}
-                style={{ background: theme.surface, color: theme.textMuted, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '11px 24px', fontSize: 13.5, fontWeight: 500, fontFamily: theme.font, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-              >
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                  <rect x="1" y="3" width="13" height="10" rx="2" stroke={theme.textDim} strokeWidth="1.4"/>
-                  <path d="M1 6h13" stroke={theme.textDim} strokeWidth="1.4"/>
-                  <path d="M5 1v3M10 1v3" stroke={theme.textDim} strokeWidth="1.4" strokeLinecap="round"/>
-                </svg>
+              <button onClick={handleSeedDemo} style={{ background: theme.surface, color: theme.textMuted, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '11px 24px', fontSize: 13.5, fontWeight: 500, fontFamily: theme.font, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="10" rx="2" stroke={theme.textDim} strokeWidth="1.4"/><path d="M1 6h13" stroke={theme.textDim} strokeWidth="1.4"/><path d="M5 1v3M10 1v3" stroke={theme.textDim} strokeWidth="1.4" strokeLinecap="round"/></svg>
                 Load sample patients
               </button>
             </div>
-            {/* Demo hint */}
             <div style={{ marginTop: 16, fontSize: 11.5, color: theme.textDim, fontStyle: 'italic' }}>
               Sample data: Priya Sharma · Rajan Pillai · Meena Iyer · Arjun Kumar
             </div>
@@ -2792,60 +2784,124 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
             <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 13.5, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>Register as new patient</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '32px 24px' }}>
             {filtered.map((p, i) => (
               <div
                 key={p.id}
-                className="pt-card"
                 onClick={() => handleLoad(p)}
-                style={{
-                  background: theme.surface, border: `1px solid ${theme.border}`,
-                  borderRadius: 14, padding: '16px 20px',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 16,
-                  transition: 'background .15s, border-color .15s',
-                  animationDelay: `${i * 40}ms`,
-                }}
+                style={{ position: 'relative', paddingTop: 22, cursor: 'pointer', animation: `cardIn .22s ease both`, animationDelay: `${i * 55}ms` }}
               >
-                {/* Monogram */}
+                {/* ── Folder tab ── */}
                 <div style={{
-                  width: 48, height: 48, borderRadius: 13, flexShrink: 0,
-                  background: theme.accentDim, border: `1.5px solid rgba(12,122,82,0.18)`,
-                  display: 'grid', placeItems: 'center',
+                  position: 'absolute', top: 0, left: 18,
+                  background: '#DDD8CC', borderRadius: '5px 5px 0 0',
+                  border: '1px solid rgba(0,0,0,0.12)', borderBottom: 'none',
+                  padding: '4px 14px 6px',
+                  fontFamily: theme.mono, fontSize: 10.5, fontWeight: 700,
+                  color: '#4A3F2F', letterSpacing: '0.05em',
+                  whiteSpace: 'nowrap', maxWidth: 170,
+                  overflow: 'hidden', textOverflow: 'ellipsis',
+                  zIndex: 2,
                 }}>
-                  <span style={{ fontFamily: theme.mono, fontSize: 14, fontWeight: 700, color: theme.accent }}>{initials(p.name)}</span>
+                  {p.name}
                 </div>
 
-                {/* Patient info */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginBottom: 3 }}>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{p.name}</span>
-                    <GenderAge p={p} />
-                    {p.abhaId && <span style={{ fontFamily: theme.mono, fontSize: 10.5, color: theme.textDim, background: '#F0F7F4', padding: '1px 7px', borderRadius: 4 }}>ABHA {p.abhaId}</span>}
+                {/* ── Folder body ── */}
+                <div style={{
+                  background: '#FDFCF8',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '0 8px 8px 8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 3px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05)',
+                  transition: 'box-shadow .18s ease, transform .18s ease',
+                  position: 'relative',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(12,122,82,0.12), 0 2px 8px rgba(0,0,0,0.06)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 3px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'none' }}
+                >
+                  {/* Folder top bar — colour strip */}
+                  <div style={{
+                    background: `linear-gradient(90deg, ${theme.accentDim} 0%, rgba(12,122,82,0.04) 100%)`,
+                    borderBottom: `1px solid rgba(12,122,82,0.14)`,
+                    padding: '10px 16px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {/* Passport-style monogram */}
+                      <div style={{
+                        width: 38, height: 46, borderRadius: 4, flexShrink: 0,
+                        background: 'rgba(12,122,82,0.08)', border: `1.5px solid rgba(12,122,82,0.2)`,
+                        display: 'grid', placeItems: 'center', position: 'relative',
+                      }}>
+                        <span style={{ fontFamily: theme.mono, fontSize: 12, fontWeight: 700, color: theme.accent }}>{initials(p.name)}</span>
+                        {/* Corner brackets */}
+                        {[['top','left'],['top','right'],['bottom','left'],['bottom','right']].map(([v,h],ci) => (
+                          <div key={ci} style={{ position:'absolute',[v]:3,[h]:3,width:6,height:6, borderTop:v==='top'?`1.5px solid rgba(12,122,82,0.4)`:'none', borderBottom:v==='bottom'?`1.5px solid rgba(12,122,82,0.4)`:'none', borderLeft:h==='left'?`1.5px solid rgba(12,122,82,0.4)`:'none', borderRight:h==='right'?`1.5px solid rgba(12,122,82,0.4)`:'none' }}/>
+                        ))}
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.1em' }}>
+                          {p.abhaId ? `ABHA · ${p.abhaId}` : 'NO ABHA ID'}
+                        </div>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: theme.text, lineHeight: 1.2, marginTop: 1 }}>{p.name}</div>
+                        <GenderAge p={p} />
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontFamily: theme.mono, fontSize: 9.5, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px' }}>
+                        {ordinal(p.visitCount)} visit
+                      </div>
+                      <div style={{ fontSize: 11, color: theme.textDim, marginTop: 4 }}>{timeAgo(p.lastVisit)}</div>
+                    </div>
                   </div>
-                  {p.lastChiefComplaint && (
-                    <div style={{ fontSize: 12.5, color: theme.textMuted, fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 420 }}>
-                      Last visit: "{p.lastChiefComplaint}"
-                    </div>
-                  )}
-                  {(p.allergies || p.currentMedications) && (
-                    <div style={{ display: 'flex', gap: 8, marginTop: 5, flexWrap: 'wrap' }}>
-                      {p.allergies && <span style={{ fontSize: 11, background: 'rgba(180,83,9,0.08)', color: '#92400E', border: '1px solid rgba(180,83,9,0.2)', borderRadius: 4, padding: '1px 7px' }}>⚠ {p.allergies.split(';')[0].trim()}</span>}
-                      {p.currentMedications && <span style={{ fontSize: 11, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.18)`, borderRadius: 4, padding: '1px 7px' }}>💊 On medication</span>}
-                    </div>
-                  )}
-                </div>
 
-                {/* Right — visit badge + time + load button */}
-                <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <span style={{ fontFamily: theme.mono, fontSize: 10, background: theme.accentDim, color: theme.accent, padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>
-                      {ordinal(p.visitCount)} visit
-                    </span>
-                    <span style={{ fontSize: 11.5, color: theme.textDim }}>{timeAgo(p.lastVisit)}</span>
-                  </div>
-                  <div className="load-btn" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: theme.accent }}>
-                    Load folder
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M8 3l3.5 3.5L8 10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  {/* Ruled paper body */}
+                  <div style={{
+                    padding: '14px 16px 16px',
+                    backgroundImage: `repeating-linear-gradient(transparent, transparent 23px, rgba(0,0,0,0.03) 24px)`,
+                    backgroundSize: '100% 24px',
+                  }}>
+                    {/* Last complaint */}
+                    {p.lastChiefComplaint && (
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.1em', marginBottom: 3 }}>LAST CHIEF COMPLAINT</div>
+                        <div style={{ fontSize: 13, color: '#374151', fontStyle: 'italic', lineHeight: 1.5, fontFamily: "'Georgia', serif" }}>
+                          "{p.lastChiefComplaint}"
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Details rows */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px', marginBottom: 12 }}>
+                      {[
+                        { l: 'Language', v: p.language === 'mixed' ? 'Auto-detect' : LANGUAGES.find(l => l.code === p.language)?.label || p.language },
+                        { l: 'Dept', v: 'General Medicine' },
+                        p.currentMedications && { l: 'Current Rx', v: p.currentMedications.split(';')[0].trim() },
+                        p.pastHistory && { l: 'Dx History', v: p.pastHistory.split(';')[0].trim() },
+                      ].filter(Boolean).map((row, ri) => (
+                        <div key={ri}>
+                          <div style={{ fontFamily: theme.mono, fontSize: 8, color: theme.textDim, letterSpacing: '0.1em' }}>{row.l}</div>
+                          <div style={{ fontSize: 11.5, color: '#374151', fontFamily: "'Georgia', serif", fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.v}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Allergy + meds pills */}
+                    {(p.allergies || p.currentMedications) && (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                        {p.allergies && <span style={{ fontSize: 10.5, background: 'rgba(180,83,9,0.08)', color: '#92400E', border: '1px solid rgba(180,83,9,0.2)', borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, fontWeight: 600 }}>⚠ {p.allergies.split(',')[0].trim()}</span>}
+                        {p.currentMedications && <span style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.18)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, fontWeight: 600 }}>💊 On medication</span>}
+                      </div>
+                    )}
+
+                    {/* Footer — open folder */}
+                    <div style={{ borderTop: '1px dashed rgba(0,0,0,0.1)', paddingTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontFamily: theme.mono, fontSize: 9, color: theme.textDim }}>ibuscribe · {p.id.startsWith('demo') ? 'SAMPLE' : 'PATIENT FILE'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, color: theme.accent, fontFamily: theme.font }}>
+                        Open folder
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M8 3l3.5 3.5L8 10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

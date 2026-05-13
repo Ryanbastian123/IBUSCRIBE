@@ -2540,9 +2540,10 @@ const DEMO_PATIENTS = [
     pastHistory: 'Type 2 diabetes mellitus; Essential hypertension',
     currentMedications: 'Metformin SR 500mg BD; Amlodipine 5mg OD; Telmisartan 40mg OD',
     language: 'mixed',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(), // 12 days ago
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
     visitCount: 4,
     lastChiefComplaint: 'Increased blood sugar levels, fatigue',
+    documents: [],
   },
   {
     id: 'demo-002',
@@ -2553,35 +2554,10 @@ const DEMO_PATIENTS = [
     pastHistory: 'Coronary artery disease; COPD; Hypertension',
     currentMedications: 'Ecosprin 75mg OD; Atorvastatin 20mg OD; Salbutamol inhaler SOS; Pan-D OD',
     language: 'mixed',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), // 3 days ago
+    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
     visitCount: 6,
     lastChiefComplaint: 'Breathlessness on exertion, mild chest discomfort',
-  },
-  {
-    id: 'demo-003',
-    name: 'Meena Iyer',
-    age: '29', gender: 'female',
-    abhaId: '',
-    allergies: 'Sulpha drugs, NSAIDs',
-    pastHistory: 'Recurrent urinary tract infection',
-    currentMedications: 'Nitrofurantoin 100mg BD',
-    language: 'ta',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString(), // 45 days ago
-    visitCount: 2,
-    lastChiefComplaint: 'Burning urination, lower abdominal pain',
-  },
-  {
-    id: 'demo-004',
-    name: 'Arjun Kumar',
-    age: '8', gender: 'male',
-    abhaId: '91-7743-9921-3305',
-    allergies: '',
-    pastHistory: 'Recurrent upper respiratory infection; Iron deficiency anaemia',
-    currentMedications: 'Ferrous sulphate syrup 5ml OD',
-    language: 'hi',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), // 1 week ago
-    visitCount: 3,
-    lastChiefComplaint: 'Fever for 3 days, runny nose, poor appetite',
+    documents: [],
   },
 ]
 
@@ -2640,6 +2616,132 @@ function timeAgo(iso) {
 function ordinal(n) {
   const s = ['th','st','nd','rd'], v = n % 100
   return n + (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+// ─── Document Upload Panel ────────────────────────────────────────────────────
+function DocumentUploadPanel() {
+  const [files, setFiles] = useState([])
+  const [dragging, setDragging] = useState(false)
+  const inputRef = useRef(null)
+
+  const ACCEPTED = '.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+  const addFiles = (incoming) => {
+    const valid = Array.from(incoming).filter(f =>
+      f.type === 'application/pdf' ||
+      f.type === 'application/msword' ||
+      f.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    if (!valid.length) return
+    setFiles(prev => {
+      const names = new Set(prev.map(f => f.name))
+      return [...prev, ...valid.filter(f => !names.has(f.name))]
+    })
+  }
+
+  const removeFile = (name) => setFiles(prev => prev.filter(f => f.name !== name))
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  const fileIcon = (file) => {
+    if (file.type === 'application/pdf') return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="1" width="10" height="14" rx="1.5" fill="#FEE2E2" stroke="#DC2626" strokeWidth="1.2"/>
+        <path d="M9 1v4h3" stroke="#DC2626" strokeWidth="1.2" strokeLinecap="round"/>
+        <path d="M5 8h6M5 10.5h4" stroke="#DC2626" strokeWidth="1" strokeLinecap="round"/>
+      </svg>
+    )
+    return (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="1" width="10" height="14" rx="1.5" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.2"/>
+        <path d="M9 1v4h3" stroke="#1D4ED8" strokeWidth="1.2" strokeLinecap="round"/>
+        <path d="M5 8h6M5 10.5h4" stroke="#1D4ED8" strokeWidth="1" strokeLinecap="round"/>
+      </svg>
+    )
+  }
+
+  return (
+    <div style={{ marginBottom: 36, background: theme.surface, border: `1.5px solid ${theme.border}`, borderRadius: 16, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '14px 20px', borderBottom: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: theme.accentDim, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 11V4M5 7l3-3 3 3" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 13h10" stroke={theme.accent} strokeWidth="1.7" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: theme.text }}>Upload Lab Reports / Prior Records</div>
+            <div style={{ fontSize: 11.5, color: theme.textMuted }}>PDF or Word documents · Stored locally for this session</div>
+          </div>
+        </div>
+        <span style={{ fontSize: 10.5, fontFamily: theme.mono, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px', letterSpacing: '0.06em' }}>
+          COMING SOON
+        </span>
+      </div>
+
+      <div style={{ padding: '16px 20px' }}>
+        {/* Drop zone */}
+        <div
+          onClick={() => inputRef.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files) }}
+          style={{
+            border: `2px dashed ${dragging ? theme.accent : theme.border}`,
+            borderRadius: 12, padding: '20px 16px',
+            textAlign: 'center', cursor: 'pointer',
+            background: dragging ? theme.accentDim : theme.bg,
+            transition: 'border-color .15s, background .15s',
+            marginBottom: files.length ? 14 : 0,
+          }}
+        >
+          <input ref={inputRef} type="file" accept={ACCEPTED} multiple onChange={e => addFiles(e.target.files)} style={{ display: 'none' }}/>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style={{ margin: '0 auto 8px', display: 'block' }}>
+            <rect x="4" y="8" width="20" height="16" rx="2.5" fill={dragging ? theme.accentDim : '#F1F5F9'} stroke={dragging ? theme.accent : theme.textDim} strokeWidth="1.5"/>
+            <path d="M9 7V6a5 5 0 0110 0v1" stroke={dragging ? theme.accent : theme.textDim} strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M14 17v-5M11.5 14.5l2.5-2.5 2.5 2.5" stroke={dragging ? theme.accent : theme.textDim} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <div style={{ fontSize: 13.5, fontWeight: 600, color: dragging ? theme.accent : theme.text, marginBottom: 3 }}>
+            {dragging ? 'Drop to upload' : 'Click to browse or drag & drop'}
+          </div>
+          <div style={{ fontSize: 11.5, color: theme.textDim }}>PDF, DOC, DOCX · Max 20 MB per file</div>
+        </div>
+
+        {/* Uploaded files list */}
+        {files.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {files.map((f, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '10px 14px' }}>
+                {fileIcon(f)}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: theme.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
+                  <div style={{ fontSize: 11, color: theme.textDim }}>{formatSize(f.size)}</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                  <span style={{ fontSize: 10, fontFamily: theme.mono, color: theme.textDim, background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 4, padding: '2px 6px' }}>
+                    Pending analysis
+                  </span>
+                  <button onClick={(e) => { e.stopPropagation(); removeFile(f.name) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.textDim, fontSize: 16, lineHeight: 1, padding: '2px 4px', borderRadius: 4 }}
+                    onMouseEnter={e => e.currentTarget.style.color = theme.danger}
+                    onMouseLeave={e => e.currentTarget.style.color = theme.textDim}
+                  >×</button>
+                </div>
+              </div>
+            ))}
+            <div style={{ fontSize: 11.5, color: theme.textDim, fontStyle: 'italic', marginTop: 2, paddingLeft: 2 }}>
+              ibuscribe will automatically extract and analyse these documents in an upcoming update.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ─── Patient Registry Search Screen ───────────────────────────────────────────
@@ -2748,6 +2850,9 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
           )}
         </div>
 
+        {/* Document upload */}
+        <DocumentUploadPanel />
+
         {/* Section label */}
         {filtered.length > 0 && (
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: theme.textDim, marginBottom: 24, fontFamily: theme.mono, textTransform: 'uppercase' }}>
@@ -2775,7 +2880,7 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
               </button>
             </div>
             <div style={{ marginTop: 16, fontSize: 11.5, color: theme.textDim, fontStyle: 'italic' }}>
-              Sample data: Priya Sharma · Rajan Pillai · Meena Iyer · Arjun Kumar
+              Sample data: Priya Sharma · Rajan Pillai
             </div>
           </div>
         ) : filtered.length === 0 ? (

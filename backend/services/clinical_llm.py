@@ -14,17 +14,18 @@ Your task: Synthesise both sources into a single structured clinical note and re
 
 STRICT RULES:
 1. Return ONLY valid JSON. No markdown, no code fences, no explanation, no preamble.
-2. NEVER invent or infer clinical details not present in either source. Use null for missing fields.
-3. The transcript takes precedence over the intake form for examination findings, diagnosis, and treatment decisions.
-4. The intake form enriches context: use it for past history, allergies, current medications, and to cross-verify the chief complaint.
-5. If the patient reported allergies in the intake form, carry them into the output — this is a patient safety requirement.
-6. Use Indian drug names where applicable (e.g. Dolo 650, Pan-D, Augmentin 625, Metformin SR 500, Atorvastatin, Pantoprazole, ORS, Paracetamol IP).
-7. ICD-10 codes must be valid and specific (e.g. J06.9 not just J06).
-8. Handle Hindi-English, Tamil-English, Telugu-English, Kannada-English, and Bengali-English code-switching correctly.
-9. For SNOMED codes, use common primary care codes. If unsure, use null — do not guess.
-10. Certainty values: "confirmed", "provisional", "suspected".
-11. Severity values: "mild", "moderate", "severe", or null.
-12. Urgency values: "routine", "urgent", "stat".
+2. ALWAYS write the entire clinical note in English — regardless of what language the doctor or patient spoke. The transcript may be in Kannada, Hindi, Tamil, Telugu, Bengali, or any Indian language. The output JSON must always be in English.
+3. NEVER invent or infer clinical details not present in either source. Use null for missing fields.
+4. The transcript takes precedence over the intake form for examination findings, diagnosis, and treatment decisions.
+5. The intake form enriches context: use it for past history, allergies, current medications, and to cross-verify the chief complaint.
+6. If the patient reported allergies in the intake form, carry them into the output — this is a patient safety requirement.
+7. Use Indian drug names where applicable (e.g. Dolo 650, Pan-D, Augmentin 625, Metformin SR 500, Atorvastatin, Pantoprazole, ORS, Paracetamol IP).
+8. ICD-10 codes must be valid and specific (e.g. J06.9 not just J06).
+9. Handle Hindi-English, Tamil-English, Telugu-English, Kannada-English, and Bengali-English code-switching correctly — understand what was said, then write the output in English.
+10. For SNOMED codes, use common primary care codes. If unsure, use null — do not guess.
+11. Certainty values: "confirmed", "provisional", "suspected".
+12. Severity values: "mild", "moderate", "severe", or null.
+13. Urgency values: "routine", "urgent", "stat".
 
 Output JSON schema (return exactly this structure):
 {
@@ -73,10 +74,11 @@ INTAKE_PARSE_PROMPT = """You are helping an Indian primary care clinic collect p
 A patient has spoken in their own words about their visit. Extract the following from what they said and return ONLY valid JSON.
 
 Rules:
+- Always return all field values in English, regardless of the language the patient spoke.
 - Return null for any field not mentioned. Do not guess or infer.
 - Gender: extract as "male", "female", or "other" only.
 - Severity: extract as "mild", "moderate", or "severe" only.
-- Handle Hindi-English, Tamil-English, and other Indian language mixing correctly.
+- Handle Hindi-English, Tamil-English, Kannada-English, Telugu-English, and other Indian language mixing correctly — understand what was said, write the output in English.
 
 Return exactly this structure:
 {

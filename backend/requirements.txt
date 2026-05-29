@@ -6,3 +6,15 @@ python-dotenv==1.2.2
 aiofiles==25.1.0
 pydantic==2.12.5
 httpx==0.28.1
+pdfplumber==0.11.4
+python-docx==1.1.2
+
+# Phase 2 — Database + Auth
+sqlalchemy==2.0.41
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+alembic==1.16.1
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-jose[cryptography]==3.3.0
+email-validator==2.2.0

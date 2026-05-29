@@ -5,11 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from routers import transcribe, extract, encounters, intake, abdm, summary, documents
+from routers import auth, patients
 
 app = FastAPI(
     title="ibuscribe",
     description="Ambient AI clinical documentation for Indian primary care",
-    version="0.1.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -27,15 +28,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Phase 1 routers (unchanged) ───────────────────────────────────────────────
 app.include_router(transcribe.router, prefix="/api/v1")
-app.include_router(extract.router, prefix="/api/v1")
+app.include_router(extract.router,    prefix="/api/v1")
 app.include_router(encounters.router, prefix="/api/v1")
-app.include_router(intake.router, prefix="/api/v1")
-app.include_router(abdm.router, prefix="/api/v1")
-app.include_router(summary.router, prefix="/api/v1")
-app.include_router(documents.router, prefix="/api/v1")
+app.include_router(intake.router,     prefix="/api/v1")
+app.include_router(abdm.router,       prefix="/api/v1")
+app.include_router(summary.router,    prefix="/api/v1")
+app.include_router(documents.router,  prefix="/api/v1")
+
+# ── Phase 2 routers ───────────────────────────────────────────────────────────
+app.include_router(auth.router,     prefix="/api/v1")
+app.include_router(patients.router, prefix="/api/v1")
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "2.0.0"}

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import HomeScreen from './screens/HomeScreen'
+import LoginScreen from './screens/LoginScreen'
 
 const theme = {
   bg: '#F2F5F3',
@@ -3130,11 +3131,30 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
 }
 
 export default function MedScribeApp() {
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  const [doctor, setDoctor] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('ibus_doctor')) } catch { return null }
+  })
+
+  const handleLogin = useCallback((data) => {
+    setDoctor({ id: data.doctor_id, org_id: data.org_id, full_name: data.full_name, role: data.role })
+  }, [])
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('ibus_token')
+    localStorage.removeItem('ibus_doctor')
+    setDoctor(null)
+  }, [])
+
+  // ── Intro ─────────────────────────────────────────────────────────────────
   const [introComplete, setIntroComplete] = useState(() => !!sessionStorage.getItem('ibus_intro'))
   const handleIntroComplete = useCallback(() => {
     sessionStorage.setItem('ibus_intro', '1')
     setIntroComplete(true)
   }, [])
+
+  // Show login screen if not authenticated (after all hooks)
+  if (!doctor) return <LoginScreen onLogin={handleLogin} />
 
   const [screen, setScreen] = useState('home')
   const [error, setError] = useState('')
@@ -3255,6 +3275,33 @@ export default function MedScribeApp() {
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', -apple-system, sans-serif", background: theme.bg, minHeight: '100vh' }}>
       <GlobalStyles />
       <ErrorBanner message={error} onDismiss={() => setError('')} />
+
+      {/* Doctor badge + logout — top right corner */}
+      <div style={{
+        position: 'fixed', top: 14, right: 20, zIndex: 200,
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <div style={{
+          background: '#fff', border: `1px solid ${theme.border}`,
+          borderRadius: 10, padding: '6px 12px',
+          fontSize: 13, fontWeight: 600, color: theme.textMuted,
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          display: 'flex', alignItems: 'center', gap: 7,
+        }}>
+          <span style={{ fontSize: 16 }}>👨‍⚕️</span>
+          {doctor.full_name}
+        </div>
+        <button onClick={handleLogout} style={{
+          background: '#fff', border: `1px solid ${theme.border}`,
+          borderRadius: 10, padding: '6px 12px',
+          fontSize: 12, fontWeight: 600, color: theme.textDim,
+          cursor: 'pointer', fontFamily: 'inherit',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          transition: 'all 0.15s',
+        }}>
+          Sign out
+        </button>
+      </div>
 
       <AnimatePresence>
         {!introComplete && <IntroScreen onComplete={handleIntroComplete} />}

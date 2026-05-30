@@ -1,17 +1,15 @@
 """
 Authentication endpoints.
-
-POST /api/v1/auth/register   — create org + first doctor (clinic onboarding)
-POST /api/v1/auth/login      — email + password → JWT
-GET  /api/v1/auth/me         — return current doctor profile
-POST /api/v1/auth/invite     — owner invites another doctor to same org
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+GET  /api/v1/auth/me
+POST /api/v1/auth/invite
 """
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.models import Doctor, Organisation
@@ -23,15 +21,10 @@ from services.auth import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-# ── Pydantic schemas ──────────────────────────────────────────────────────────
-
 class RegisterRequest(BaseModel):
-    # Clinic info
-    clinic_name:   str
-    clinic_city:   str = ""
-    clinic_state:  str = ""
-
-    # Doctor info
+    clinic_name:     str
+    clinic_city:     str = ""
+    clinic_state:    str = ""
     full_name:       str
     email:           EmailStr
     password:        str
@@ -39,11 +32,9 @@ class RegisterRequest(BaseModel):
     registration_no: str = ""
     phone:           str = ""
 
-
 class LoginRequest(BaseModel):
     email:    EmailStr
     password: str
-
 
 class InviteRequest(BaseModel):
     full_name:       str
@@ -54,7 +45,6 @@ class InviteRequest(BaseModel):
     phone:           str = ""
     role:            str = "doctor"
 
-
 class TokenResponse(BaseModel):
     access_token: str
     token_type:   str = "bearer"
@@ -62,7 +52,6 @@ class TokenResponse(BaseModel):
     org_id:       str
     full_name:    str
     role:         str
-
 
 class DoctorProfile(BaseModel):
     id:             str
@@ -74,29 +63,20 @@ class DoctorProfile(BaseModel):
     clinic_name:    str
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
-
 @router.post("/register", response_model=TokenResponse, status_code=201)
-async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    """
-    Onboard a new clinic.
-    Creates: Organisation + first Doctor (role=owner).
-    """
-    # Prevent duplicate email
-    existing = await db.execute(select(Doctor).where(Doctor.email == body.email))
-    if existing.scalar_one_or_none():
+def register(body: RegisterRequest, db: Session = Depends(get_db)):
+    existing = db.query(Doctor).filter(Doctor.email == body.email).first()
+    if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
 
-    # Create organisation
     org = Organisation(
         name=body.clinic_name,
         city=body.clinic_city,
         state=body.clinic_state,
     )
     db.add(org)
-    await db.flush()  # get org.id before creating doctor
+    db.flush()
 
-    # Create owner doctor
     doctor = Doctor(
         org_id=org.id,
         full_name=body.full_name,
@@ -108,8 +88,8 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         role="owner",
     )
     db.add(doctor)
-    await db.commit()
-    await db.refresh(doctor)
+    db.commit()
+    db.refresh(doctor)
 
     token = create_access_token({"sub": str(doctor.id), "org": str(org.id)})
     return TokenResponse(
@@ -122,9 +102,8 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Doctor).where(Doctor.email == body.email))
-    doctor = result.scalar_one_or_none()
+def login(body: LoginRequest, db: Session = Depends(get_db)):
+    doctor = db.query(Doctor).filter(Doctor.email == body.email).first()
 
     if not doctor or not verify_password(body.password, doctor.hashed_password):
         raise HTTPException(
@@ -134,9 +113,8 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not doctor.is_active:
         raise HTTPException(status_code=403, detail="Account is disabled")
 
-    # Update last_login
     doctor.last_login = datetime.now(timezone.utc)
-    await db.commit()
+    db.commit()
 
     token = create_access_token({"sub": str(doctor.id), "org": str(doctor.org_id)})
     return TokenResponse(
@@ -149,15 +127,11 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/me", response_model=DoctorProfile)
-async def me(
+def me(
     doctor: Doctor = Depends(get_current_doctor),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
-    result = await db.execute(
-        select(Organisation).where(Organisation.id == doctor.org_id)
-    )
-    org = result.scalar_one_or_none()
-
+    org = db.query(Organisation).filter(Organisation.id == doctor.org_id).first()
     return DoctorProfile(
         id=str(doctor.id),
         org_id=str(doctor.org_id),
@@ -170,20 +144,16 @@ async def me(
 
 
 @router.post("/invite", response_model=TokenResponse, status_code=201)
-async def invite_doctor(
+def invite_doctor(
     body: InviteRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
-    """
-    Owner invites another doctor to their organisation.
-    Only owners can call this endpoint.
-    """
     if current_doctor.role not in ("owner", "admin"):
         raise HTTPException(status_code=403, detail="Only owners can invite doctors")
 
-    existing = await db.execute(select(Doctor).where(Doctor.email == body.email))
-    if existing.scalar_one_or_none():
+    existing = db.query(Doctor).filter(Doctor.email == body.email).first()
+    if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
 
     doctor = Doctor(
@@ -197,8 +167,8 @@ async def invite_doctor(
         role=body.role,
     )
     db.add(doctor)
-    await db.commit()
-    await db.refresh(doctor)
+    db.commit()
+    db.refresh(doctor)
 
     token = create_access_token({"sub": str(doctor.id), "org": str(doctor.org_id)})
     return TokenResponse(

@@ -1,33 +1,32 @@
 """
-Async SQLAlchemy engine + session factory for Supabase (PostgreSQL).
+SQLAlchemy engine + session factory for Supabase (PostgreSQL).
+Uses psycopg2 (sync driver) wrapped in async-compatible sessions
+so FastAPI endpoints stay async.
 """
 import os
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 
 # Supabase connection string from .env
-# Format: postgresql+asyncpg://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set in .env")
 
-# asyncpg driver — swap postgresql:// → postgresql+asyncpg://
-if DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+# Ensure we use psycopg2 (sync) driver — strip asyncpg if present
+if "asyncpg" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://", 1)
 
-engine = create_async_engine(
+engine = create_engine(
     DATABASE_URL,
     pool_size=5,
     max_overflow=10,
-    pool_pre_ping=True,   # auto-reconnect on dropped connections
-    echo=False,           # set True to log all SQL (debug only)
+    pool_pre_ping=True,
+    connect_args={"sslmode": "require"},
 )
 
-AsyncSessionLocal = async_sessionmaker(
+SessionLocal = sessionmaker(
     bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
     autocommit=False,
     autoflush=False,
 )
@@ -37,13 +36,13 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_db():
-    """FastAPI dependency — yields an async DB session."""
-    async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
+def get_db():
+    """FastAPI dependency — yields a DB session."""
+    db = SessionLocal()
+    try:
+        yield db
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()

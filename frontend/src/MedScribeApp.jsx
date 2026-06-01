@@ -3278,38 +3278,40 @@ export default function MedScribeApp() {
       <GlobalStyles />
       <ErrorBanner message={error} onDismiss={() => setError('')} />
 
-      {/* Doctor badge + logout — top right corner */}
-      <div style={{
-        position: 'fixed', top: 14, right: 20, zIndex: 200,
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
+      {/* Doctor badge + logout — only shown on non-home screens */}
+      {screen !== 'home' && (
         <div style={{
-          background: '#fff', border: `1px solid ${theme.border}`,
-          borderRadius: 10, padding: '6px 12px',
-          fontSize: 13, fontWeight: 600, color: theme.textMuted,
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          display: 'flex', alignItems: 'center', gap: 7,
+          position: 'fixed', top: 14, right: 20, zIndex: 200,
+          display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <span style={{ fontSize: 16 }}>👨‍⚕️</span>
-          {doctor.full_name}
+          <div style={{
+            background: '#fff', border: `1px solid ${theme.border}`,
+            borderRadius: 10, padding: '6px 12px',
+            fontSize: 13, fontWeight: 600, color: theme.textMuted,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            display: 'flex', alignItems: 'center', gap: 7,
+          }}>
+            <span style={{ fontSize: 16 }}>👨‍⚕️</span>
+            {doctor.full_name}
+          </div>
+          <button onClick={handleLogout} style={{
+            background: '#fff', border: `1px solid ${theme.border}`,
+            borderRadius: 10, padding: '6px 12px',
+            fontSize: 12, fontWeight: 600, color: theme.textDim,
+            cursor: 'pointer', fontFamily: 'inherit',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            transition: 'all 0.15s',
+          }}>
+            Sign out
+          </button>
         </div>
-        <button onClick={handleLogout} style={{
-          background: '#fff', border: `1px solid ${theme.border}`,
-          borderRadius: 10, padding: '6px 12px',
-          fontSize: 12, fontWeight: 600, color: theme.textDim,
-          cursor: 'pointer', fontFamily: 'inherit',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          transition: 'all 0.15s',
-        }}>
-          Sign out
-        </button>
-      </div>
+      )}
 
       <AnimatePresence>
         {!introComplete && <IntroScreen onComplete={handleIntroComplete} />}
       </AnimatePresence>
 
-      {screen === 'home' && <HomeScreen onNew={handleNew} />}
+      {screen === 'home' && <HomeScreen onNew={handleNew} doctor={doctor} onLogout={handleLogout} />}
 
       {screen === 'search' && (
         <PatientSearchScreen

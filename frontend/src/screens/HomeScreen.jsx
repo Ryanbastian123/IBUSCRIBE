@@ -530,7 +530,7 @@ function Brand() {
 }
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav({ onNew, onOpenPricing }) {
+function Nav({ onNew, onOpenPricing, doctor, onLogout }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
@@ -564,8 +564,18 @@ function Nav({ onNew, onOpenPricing }) {
           {link('#faq', 'FAQ')}
         </nav>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Btn variant="ghost" size="sm">Sign in</Btn>
-          <Btn variant="primary" size="sm" onClick={onNew}>Start free trial</Btn>
+          {doctor ? (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 600, color: T.textSecondary }}>👨‍⚕️ {doctor.full_name}</span>
+              <Btn variant="ghost" size="sm" onClick={onNew}>Open app</Btn>
+              <Btn variant="ghost" size="sm" onClick={onLogout}>Sign out</Btn>
+            </>
+          ) : (
+            <>
+              <Btn variant="ghost" size="sm" onClick={onNew}>Sign in</Btn>
+              <Btn variant="primary" size="sm" onClick={onNew}>Start free trial</Btn>
+            </>
+          )}
         </div>
       </Container>
     </div>
@@ -2376,7 +2386,7 @@ function Footer() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function HomeScreen({ onNew }) {
+export default function HomeScreen({ onNew, doctor, onLogout }) {
   useReveal()
   const [pricingOpen, setPricingOpen] = useState(false)
   const openPricing = () => setPricingOpen(true)
@@ -2384,7 +2394,7 @@ export default function HomeScreen({ onNew }) {
     <div style={{ background: T.bg, color: T.text, fontFamily: FONT, minHeight: '100vh' }}>
       <GlobalStyles />
       <AnimatedBg />
-      <Nav onNew={onNew} onOpenPricing={openPricing} />
+      <Nav onNew={onNew} onOpenPricing={openPricing} doctor={doctor} onLogout={onLogout} />
       <Hero onNew={onNew} />
       <Problem />
       <HowItWorks />

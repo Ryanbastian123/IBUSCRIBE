@@ -3173,9 +3173,6 @@ export default function MedScribeApp() {
     setTimeout(() => setError(''), 8000)
   }, [])
 
-  // Show login screen if not authenticated (after ALL hooks)
-  if (!doctor) return <LoginScreen onLogin={handleLogin} />
-
   // Start recording the consultation (doctor + patient conversation)
   const startConsultation = useCallback(async () => {
     try {
@@ -3258,12 +3255,16 @@ export default function MedScribeApp() {
     }
   }, [intake, showError])
 
-  const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
   const handlePatientSelect = useCallback((patient, prefilledIntake) => {
     setReturningPatient(patient)
     setIntake(prefilledIntake)
     setScreen('intake')
   }, [])
+
+  // ── Show login screen if not authenticated (MUST be after ALL hooks) ────────
+  if (!doctor) return <LoginScreen onLogin={handleLogin} />
+
+  const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
   const handleApprove = (editedData) => {
     const finalData = editedData || clinicalData
     if (finalData) setClinicalData(finalData)

@@ -422,7 +422,7 @@ function IntroScreen({ onComplete }) {
 
 // ── Step 1: Patient Intake (Voice-first) ──────────────────────────────────────
 
-function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatient }) {
+function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatient, doctor, onLogout }) {
   const [mode, setMode] = useState('voice') // 'voice' | 'manual' | 'confirm'
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -645,6 +645,13 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
           }} value={intake.language} onChange={set('language')}>
             {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
           </select>
+
+          {doctor && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 12, borderLeft: `1px solid ${theme.border}` }}>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: theme.textMuted }}>Dr. {doctor.full_name}</span>
+              <button onClick={onLogout} style={{ background: 'none', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 500, color: theme.textDim, cursor: 'pointer', fontFamily: theme.font }}>Sign out</button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -2857,7 +2864,7 @@ function DocumentUploadPanel() {
 }
 
 // ─── Patient Registry Search Screen ───────────────────────────────────────────
-function PatientSearchScreen({ onSelect, onNew, onBack }) {
+function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
   const [query, setQuery] = useState('')
   const [patients, setPatients] = useState(loadPatients)
 
@@ -2921,13 +2928,21 @@ function PatientSearchScreen({ onSelect, onNew, onBack }) {
             </div>
           </div>
         </div>
-        <button
-          onClick={onNew}
-          style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 20px', fontFamily: theme.font, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
-          New Patient
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            onClick={onNew}
+            style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '9px 20px', fontFamily: theme.font, fontSize: 13.5, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>
+            New Patient
+          </button>
+          {doctor && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 8, borderLeft: `1px solid ${theme.border}` }}>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: theme.textMuted }}>Dr. {doctor.full_name}</span>
+              <button onClick={onLogout} style={{ background: 'none', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 500, color: theme.textDim, cursor: 'pointer', fontFamily: theme.font }}>Sign out</button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Main content */}
@@ -3278,34 +3293,7 @@ export default function MedScribeApp() {
       <GlobalStyles />
       <ErrorBanner message={error} onDismiss={() => setError('')} />
 
-      {/* Doctor badge + logout — only shown on non-home screens */}
-      {screen !== 'home' && (
-        <div style={{
-          position: 'fixed', top: 14, right: 20, zIndex: 200,
-          display: 'flex', alignItems: 'center', gap: 10,
-        }}>
-          <div style={{
-            background: '#fff', border: `1px solid ${theme.border}`,
-            borderRadius: 10, padding: '6px 12px',
-            fontSize: 13, fontWeight: 600, color: theme.textMuted,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-            display: 'flex', alignItems: 'center', gap: 7,
-          }}>
-            <span style={{ fontSize: 16 }}>👨‍⚕️</span>
-            {doctor.full_name}
-          </div>
-          <button onClick={handleLogout} style={{
-            background: '#fff', border: `1px solid ${theme.border}`,
-            borderRadius: 10, padding: '6px 12px',
-            fontSize: 12, fontWeight: 600, color: theme.textDim,
-            cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-            transition: 'all 0.15s',
-          }}>
-            Sign out
-          </button>
-        </div>
-      )}
+      {/* Fixed badge removed — doctor info is shown in each screen's own header */}
 
       <AnimatePresence>
         {!introComplete && <IntroScreen onComplete={handleIntroComplete} />}
@@ -3318,6 +3306,7 @@ export default function MedScribeApp() {
           onSelect={handlePatientSelect}
           onNew={() => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('intake') }}
           onBack={() => setScreen('home')}
+          doctor={doctor} onLogout={handleLogout}
         />
       )}
 
@@ -3327,6 +3316,7 @@ export default function MedScribeApp() {
           onNext={startConsultation}
           onBack={() => setScreen('search')}
           returningPatient={returningPatient}
+          doctor={doctor} onLogout={handleLogout}
         />
       )}
 

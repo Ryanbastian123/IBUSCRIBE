@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import HomeScreen from './screens/HomeScreen'
 import LoginScreen from './screens/LoginScreen'
+import { generateClinicalPDF } from './utils/generatePDF'
 
 const theme = {
   bg: '#F2F5F3',
@@ -2359,7 +2360,7 @@ function PatientSummaryCard({ clinicalData, intake }) {
   )
 }
 
-function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewConsultation }) {
+function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewConsultation, doctor }) {
   const [abdmStatus, setAbdmStatus] = useState('idle') // idle | uploading | success | error | pending_creds
   const [abdmMessage, setAbdmMessage] = useState('')
   const [abdmDetails, setAbdmDetails] = useState(null)
@@ -2495,6 +2496,24 @@ function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewCo
             </div>
           )}
         </div>
+
+        {/* Download PDF — runs entirely in browser, nothing sent to server */}
+        <button
+          onClick={() => generateClinicalPDF({ clinicalData, intake, doctor, encounterId })}
+          style={{
+            width: '100%', padding: '14px 0', fontSize: 15, fontWeight: 700,
+            background: 'linear-gradient(135deg, #0C7A52, #0A6142)',
+            color: '#fff', border: 'none', borderRadius: 12, cursor: 'pointer',
+            fontFamily: theme.font, marginBottom: 12,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            boxShadow: '0 4px 16px rgba(12,122,82,0.28)',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2v10M5 8l4 4 4-4M3 15h12" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Download Clinical Note (PDF)
+        </button>
 
         <Btn onClick={onNewConsultation} style={{ width: '100%', padding: '14px 0', fontSize: 15 }}>
           + New Consultation
@@ -3348,6 +3367,7 @@ export default function MedScribeApp() {
           fhirBundle={fhirBundle}
           clinicalData={clinicalData}
           onNewConsultation={handleNew}
+          doctor={doctor}
         />
       )}
     </div>

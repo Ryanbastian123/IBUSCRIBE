@@ -53,25 +53,16 @@ export function generateClinicalPDF({ clinicalData, intake, doctor, encounterId 
   doc.setFillColor(...GREEN)
   doc.rect(0, 0, PW, 28, 'F')
 
-  // Logo ECG line (simple path approximation)
-  doc.setDrawColor(...WHITE)
-  doc.setLineWidth(0.7)
-  const lx = ML, ly = 14
-  const pts = [[0,0],[5,0],[7,-4],[9.5,4],[12,-4],[14,0],[22,0]]
-  for (let i = 0; i < pts.length - 1; i++) {
-    doc.line(lx + pts[i][0], ly + pts[i][1], lx + pts[i+1][0], ly + pts[i+1][1])
-  }
-
   // Clinic / brand name
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
   doc.setTextColor(...WHITE)
-  doc.text('ibuscribe', ML + 26, 12)
+  doc.text('ibuscribe', ML, 12)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8)
   doc.setTextColor(200, 235, 220)
-  doc.text('AI Clinical Scribe · ABDM-Ready', ML + 26, 18)
+  doc.text('AI Clinical Scribe · ABDM-Ready', ML, 18)
 
   // Date + encounter ID (right side)
   doc.setFont('helvetica', 'normal')

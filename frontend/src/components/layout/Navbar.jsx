@@ -8,11 +8,7 @@ const FONT   = "'Plus Jakarta Sans', 'DM Sans', 'Segoe UI', -apple-system, sans-
 function BrandMark() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-        <rect width="32" height="32" rx="9" fill="#091C14"/>
-        <rect width="32" height="32" rx="9" stroke={ACCENT} strokeWidth="1" strokeOpacity="0.38" fill="none"/>
-        <path d="M 3,16 L 8,16 L 10,10 L 12.5,22 L 15,10 L 17.5,16 L 29,16" stroke={ACCENT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      <img src="/logo.png" alt="ibuscribe" width={30} height={30} style={{ objectFit: 'contain', flexShrink: 0 }} />
       <span style={{ lineHeight: 1, userSelect: 'none' }}>
         <span style={{ fontSize: 15.5, fontWeight: 300, color: MUTED, letterSpacing: '0.07em', fontFamily: FONT }}>ibu</span><span style={{ fontSize: 15.5, fontWeight: 800, color: ACCENT, letterSpacing: '-0.02em', fontFamily: FONT }}>scribe</span>
       </span>

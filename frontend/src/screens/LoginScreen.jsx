@@ -22,12 +22,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function Logo({ size = 48 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="9" fill="#091C14" />
-      <rect width="32" height="32" rx="9" stroke="#0C7A52" strokeWidth="1" strokeOpacity="0.38" fill="none" />
-      <path d="M 3,16 L 8,16 L 10,10 L 12.5,22 L 15,10 L 17.5,16 L 29,16"
-        stroke="#0C7A52" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <img src="/logo.png" alt="ibuscribe" width={size} height={size} style={{ objectFit: 'contain' }} />
   )
 }
 

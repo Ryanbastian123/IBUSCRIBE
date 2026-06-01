@@ -2551,77 +2551,47 @@ const EMPTY_INTAKE = {
   language: 'mixed', consentGiven: false,
 }
 
-// ─── Patient Record Store (localStorage, Phase 1) ─────────────────────────────
-function loadPatients() {
-  try { return JSON.parse(localStorage.getItem('ibuscribe_patients') || '[]') }
-  catch { return [] }
-}
+// ─── Patient Record Store (IndexedDB — local-first, clinic owns all data) ─────
+// ibuscribe's servers never receive patient or clinical data.
+// All records live on the clinic's own device via IndexedDB.
+import { searchPatients, createPatient, updatePatient, saveEncounter as dbSaveEncounter } from './utils/localDB'
 
-const DEMO_PATIENTS = [
-  {
-    id: 'demo-001',
-    name: 'Priya Sharma',
-    age: '42', gender: 'female',
-    abhaId: '91-3421-7865-0012',
-    allergies: 'Penicillin',
-    pastHistory: 'Type 2 diabetes mellitus; Essential hypertension',
-    currentMedications: 'Metformin SR 500mg BD; Amlodipine 5mg OD; Telmisartan 40mg OD',
-    language: 'mixed',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
-    visitCount: 4,
-    lastChiefComplaint: 'Increased blood sugar levels, fatigue',
-    documents: [],
-  },
-  {
-    id: 'demo-002',
-    name: 'Rajan Pillai',
-    age: '67', gender: 'male',
-    abhaId: '91-5534-2210-8876',
-    allergies: '',
-    pastHistory: 'Coronary artery disease; COPD; Hypertension',
-    currentMedications: 'Ecosprin 75mg OD; Atorvastatin 20mg OD; Salbutamol inhaler SOS; Pan-D OD',
-    language: 'mixed',
-    lastVisit: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-    visitCount: 6,
-    lastChiefComplaint: 'Breathlessness on exertion, mild chest discomfort',
-    documents: [],
-  },
-]
-
-function seedDemoPatients() {
-  try { localStorage.setItem('ibuscribe_patients', JSON.stringify(DEMO_PATIENTS)) } catch {}
-}
-
-function savePatientRecord(intake, clinicalData) {
-  if (!intake.name.trim()) return
-  const patients = loadPatients()
-  const idx = patients.findIndex(p =>
-    (intake.abhaId?.trim() && p.abhaId === intake.abhaId.trim()) ||
+async function savePatientRecord(intake, clinicalData, doctor) {
+  if (!intake?.name?.trim()) return null
+  const orgId   = doctor?.org_id || 'local'
+  const all     = await searchPatients(orgId, intake.name.trim())
+  const existing = all.find(p =>
+    (intake.abhaId?.trim() && p.abha_id === intake.abhaId.trim()) ||
     p.name.toLowerCase() === intake.name.trim().toLowerCase()
   )
   const newDx = (clinicalData?.diagnoses || [])
-    .map(d => d.description || d.display || '').filter(Boolean).join(', ')
+    .map(d => d.description || '').filter(Boolean).join(', ')
   const newMeds = (clinicalData?.medications || [])
-    .map(m => [m.name, m.dosage, m.frequency].filter(Boolean).join(' ')).filter(Boolean).join('; ')
-  const existing = idx >= 0 ? patients[idx] : {}
-  const pastParts = [existing.pastHistory, newDx].filter(Boolean)
-  const record = {
-    id: existing.id || (crypto?.randomUUID?.() ?? Date.now().toString(36)),
-    name: intake.name.trim(),
-    age: intake.age || existing.age || '',
-    gender: intake.gender || existing.gender || '',
-    abhaId: intake.abhaId?.trim() || existing.abhaId || '',
-    allergies: intake.allergies?.trim() || existing.allergies || '',
-    pastHistory: pastParts.join('; '),
-    currentMedications: newMeds || existing.currentMedications || '',
-    language: intake.language || 'mixed',
-    lastVisit: new Date().toISOString(),
-    visitCount: (existing.visitCount || 0) + 1,
-    lastChiefComplaint: intake.chiefComplaint?.trim() || '',
+    .map(m => [m.name, m.dose, m.frequency].filter(Boolean).join(' ')).filter(Boolean).join('; ')
+
+  let patient
+  if (existing) {
+    const pastParts = [existing.past_history, newDx].filter(Boolean)
+    patient = await updatePatient(existing.id, {
+      age:                 intake.age     || existing.age,
+      gender:              intake.gender  || existing.gender,
+      abha_id:             intake.abhaId?.trim() || existing.abha_id,
+      allergies:           intake.allergies?.trim() || existing.allergies,
+      past_history:        pastParts.join('; '),
+      current_medications: newMeds || existing.current_medications,
+    })
+  } else {
+    patient = await createPatient(orgId, {
+      name:                intake.name.trim(),
+      age:                 intake.age    || '',
+      gender:              intake.gender || '',
+      abha_id:             intake.abhaId?.trim() || '',
+      allergies:           intake.allergies?.trim() || '',
+      past_history:        newDx || '',
+      current_medications: newMeds || '',
+    })
   }
-  if (idx >= 0) patients[idx] = record
-  else patients.unshift(record)
-  try { localStorage.setItem('ibuscribe_patients', JSON.stringify(patients.slice(0, 200))) } catch {}
+  return patient
 }
 
 function timeAgo(iso) {
@@ -2884,33 +2854,36 @@ function DocumentUploadPanel() {
 
 // ─── Patient Registry Search Screen ───────────────────────────────────────────
 function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
-  const [query, setQuery] = useState('')
-  const [patients, setPatients] = useState(loadPatients)
+  const [query, setQuery]       = useState('')
+  const [patients, setPatients] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const orgId = doctor?.org_id || 'local'
 
-  const handleSeedDemo = () => {
-    seedDemoPatients()
-    setPatients(loadPatients())
-  }
+  // Load patients from IndexedDB on mount
+  useEffect(() => {
+    searchPatients(orgId, '').then(p => { setPatients(p); setLoading(false) })
+  }, [orgId])
 
   const filtered = query.trim().length >= 1
     ? patients.filter(p =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
-        (p.abhaId && p.abhaId.includes(query))
+        (p.abha_id && p.abha_id.includes(query)) ||
+        (p.phone   && p.phone.includes(query))
       )
     : patients
 
   const handleLoad = (p) => {
     onSelect(p, {
       ...EMPTY_INTAKE,
-      name: p.name,
-      age: p.age || '',
-      gender: p.gender || '',
-      abhaId: p.abhaId || '',
-      allergies: p.allergies || '',
-      pastHistory: p.pastHistory || '',
-      currentMedications: p.currentMedications || '',
-      language: p.language || 'mixed',
-      consentGiven: false,
+      name:               p.name             || '',
+      age:                p.age              || '',
+      gender:             p.gender           || '',
+      abhaId:             p.abha_id          || '',
+      allergies:          p.allergies        || '',
+      pastHistory:        p.past_history     || '',
+      currentMedications: p.current_medications || '',
+      language:           'mixed',
+      consentGiven:       false,
     })
   }
 
@@ -3007,27 +2980,20 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
         )}
 
         {/* Patient folders */}
-        {patients.length === 0 ? (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '56px 0', color: theme.textMuted, fontSize: 14 }}>Loading patient records…</div>
+        ) : patients.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px 0' }}>
             <div style={{ width: 64, height: 64, borderRadius: 18, background: theme.accentDim, display: 'grid', placeItems: 'center', margin: '0 auto 20px' }}>
               <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke={theme.accent} strokeWidth="2"/><path d="M4 24c0-4.4 4.5-8 10-8s10 3.6 10 8" stroke={theme.accent} strokeWidth="2" strokeLinecap="round"/></svg>
             </div>
             <div style={{ fontSize: 17, fontWeight: 600, color: theme.text, marginBottom: 8 }}>No patient records yet</div>
             <div style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 32, lineHeight: 1.6 }}>
-              Previous patients will appear here after their first approved consultation.
+              Patient records are saved privately on this device after each approved consultation.
             </div>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>
-                Start first consultation
-              </button>
-              <button onClick={handleSeedDemo} style={{ background: theme.surface, color: theme.textMuted, border: `1px solid ${theme.border}`, borderRadius: 10, padding: '11px 24px', fontSize: 13.5, fontWeight: 500, fontFamily: theme.font, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="10" rx="2" stroke={theme.textDim} strokeWidth="1.4"/><path d="M1 6h13" stroke={theme.textDim} strokeWidth="1.4"/><path d="M5 1v3M10 1v3" stroke={theme.textDim} strokeWidth="1.4" strokeLinecap="round"/></svg>
-                Load sample patients
-              </button>
-            </div>
-            <div style={{ marginTop: 16, fontSize: 11.5, color: theme.textDim, fontStyle: 'italic' }}>
-              Sample data: Priya Sharma · Rajan Pillai
-            </div>
+            <button onClick={onNew} style={{ background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, padding: '11px 28px', fontSize: 14, fontWeight: 600, fontFamily: theme.font, cursor: 'pointer' }}>
+              Start first consultation
+            </button>
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px 0' }}>
@@ -3092,7 +3058,7 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
                       </div>
                       <div>
                         <div style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.1em' }}>
-                          {p.abhaId ? `ABHA · ${p.abhaId}` : 'NO ABHA ID'}
+                          {p.abha_id ? `ABHA · ${p.abha_id}` : 'NO ABHA ID'}
                         </div>
                         <div style={{ fontSize: 14.5, fontWeight: 700, color: theme.text, lineHeight: 1.2, marginTop: 1 }}>{p.name}</div>
                         <GenderAge p={p} />
@@ -3100,9 +3066,9 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontFamily: theme.mono, fontSize: 9.5, fontWeight: 700, color: theme.accent, background: theme.accentDim, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px' }}>
-                        {ordinal(p.visitCount)} visit
+                        Patient File
                       </div>
-                      <div style={{ fontSize: 11, color: theme.textDim, marginTop: 4 }}>{timeAgo(p.lastVisit)}</div>
+                      <div style={{ fontSize: 11, color: theme.textDim, marginTop: 4 }}>{timeAgo(p.updated_at)}</div>
                     </div>
                   </div>
 
@@ -3112,23 +3078,13 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
                     backgroundImage: `repeating-linear-gradient(transparent, transparent 23px, rgba(0,0,0,0.03) 24px)`,
                     backgroundSize: '100% 24px',
                   }}>
-                    {/* Last complaint */}
-                    {p.lastChiefComplaint && (
-                      <div style={{ marginBottom: 10 }}>
-                        <div style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.1em', marginBottom: 3 }}>LAST CHIEF COMPLAINT</div>
-                        <div style={{ fontSize: 13, color: '#374151', fontStyle: 'italic', lineHeight: 1.5, fontFamily: "'Georgia', serif" }}>
-                          "{p.lastChiefComplaint}"
-                        </div>
-                      </div>
-                    )}
-
                     {/* Details rows */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px', marginBottom: 12 }}>
                       {[
-                        { l: 'Language', v: p.language === 'mixed' ? 'Auto-detect' : LANGUAGES.find(l => l.code === p.language)?.label || p.language },
                         { l: 'Dept', v: 'General Medicine' },
-                        p.currentMedications && { l: 'Current Rx', v: p.currentMedications.split(';')[0].trim() },
-                        p.pastHistory && { l: 'Dx History', v: p.pastHistory.split(';')[0].trim() },
+                        p.current_medications && { l: 'Current Rx', v: p.current_medications.split(';')[0].trim() },
+                        p.past_history && { l: 'Dx History', v: p.past_history.split(';')[0].trim() },
+                        p.phone && { l: 'Phone', v: p.phone },
                       ].filter(Boolean).map((row, ri) => (
                         <div key={ri}>
                           <div style={{ fontFamily: theme.mono, fontSize: 8, color: theme.textDim, letterSpacing: '0.1em' }}>{row.l}</div>
@@ -3138,10 +3094,10 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
                     </div>
 
                     {/* Allergy + meds pills */}
-                    {(p.allergies || p.currentMedications) && (
+                    {(p.allergies || p.current_medications) && (
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                         {p.allergies && <span style={{ fontSize: 10.5, background: 'rgba(180,83,9,0.08)', color: '#92400E', border: '1px solid rgba(180,83,9,0.2)', borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, fontWeight: 600 }}>⚠ {p.allergies.split(',')[0].trim()}</span>}
-                        {p.currentMedications && <span style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.18)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, fontWeight: 600 }}>💊 On medication</span>}
+                        {p.current_medications && <span style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.18)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, fontWeight: 600 }}>💊 On medication</span>}
                       </div>
                     )}
 
@@ -3299,10 +3255,20 @@ export default function MedScribeApp() {
   if (!doctor) return <LoginScreen onLogin={handleLogin} />
 
   const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
-  const handleApprove = (editedData) => {
+  const handleApprove = async (editedData) => {
     const finalData = editedData || clinicalData
     if (finalData) setClinicalData(finalData)
-    savePatientRecord(intake, finalData)
+    // Save patient record + encounter to IndexedDB (stays on clinic's device)
+    const patient = await savePatientRecord(intake, finalData, doctor)
+    await dbSaveEncounter({
+      orgId:        doctor?.org_id || 'local',
+      patientId:    patient?.id   || null,
+      patientName:  intake?.name  || '',
+      doctor,
+      intake,
+      clinicalData: finalData,
+      encounterId,
+    })
     setScreen('approved')
   }
   const handleDiscard = () => { setClinicalData(null); setFhirBundle(null); setEncounterId(''); setReturningPatient(null); setScreen('home') }

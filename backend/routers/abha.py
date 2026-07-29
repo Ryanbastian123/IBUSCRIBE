@@ -9,7 +9,9 @@ Endpoints:
 """
 
 import os
+import uuid
 import httpx
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -26,6 +28,12 @@ ABHA_BASE = "https://healthidsbx.abdm.gov.in"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+def _timestamp() -> str:
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+
+def _request_id() -> str:
+    return str(uuid.uuid4())
+
 async def _get_gateway_token() -> str:
     """Fetch ABDM gateway access token using sandbox client credentials."""
     if not ABDM_CLIENT_ID or not ABDM_CLIENT_SECRET:
@@ -36,8 +44,14 @@ async def _get_gateway_token() -> str:
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"{ABDM_GATEWAY}/gateway/v0.5/sessions",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "REQUEST-ID": _request_id(),
+                "TIMESTAMP": _timestamp(),
+            },
             json={"clientId": ABDM_CLIENT_ID, "clientSecret": ABDM_CLIENT_SECRET},
-            timeout=10,
+            timeout=15,
         )
         if resp.status_code != 200:
             raise HTTPException(status_code=502, detail=f"ABDM auth failed: {resp.text}")
@@ -49,6 +63,8 @@ def _headers(token: str) -> dict:
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "Accept": "application/json",
+        "REQUEST-ID": _request_id(),
+        "TIMESTAMP": _timestamp(),
     }
 
 # ── Request models ────────────────────────────────────────────────────────────

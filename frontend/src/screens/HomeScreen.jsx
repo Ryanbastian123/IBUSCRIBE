@@ -761,7 +761,7 @@ function HeroVisual({ tilt }) {
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
-function Hero({ onNew }) {
+function Hero({ onNew, onDemo }) {
   const mockupRef = useRef()
   const [tilt, setTilt] = useState(null)
   const onMouseMove = useCallback((e) => {
@@ -791,7 +791,7 @@ function Hero({ onNew }) {
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 36 }}>
             <Btn variant="primary" size="lg" onClick={onNew} icon={<span>→</span>}>Start free trial</Btn>
-            <Btn variant="ghost" size="lg">Watch 2-min demo</Btn>
+            <Btn variant="ghost" size="lg" onClick={onDemo}>Watch 2-min demo</Btn>
           </div>
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             {['ABDM compliant', 'FHIR R4 native', '8 Indian languages', 'Works offline'].map(l => (
@@ -2372,16 +2372,72 @@ function Footer() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+const DEMO_VIDEO_ID = '1g_6yFEdN6YhdPmd4jeiRrj86jDZ8LW8j'
+
+function DemoModal({ onClose }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 24,
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 860,
+          borderRadius: 20, overflow: 'hidden',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          background: '#000',
+          position: 'relative',
+        }}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 12, right: 14, zIndex: 10,
+            background: 'rgba(255,255,255,0.12)', border: 'none',
+            borderRadius: '50%', width: 34, height: 34,
+            color: '#fff', fontSize: 18, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >×</button>
+
+        {/* 16:9 aspect ratio wrapper */}
+        <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+          <iframe
+            src={`https://drive.google.com/file/d/${DEMO_VIDEO_ID}/preview`}
+            title="ibuscribe demo"
+            allow="autoplay"
+            allowFullScreen
+            style={{
+              position: 'absolute', top: 0, left: 0,
+              width: '100%', height: '100%',
+              border: 'none',
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function HomeScreen({ onNew, doctor, onLogout }) {
   useReveal()
   const [pricingOpen, setPricingOpen] = useState(false)
+  const [demoOpen, setDemoOpen]       = useState(false)
   const openPricing = () => setPricingOpen(true)
   return (
     <div style={{ background: T.bg, color: T.text, fontFamily: FONT, minHeight: '100vh' }}>
       <GlobalStyles />
       <AnimatedBg />
       <Nav onNew={onNew} onOpenPricing={openPricing} doctor={doctor} onLogout={onLogout} />
-      <Hero onNew={onNew} />
+      <Hero onNew={onNew} onDemo={() => setDemoOpen(true)} />
+      {demoOpen && <DemoModal onClose={() => setDemoOpen(false)} />}
       <Problem />
       <HowItWorks />
       <UseCases />

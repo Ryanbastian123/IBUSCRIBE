@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from routers import transcribe, extract, encounters, intake, abdm, summary, documents
-from routers import auth, patients
+from routers import auth, patients, abha
 
 app = FastAPI(
     title="ibuscribe",
@@ -40,6 +40,7 @@ app.include_router(documents.router,  prefix="/api/v1")
 # ── Phase 2 routers ───────────────────────────────────────────────────────────
 app.include_router(auth.router,     prefix="/api/v1")
 app.include_router(patients.router, prefix="/api/v1")
+app.include_router(abha.router,     prefix="/api/v1")
 
 
 @app.get("/health")

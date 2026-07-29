@@ -438,6 +438,95 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
   const chunksRef = useRef([])
   const [error, setError] = useState('')
 
+  // ── ABHA verification state ────────────────────────────────────────────────
+  const [abhaStatus, setAbhaStatus]       = useState('idle')   // 'idle' | 'loading' | 'verified' | 'error'
+  const [abhaInfo, setAbhaInfo]           = useState(null)     // { name, year_of_birth, gender }
+  const [abhaError, setAbhaError]         = useState('')
+
+  // ── ABHA create-via-OTP state ──────────────────────────────────────────────
+  const [showAbhaModal, setShowAbhaModal] = useState(false)
+  const [abhaOtpStep, setAbhaOtpStep]     = useState('mobile') // 'mobile' | 'otp'
+  const [abhaMobile, setAbhaMobile]       = useState('')
+  const [abhaTxnId, setAbhaTxnId]         = useState('')
+  const [abhaOtp, setAbhaOtp]             = useState('')
+  const [abhaModalLoading, setAbhaModalLoading] = useState(false)
+  const [abhaModalError, setAbhaModalError]     = useState('')
+
+  const verifyAbha = async () => {
+    const id = intake.abhaId.trim()
+    if (!id) return
+    setAbhaStatus('loading')
+    setAbhaError('')
+    setAbhaInfo(null)
+    try {
+      const res = await fetch(`${API}/api/v1/abha/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ abha_id: id }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAbhaStatus('error'); setAbhaError(data.detail || 'Verification failed'); return }
+      if (data.verified) {
+        setAbhaStatus('verified')
+        setAbhaInfo(data)
+        // Auto-fill name if intake name is empty
+        if (!intake.name.trim() && data.name) {
+          setIntake(p => ({ ...p, name: data.name }))
+        }
+      } else {
+        setAbhaStatus('error')
+        setAbhaError(data.message || 'ABHA ID not found.')
+      }
+    } catch {
+      setAbhaStatus('error')
+      setAbhaError('Could not reach server. Check connection.')
+    }
+  }
+
+  const sendAbhaOtp = async () => {
+    if (abhaMobile.length !== 10) { setAbhaModalError('Enter a valid 10-digit mobile number.'); return }
+    setAbhaModalLoading(true); setAbhaModalError('')
+    try {
+      const res = await fetch(`${API}/api/v1/abha/generate-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: abhaMobile }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAbhaModalError(data.detail || 'Failed to send OTP'); return }
+      setAbhaTxnId(data.txn_id)
+      setAbhaOtpStep('otp')
+    } catch {
+      setAbhaModalError('Could not reach server.')
+    } finally { setAbhaModalLoading(false) }
+  }
+
+  const confirmAbhaOtp = async () => {
+    if (abhaOtp.length !== 6) { setAbhaModalError('Enter the 6-digit OTP.'); return }
+    setAbhaModalLoading(true); setAbhaModalError('')
+    try {
+      const res = await fetch(`${API}/api/v1/abha/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ txn_id: abhaTxnId, otp: abhaOtp }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setAbhaModalError(data.detail || 'OTP verification failed'); return }
+      if (data.success) {
+        // Fill ABHA into intake + mark verified
+        setIntake(p => ({ ...p, abhaId: data.abha_id || data.abha_number, name: p.name || data.name }))
+        setAbhaStatus('verified')
+        setAbhaInfo(data)
+        setShowAbhaModal(false)
+        setAbhaOtpStep('mobile'); setAbhaMobile(''); setAbhaOtp(''); setAbhaTxnId('')
+      } else {
+        setAbhaModalError(data.message || 'Incorrect OTP. Try again.')
+      }
+    } catch {
+      setAbhaModalError('Could not reach server.')
+    } finally { setAbhaModalLoading(false) }
+  }
+
   const inputStyle = {
     width: '100%', background: '#FFFFFF',
     border: `1px solid ${theme.border}`, borderRadius: 12,
@@ -806,9 +895,117 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
             </div>
             <div>
               <Label>ABHA ID <span style={{ color: theme.textDim, textTransform: 'none', letterSpacing: 0, fontSize: 11 }}>— optional</span></Label>
-              <input style={{ ...inputStyle, fontFamily: theme.mono, letterSpacing: '0.02em' }}
-                placeholder="91-1234-5678-9012" value={intake.abhaId} onChange={set('abhaId')} />
+              {/* Input + Verify button row */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  style={{ ...inputStyle, fontFamily: theme.mono, letterSpacing: '0.02em', flex: 1,
+                    borderColor: abhaStatus === 'verified' ? theme.accent : abhaStatus === 'error' ? theme.danger : theme.border,
+                    boxShadow: abhaStatus === 'verified' ? '0 0 0 3px rgba(12,122,82,0.1)' : abhaStatus === 'error' ? '0 0 0 3px rgba(220,38,38,0.08)' : 'none',
+                  }}
+                  placeholder="name@abdm or 14-digit number"
+                  value={intake.abhaId}
+                  onChange={e => { set('abhaId')(e); setAbhaStatus('idle'); setAbhaInfo(null); setAbhaError('') }}
+                />
+                <button
+                  type="button"
+                  onClick={verifyAbha}
+                  disabled={!intake.abhaId.trim() || abhaStatus === 'loading'}
+                  style={{
+                    padding: '0 18px', borderRadius: 12, border: 'none', cursor: intake.abhaId.trim() ? 'pointer' : 'not-allowed',
+                    background: abhaStatus === 'verified' ? theme.accent : 'rgba(12,122,82,0.1)',
+                    color: abhaStatus === 'verified' ? '#fff' : theme.accent,
+                    fontWeight: 700, fontSize: 13, fontFamily: theme.font,
+                    opacity: !intake.abhaId.trim() ? 0.4 : 1,
+                    transition: 'all 0.2s', whiteSpace: 'nowrap',
+                  }}
+                >
+                  {abhaStatus === 'loading' ? (
+                    <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid rgba(12,122,82,0.3)', borderTopColor: theme.accent, borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                  ) : abhaStatus === 'verified' ? '✓ Verified' : 'Verify'}
+                </button>
+              </div>
+
+              {/* Verified info */}
+              {abhaStatus === 'verified' && abhaInfo && (
+                <div style={{ marginTop: 8, padding: '8px 12px', background: 'rgba(12,122,82,0.07)', border: '1px solid rgba(12,122,82,0.2)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>✅</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: theme.accent }}>{abhaInfo.name}</div>
+                    <div style={{ fontSize: 11.5, color: theme.textMuted }}>
+                      {abhaInfo.year_of_birth && `Born ${abhaInfo.year_of_birth}`}
+                      {abhaInfo.year_of_birth && abhaInfo.gender && ' · '}
+                      {abhaInfo.gender && abhaInfo.gender.charAt(0).toUpperCase() + abhaInfo.gender.slice(1)}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {abhaStatus === 'error' && (
+                <div style={{ marginTop: 6, fontSize: 12.5, color: theme.danger }}>{abhaError}</div>
+              )}
+
+              {/* Create ABHA link */}
+              <button type="button" onClick={() => { setShowAbhaModal(true); setAbhaOtpStep('mobile'); setAbhaModalError('') }}
+                style={{ marginTop: 7, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, color: theme.textDim, padding: 0, fontFamily: theme.font }}>
+                Patient doesn't have ABHA? <span style={{ color: theme.accent, fontWeight: 600 }}>Create one →</span>
+              </button>
             </div>
+
+            {/* ── ABHA Create-via-OTP Modal ── */}
+            {showAbhaModal && (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                <div style={{ background: '#fff', borderRadius: 20, padding: 32, width: '100%', maxWidth: 400, boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: theme.text }}>Create ABHA</div>
+                      <div style={{ fontSize: 12.5, color: theme.textMuted, marginTop: 2 }}>Ayushman Bharat Health Account</div>
+                    </div>
+                    <button onClick={() => setShowAbhaModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: theme.textDim }}>×</button>
+                  </div>
+
+                  {abhaOtpStep === 'mobile' ? (
+                    <>
+                      <p style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
+                        Enter the patient's mobile number. An OTP will be sent to create or link their ABHA.
+                      </p>
+                      <input
+                        type="tel" maxLength={10}
+                        placeholder="10-digit mobile number"
+                        value={abhaMobile} onChange={e => setAbhaMobile(e.target.value.replace(/\D/g, ''))}
+                        style={{ ...inputStyle, marginBottom: 12 }}
+                      />
+                      {abhaModalError && <div style={{ fontSize: 12.5, color: theme.danger, marginBottom: 10 }}>{abhaModalError}</div>}
+                      <button onClick={sendAbhaOtp} disabled={abhaModalLoading}
+                        style={{ width: '100%', padding: 13, background: 'linear-gradient(135deg, #0C7A52, #0A6142)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: theme.font }}>
+                        {abhaModalLoading ? 'Sending…' : 'Send OTP'}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: 13.5, color: theme.textMuted, marginBottom: 16, lineHeight: 1.6 }}>
+                        Enter the 6-digit OTP sent to <strong>···{abhaMobile.slice(-4)}</strong>
+                      </p>
+                      <input
+                        type="text" maxLength={6}
+                        placeholder="6-digit OTP"
+                        value={abhaOtp} onChange={e => setAbhaOtp(e.target.value.replace(/\D/g, ''))}
+                        style={{ ...inputStyle, letterSpacing: '0.2em', textAlign: 'center', fontSize: 20, marginBottom: 12 }}
+                      />
+                      {abhaModalError && <div style={{ fontSize: 12.5, color: theme.danger, marginBottom: 10 }}>{abhaModalError}</div>}
+                      <button onClick={confirmAbhaOtp} disabled={abhaModalLoading}
+                        style={{ width: '100%', padding: 13, background: 'linear-gradient(135deg, #0C7A52, #0A6142)', color: '#fff', border: 'none', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: theme.font }}>
+                        {abhaModalLoading ? 'Verifying…' : 'Confirm OTP & Create ABHA'}
+                      </button>
+                      <button onClick={() => { setAbhaOtpStep('mobile'); setAbhaOtp(''); setAbhaModalError('') }}
+                        style={{ width: '100%', marginTop: 8, padding: 10, background: 'none', border: 'none', color: theme.textDim, cursor: 'pointer', fontSize: 13, fontFamily: theme.font }}>
+                        ← Change mobile number
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── SECTION: WHAT BRINGS THEM IN ── */}
@@ -3057,8 +3254,15 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
                         ))}
                       </div>
                       <div>
-                        <div style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.1em' }}>
-                          {p.abha_id ? `ABHA · ${p.abha_id}` : 'NO ABHA ID'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 1 }}>
+                          {p.abha_id ? (
+                            <>
+                              <span style={{ background: 'rgba(12,122,82,0.1)', color: theme.accent, borderRadius: 5, padding: '1px 7px', fontSize: 9, fontWeight: 700, letterSpacing: '0.06em' }}>ABHA ✓</span>
+                              <span style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.04em' }}>{p.abha_id}</span>
+                            </>
+                          ) : (
+                            <span style={{ fontFamily: theme.mono, fontSize: 8.5, color: theme.textDim, letterSpacing: '0.08em', opacity: 0.5 }}>NO ABHA</span>
+                          )}
                         </div>
                         <div style={{ fontSize: 14.5, fontWeight: 700, color: theme.text, lineHeight: 1.2, marginTop: 1 }}>{p.name}</div>
                         <GenderAge p={p} />

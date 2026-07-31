@@ -3327,7 +3327,12 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
 export default function MedScribeApp() {
   // ── Auth ──────────────────────────────────────────────────────────────────
   const [doctor, setDoctor] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('ibus_doctor')) } catch { return null }
+    try {
+      const saved = JSON.parse(localStorage.getItem('ibus_doctor'))
+      if (saved) return saved
+    } catch {}
+    // Demo mode — skip login until auth is re-enabled
+    return { id: 'demo', org_id: 'demo', full_name: 'Ryan Bastian', role: 'owner' }
   })
 
   const handleLogin = useCallback((data) => {

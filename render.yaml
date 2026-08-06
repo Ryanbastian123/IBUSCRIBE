@@ -16,7 +16,9 @@ services:
       - key: ABDM_GATEWAY_URL
         value: https://dev.abdm.gov.in
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: ibuscribe-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
 

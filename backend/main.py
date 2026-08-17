@@ -9,7 +9,11 @@ from routers import auth, patients, abha, hip
 from database.connection import engine, Base
 import database.models  # noqa: register all ORM models before create_all
 
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    # Tables/types may already exist on PostgreSQL — non-fatal
+    print(f"[startup] create_all warning: {e}")
 
 app = FastAPI(
     title="ibuscribe",

@@ -116,8 +116,101 @@ function GlobalStyles() {
   )
 }
 
-
-
+// ─── SVG Icon library ─────────────────────────────────────────────────────────
+const Icon = {
+  Mic: ({ size = 24, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  ),
+  Stop: ({ size = 16, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}>
+      <rect x="4" y="4" width="16" height="16" rx="3"/>
+    </svg>
+  ),
+  Pill: ({ size = 16, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+      <path d="m8.5 8.5 7 7"/>
+    </svg>
+  ),
+  Brain: ({ size = 18, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+      <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+    </svg>
+  ),
+  Clipboard: ({ size = 16, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+      <path d="M9 14l2 2 4-4"/>
+    </svg>
+  ),
+  AlertTriangle: ({ size = 14, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+      <path d="M12 9v4"/><path d="M12 17h.01"/>
+    </svg>
+  ),
+  Check: ({ size = 13, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  ),
+  MessageCircle: ({ size = 18, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  ),
+  Building: ({ size = 20, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  Lightbulb: ({ size = 14, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+      <path d="M9 18h6"/><path d="M10 22h4"/>
+    </svg>
+  ),
+  Sparkle: ({ size = 22, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M12 3l1.88 5.76a1 1 0 0 0 .95.69h6.06l-4.91 3.57a1 1 0 0 0-.36 1.12L17.5 20l-4.91-3.57a1 1 0 0 0-1.18 0L6.5 20l1.88-5.76a1 1 0 0 0-.36-1.12L3.11 9.45H9.17a1 1 0 0 0 .95-.69L12 3z"/>
+    </svg>
+  ),
+  Utensils: ({ size = 12, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+      <path d="M7 2v20"/>
+      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"/>
+    </svg>
+  ),
+  Copy: ({ size = 15, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+    </svg>
+  ),
+  Eye: ({ size = 18, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  ),
+  EyeOff: ({ size = 18, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+      <line x1="2" x2="22" y1="2" y2="22"/>
+    </svg>
+  ),
+}
 
 function Card3D({ children, style, delay = 0, glow }) {
   const ref = useRef(null)
@@ -376,14 +469,7 @@ function IntroScreen({ onComplete }) {
             transition={{ duration: 1.4, times: [0, 0.45, 1], delay: 0.3 }}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <svg width="62" height="62" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="62" height="62" rx="15" fill="rgba(94,191,163,0.1)"/>
-              <rect width="62" height="62" rx="15" stroke="rgba(94,191,163,0.35)" strokeWidth="1.5" fill="none"/>
-              <path
-                d="M 5,31 L 15,31 L 19.5,19 L 24.5,43 L 29.5,19 L 35,31 L 57,31"
-                stroke="#5EBFA3" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"
-              />
-            </svg>
+            <img src="/logo.png" alt="ibuscribe" style={{ width: 62, height: 62, objectFit: 'contain' }} />
           </motion.div>
         </motion.div>
 
@@ -823,7 +909,9 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
                     position: 'relative',
                   }}
                 >
-                  {isRecording ? '⏹' : '🎙️'}
+                  {isRecording
+                    ? <Icon.Stop size={22} color="#fff" />
+                    : <Icon.Mic size={26} color="#fff" />}
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -1258,10 +1346,10 @@ function ConsultationScreen({ onStop, intake, analyser }) {
   const fmt = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
   const capturedChips = [
-    { icon: '🎙', label: 'Transcribing both voices', active: true },
-    { icon: '⚠', label: intake.allergies ? `Allergy flagged · ${intake.allergies}` : 'No allergies on file', active: !!intake.allergies, warn: !!intake.allergies },
-    { icon: '💊', label: intake.currentMedications ? 'Medication context loaded' : 'No active medications', active: !!intake.currentMedications },
-    { icon: '✓', label: 'Intake handed off', active: true },
+    { icon: <Icon.Mic size={15} color={theme.accent} />, label: 'Transcribing both voices', active: true },
+    { icon: <Icon.AlertTriangle size={15} color={intake.allergies ? theme.warning : theme.textDim} />, label: intake.allergies ? `Allergy flagged · ${intake.allergies}` : 'No allergies on file', active: !!intake.allergies, warn: !!intake.allergies },
+    { icon: <Icon.Pill size={15} color={theme.textMuted} />, label: intake.currentMedications ? 'Medication context loaded' : 'No active medications', active: !!intake.currentMedications },
+    { icon: <Icon.Check size={15} color={theme.accent} />, label: 'Intake handed off', active: true },
   ]
 
   return (
@@ -1407,8 +1495,8 @@ function ConsultationScreen({ onStop, intake, analyser }) {
             <div style={{
               width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 1,
               background: 'rgba(12,122,82,0.1)', border: '1px solid rgba(12,122,82,0.18)',
-              display: 'grid', placeItems: 'center', fontSize: 13,
-            }}>💡</div>
+              display: 'grid', placeItems: 'center',
+            }}><Icon.Lightbulb size={16} color={theme.accent} /></div>
             <div>
               <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 5 }}>Tips</div>
               <div style={{ fontSize: 12.5, color: theme.textMuted, lineHeight: 1.65 }}>
@@ -1578,9 +1666,9 @@ function ContextRow({ label, children, warn, last, theme }) {
 
 function ProcessingScreen() {
   const steps = [
-    { label: 'Transcribing consultation', sub: 'Groq Whisper large-v3 · both voices', icon: '🎙️' },
-    { label: 'Generating ABDM proforma', sub: 'Llama 3.3 70B · intake + transcript', icon: '🧠' },
-    { label: 'Building FHIR R4 bundle', sub: 'ABDM OP Consultation Note', icon: '📋' },
+    { label: 'Transcribing consultation', sub: 'Groq Whisper large-v3 · both voices', icon: <Icon.Mic size={16} color={theme.textDim} /> },
+    { label: 'Generating ABDM proforma', sub: 'Llama 3.3 70B · intake + transcript', icon: <Icon.Brain size={16} color={theme.textDim} /> },
+    { label: 'Building FHIR R4 bundle', sub: 'ABDM OP Consultation Note', icon: <Icon.Clipboard size={16} color={theme.textDim} /> },
   ]
   const [active, setActive] = useState(0)
   useEffect(() => {
@@ -1602,7 +1690,7 @@ function ProcessingScreen() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 24, margin: '0 auto 20px',
             animation: 'logo-glow 2s ease-in-out infinite',
-          }}>⚡</div>
+          }}><Icon.Sparkle size={24} color={theme.accent} /></div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: theme.text, marginBottom: 6 }}>Generating Proforma</h2>
           <p style={{ color: theme.textMuted, fontSize: 14 }}>Combining intake data with consultation recording…</p>
         </div>
@@ -2424,7 +2512,7 @@ function PatientSummaryCard({ clinicalData, intake }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span style={{ fontSize: 18 }}>💬</span>
+          <Icon.MessageCircle size={20} color={theme.accent} />
           <div>
             <p style={{ fontSize: 14, fontWeight: 700, color: theme.accent }}>Patient Summary</p>
             <p style={{ fontSize: 12, color: theme.textDim }}>Plain-language note to share with the patient</p>
@@ -2506,7 +2594,9 @@ function PatientSummaryCard({ clinicalData, intake }) {
                     <p style={{ fontSize: 14, fontWeight: 600, color: theme.accent, marginBottom: 3 }}>💊 {m.name}</p>
                     <p style={{ fontSize: 13, color: theme.textMuted }}>{m.instructions}{m.duration ? ` · ${m.duration}` : ''}</p>
                     {m.with_food !== undefined && (
-                      <p style={{ fontSize: 12, color: theme.textDim, marginTop: 2 }}>{m.with_food ? '🍽 Take after food' : 'Take on empty stomach'}</p>
+                      <p style={{ fontSize: 12, color: theme.textDim, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {m.with_food ? <><Icon.Utensils size={11} color={theme.textDim} /> Take after food</> : 'Take on empty stomach'}
+                    </p>
                     )}
                   </div>
                 ))}
@@ -2548,7 +2638,9 @@ function PatientSummaryCard({ clinicalData, intake }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               transition: 'all 0.2s',
             }}>
-              {copied ? '✓ Copied!' : '📋 Copy WhatsApp Message'}
+              {copied
+                ? <><Icon.Check size={14} color={theme.accent} /> Copied!</>
+                : <><Icon.Copy size={14} color="#128C7E" /> Copy WhatsApp Message</>}
             </button>
           )}
         </>
@@ -2634,7 +2726,7 @@ function ApprovedScreen({ intake, encounterId, fhirBundle, clinicalData, onNewCo
           borderRadius: 14, padding: '20px', marginBottom: 28, textAlign: 'left',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <span style={{ fontSize: 20 }}>🏛️</span>
+            <Icon.Building size={22} color={theme.accent} />
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: theme.accent }}>Ayushman Bharat Digital Mission</p>
               <p style={{ fontSize: 12, color: theme.textDim }}>Upload to ABDM Health Information Exchange (HIE)</p>
@@ -3029,7 +3121,7 @@ function DocumentUploadPanel() {
                           <span key={i} style={{ fontSize: 10.5, background: '#EDE9FE', color: '#5B21B6', border: '1px solid #C4B5FD', borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono }}>{d}</span>
                         ))}
                         {r.medications_mentioned?.map((m, i) => (
-                          <span key={i} style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono }}>💊 {m}</span>
+                          <span key={i} style={{ fontSize: 10.5, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 4, padding: '2px 8px', fontFamily: theme.mono, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Icon.Pill size={10} color={theme.accent} /> {m}</span>
                         ))}
                       </div>
 
@@ -3329,10 +3421,10 @@ export default function MedScribeApp() {
   const [doctor, setDoctor] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('ibus_doctor'))
-      if (saved) return saved
+      // Discard old demo sessions that don't have a real token
+      if (saved && saved.id !== 'demo' && localStorage.getItem('ibus_token')) return saved
     } catch {}
-    // Demo mode — skip login until auth is re-enabled
-    return { id: 'demo', org_id: 'demo', full_name: 'Ryan Bastian', role: 'owner' }
+    return null
   })
 
   const handleLogin = useCallback((data) => {

@@ -5,7 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from routers import transcribe, extract, encounters, intake, abdm, summary, documents
-from routers import auth, patients, abha
+from routers import auth, patients, abha, hip
+from database.connection import engine, Base
+import database.models  # noqa: register all ORM models before create_all
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="ibuscribe",
@@ -41,6 +45,9 @@ app.include_router(documents.router,  prefix="/api/v1")
 app.include_router(auth.router,     prefix="/api/v1")
 app.include_router(patients.router, prefix="/api/v1")
 app.include_router(abha.router,     prefix="/api/v1")
+
+# ── M2: HIP callbacks (no prefix — ABDM calls /v0.5/* directly) ──────────────
+app.include_router(hip.router)
 
 
 @app.get("/health")

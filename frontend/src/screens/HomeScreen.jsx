@@ -10,11 +10,11 @@ const T = {
   border:       'rgba(0,0,0,0.08)',
   borderMid:    'rgba(0,0,0,0.13)',
   borderAccent: 'rgba(5,150,105,0.28)',
-  accent:       '#059669',
+  accent:       '#0C7A52',
   accentSoft:   '#10B981',
-  accentDeep:   '#047857',
-  accentDim:    'rgba(5,150,105,0.08)',
-  accentGlow:   'rgba(5,150,105,0.18)',
+  accentDeep:   '#0A6142',
+  accentDim:    'rgba(12,122,82,0.08)',
+  accentGlow:   'rgba(12,122,82,0.18)',
   accentInk:    '#FFFFFF',
   warning:      '#D97706',
   danger:       '#DC2626',
@@ -722,16 +722,16 @@ function HeroVisual({ tilt }) {
         {/* Clinical rows */}
         <div style={{ display: 'grid', gap: 0, border: `1px solid ${T.border}`, borderRadius: 14, overflow: 'hidden', marginBottom: 14 }}>
           {[
-            { label: 'Patient', value: 'Rajesh Kumar · 52 M · ABHA verified', accent: false, icon: '👤' },
-            { label: 'Chief Complaint', value: 'Fever × 4 days, chills, severe body ache', accent: false, icon: '🩺' },
-            { label: 'Vitals', value: 'Temp 102.4 °F · PR 96/min · BP 128/82', accent: true, icon: '📊' },
-            { label: 'Assessment', value: 'Viral fever, dengue suspected · R50.9', accent: true, icon: '🔬' },
-            { label: 'Medications', value: 'Tab Dolo 650 mg TDS × 5d · ORS sachets', accent: false, icon: '💊' },
-            { label: 'Follow-up', value: 'CBC + Dengue NS1 · Review in 48 hours', accent: false, icon: '📋' },
+            { label: 'Patient', value: 'Rajesh Kumar · 52 M · ABHA verified', accent: false, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+            { label: 'Chief Complaint', value: 'Fever × 4 days, chills, severe body ache', accent: false, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg> },
+            { label: 'Vitals', value: 'Temp 102.4 °F · PR 96/min · BP 128/82', accent: true, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+            { label: 'Assessment', value: 'Viral fever, dengue suspected · R50.9', accent: true, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v11m0 0H5a2 2 0 0 1-2-2V9m6 5h4m4 0h2a2 2 0 0 0 2-2V9m-8 5v6m0 0H9m4 0h2"/></svg> },
+            { label: 'Medications', value: 'Tab Dolo 650 mg TDS × 5d · ORS sachets', accent: false, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg> },
+            { label: 'Follow-up', value: 'CBC + Dengue NS1 · Review in 48 hours', accent: false, icon: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg> },
           ].map((r, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '108px 1fr', borderBottom: i < 5 ? `1px solid ${T.border}` : 'none', background: r.accent ? 'rgba(5,150,105,0.04)' : '#fff' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '108px 1fr', borderBottom: i < 5 ? `1px solid ${T.border}` : 'none', background: r.accent ? 'rgba(12,122,82,0.04)' : '#fff' }}>
               <div style={{ padding: '9px 12px', borderRight: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 12 }}>{r.icon}</span>
+                <span style={{ color: r.accent ? T.accent : T.textDim, display: 'flex' }}>{r.icon}</span>
                 <span style={{ fontSize: 10.5, color: T.textDim, fontFamily: MONO, letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 600 }}>{r.label}</span>
               </div>
               <div style={{ padding: '9px 12px', fontSize: 12.5, color: r.accent ? T.accent : T.text, lineHeight: 1.4, fontWeight: r.accent ? 600 : 400 }}>{r.value}</div>
@@ -920,11 +920,11 @@ function HowItWorks() {
             <span style={{ fontSize: 10, fontFamily: MONO, color: T.accent, background: T.accentDim, border: `1px solid ${T.borderAccent}`, borderRadius: 6, padding: '2px 8px' }}>FHIR R4</span>
           </div>
           {[
-            { l: '👤 Patient', v: 'Rajan Pillai, 63 M' },
-            { l: '🩺 Complaint', v: 'Headache × 3d, BP elevated' },
-            { l: '📊 Vitals', v: 'BP 152/94 · PR 78/min' },
-            { l: '🔬 Diagnosis', v: 'Essential Hypertension · I10' },
-            { l: '💊 Rx', v: 'Amlodipine 5mg OD · review 2w' },
+            { l: 'Patient', v: 'Rajan Pillai, 63 M' },
+            { l: 'Complaint', v: 'Headache × 3d, BP elevated' },
+            { l: 'Vitals', v: 'BP 152/94 · PR 78/min' },
+            { l: 'Diagnosis', v: 'Essential Hypertension · I10' },
+            { l: 'Rx', v: 'Amlodipine 5mg OD · review 2w' },
           ].map((r,i) => (
             <div key={i} style={{ display: 'flex', gap: 8, padding: '5px 0', borderBottom: i<4 ? `1px solid ${T.border}` : 'none' }}>
               <span style={{ fontSize: 12, color: T.textDim, minWidth: 100 }}>{r.l}</span>
@@ -1053,7 +1053,7 @@ function HowItWorks() {
 const FOLDER_FONT = "'Georgia', 'Times New Roman', serif"
 const USE_CASES = {
   diabetes: {
-    label: 'Diabetes', icon: '🩸', color: '#D97706', colorDim: 'rgba(217,119,6,0.08)',
+    label: 'Diabetes', icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>, color: '#D97706', colorDim: 'rgba(217,119,6,0.08)',
     patient: 'Suresh Nair, 58 M', opd: 'OPD #112', date: '12 May 2026',
     heard: 'Fasting sugar is 186 today, post-meal was 248 yesterday. HbA1c last checked 3 months ago — it was 8.4. Complaints of increased urination, especially at night. Also feeling very tired and thirsty all the time.',
     scribble: 'DM2 unc / MF SR 500 BD / Gli 1 OD / rev 3m',
@@ -1067,7 +1067,7 @@ const USE_CASES = {
     ],
   },
   gastro: {
-    label: 'Gastro', icon: '🫁', color: '#059669', colorDim: 'rgba(5,150,105,0.08)',
+    label: 'Gastro', icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a5 5 0 0 1 5 5c0 3-2 5-3 7a5 5 0 0 1-4 2 5 5 0 0 1-4-2c-1-2-3-4-3-7a5 5 0 0 1 5-5h4z"/><path d="M9 12h6"/></svg>, color: '#0C7A52', colorDim: 'rgba(12,122,82,0.08)',
     patient: 'Meena Iyer, 34 F', opd: 'OPD #089', date: '12 May 2026',
     heard: 'Epigastric pain and burning since 2 weeks, gets worse right after eating. Acidity is there throughout the day. No vomiting, no blood. Taking antacids from pharmacy but only temporary relief.',
     scribble: 'Gastritis? Pan-D 40 OD 14d / avoid NSAID / rev 2w',
@@ -1081,7 +1081,7 @@ const USE_CASES = {
     ],
   },
   htn: {
-    label: 'Hypertension', icon: '❤️', color: '#DC2626', colorDim: 'rgba(220,38,38,0.07)',
+    label: 'Hypertension', icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>, color: '#DC2626', colorDim: 'rgba(220,38,38,0.07)',
     patient: 'Rajan Pillai, 63 M', opd: 'OPD #054', date: '12 May 2026',
     heard: 'BP was 158 by 96 when I checked it this morning. Headache is there since a few days, mostly in the mornings. Family history — father had hypertension and a stroke. No chest pain or shortness of breath.',
     scribble: 'HTN St1 / Amlo 5 OD / BP log 2w / low salt',
@@ -1095,7 +1095,7 @@ const USE_CASES = {
     ],
   },
   peds: {
-    label: 'Pediatric', icon: '👶', color: '#7C3AED', colorDim: 'rgba(124,58,237,0.07)',
+    label: 'Pediatric', icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21c0-4.97 4.03-9 9-9s9 4.03 9 9"/></svg>, color: '#7C3AED', colorDim: 'rgba(124,58,237,0.07)',
     patient: 'Aryan Sharma, 4 Y M', opd: 'OPD #031', date: '12 May 2026',
     heard: 'Child has been having fever for 2 days, 101 to 102 degree. Loose motions also started yesterday — 4 to 5 times. Weight is 16 kg. No vomiting. Feeds are okay, he is drinking water. Urine output is normal.',
     scribble: 'AGE + fever / ORS / Zinc 20 OD 14d / Cifran susp wt',
@@ -1118,7 +1118,7 @@ function UseCases() {
   const switchTab = (k) => { setPrev(tab); setTab(k) }
 
   return (
-    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(5,150,105,0.035), transparent)` }}>
+    <section id="cases" style={{ padding: '120px 0', position: 'relative', zIndex: 1, borderTop: `1px solid ${T.border}`, background: `linear-gradient(180deg, transparent, rgba(12,122,82,0.035), transparent)` }}>
       <Container>
         {/* Header */}
         <div className="rv" style={{ textAlign: 'center', maxWidth: 760, margin: '0 auto 56px' }}>
@@ -1153,7 +1153,7 @@ function UseCases() {
                   boxShadow: active ? '0 -4px 12px -4px rgba(0,0,0,0.06)' : 'none',
                   fontFamily: FONT,
                 }}>
-                  <span style={{ fontSize: 15 }}>{v.icon}</span>
+                  <span style={{ display: 'flex', color: active ? v.color : T.textMuted }}>{v.icon}</span>
                   {v.label}
                 </button>
               )

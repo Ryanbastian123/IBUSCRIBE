@@ -17,13 +17,15 @@ if not DATABASE_URL:
 if "asyncpg" in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://", 1)
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=5,
-    max_overflow=10,
-    pool_pre_ping=True,
-    connect_args={"sslmode": "require"},
+_is_sqlite = DATABASE_URL.startswith("sqlite")
+
+_engine_kwargs = (
+    {"connect_args": {"check_same_thread": False}}
+    if _is_sqlite else
+    {"pool_size": 5, "max_overflow": 10, "pool_pre_ping": True, "connect_args": {"sslmode": "require"}}
 )
+
+engine = create_engine(DATABASE_URL, **_engine_kwargs)
 
 SessionLocal = sessionmaker(
     bind=engine,

@@ -19,7 +19,7 @@ services:
         fromDatabase:
           name: ibuscribe-db
           property: connectionString
-      - key: SECRET_KEY
+      - key: JWT_SECRET_KEY
         generateValue: true
 
 databases:

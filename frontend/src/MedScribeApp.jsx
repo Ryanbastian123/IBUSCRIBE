@@ -196,6 +196,13 @@ const Icon = {
       <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
     </svg>
   ),
+  Printer: ({ size = 14, color = 'currentColor', style }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <polyline points="6 9 6 2 18 2 18 9"/>
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect width="12" height="8" x="6" y="14"/>
+    </svg>
+  ),
   Eye: ({ size = 18, color = 'currentColor', style }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
       <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
@@ -2444,56 +2451,65 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
 // ── Approved + ABDM Upload ─────────────────────────────────────────────────────
 
+// Light colour palette used only inside the patient-facing summary card
+const pt = {
+  bg: '#FFFFFF',
+  surface: '#F8FAFC',
+  card: '#F1F5F9',
+  cardGreen: '#F0FDF4',
+  cardOrange: '#FFFBEB',
+  text: '#0F172A',
+  textMuted: '#475569',
+  textDim: '#64748B',
+  accent: '#0C7A52',
+  accentLight: 'rgba(12,122,82,0.08)',
+  warning: '#B45309',
+  warningLight: 'rgba(180,83,9,0.07)',
+  border: '#E2E8F0',
+  borderAccent: 'rgba(12,122,82,0.2)',
+}
+
 function PatientSummaryCard({ clinicalData, intake }) {
-  const [status, setStatus] = useState('idle') // idle | loading | done | error
+  const [status, setStatus] = useState('loading')
   const [summary, setSummary] = useState(null)
   const [waMsg, setWaMsg] = useState('')
   const [copied, setCopied] = useState(false)
-  const [lang, setLang] = useState(intake.language === 'mixed' ? 'en' : intake.language)
+  const [lang, setLang] = useState(intake.language === 'mixed' ? 'en' : (intake.language || 'en'))
 
   const generate = async (language) => {
     setStatus('loading')
     setSummary(null)
     setWaMsg('')
     try {
-      const res = await fetch(`${API}/api/v1/summary/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clinical_data: clinicalData,
-          patient_name: intake.name || 'there',
-          language,
+      const [summaryRes, waRes] = await Promise.all([
+        fetch(`${API}/api/v1/summary/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clinical_data: clinicalData, patient_name: intake.name || 'there', language }),
         }),
-      })
-      if (!res.ok) throw new Error((await res.json()).detail || 'Failed')
-      const data = await res.json()
+        fetch(`${API}/api/v1/summary/whatsapp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clinical_data: clinicalData, patient_name: intake.name || 'there', language }),
+        }),
+      ])
+      if (!summaryRes.ok) throw new Error((await summaryRes.json()).detail || 'Failed')
+      const data = await summaryRes.json()
       setSummary(data.summary)
-
-      // Also fetch WhatsApp message
-      const waRes = await fetch(`${API}/api/v1/summary/whatsapp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clinical_data: clinicalData,
-          patient_name: intake.name || 'there',
-          language,
-        }),
-      })
       if (waRes.ok) {
         const waData = await waRes.json()
         setWaMsg(waData.message || '')
       }
       setStatus('done')
-    } catch (e) {
+    } catch {
       setStatus('error')
     }
   }
 
-  const handleLangChange = (e) => {
-    const l = e.target.value
-    setLang(l)
-    generate(l)
-  }
+  // Auto-generate on mount
+  useEffect(() => { generate(lang) }, [])
+
+  const handleLangChange = (e) => { const l = e.target.value; setLang(l); generate(l) }
 
   const copyWhatsApp = () => {
     navigator.clipboard.writeText(waMsg).then(() => {
@@ -2502,82 +2518,131 @@ function PatientSummaryCard({ clinicalData, intake }) {
     })
   }
 
+  const printSummary = () => {
+    const w = window.open('', '_blank', 'width=680,height=900')
+    const name = intake.name || 'Patient'
+    const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+    const meds = summary?.medications?.map(m =>
+      `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;margin-bottom:8px">
+        <b style="color:#0c7a52">💊 ${m.name}</b><br/>
+        <span style="font-size:13px;color:#374151">${m.instructions}${m.duration ? ` &middot; ${m.duration}` : ''}</span><br/>
+        <span style="font-size:12px;color:#6b7280">${m.with_food ? 'Take after food 🍽️' : 'Take on empty stomach'}</span>
+      </div>`
+    ).join('') || '<p style="color:#6b7280">No medicines prescribed</p>'
+    const warnings = summary?.warning_signs?.map(s =>
+      `<li style="color:#92400e;margin-bottom:4px">${s}</li>`
+    ).join('') || ''
+    const lifestyle = summary?.lifestyle_advice?.map(t =>
+      `<li style="color:#374151;margin-bottom:4px">${t}</li>`
+    ).join('') || ''
+    const diags = summary?.diagnoses?.map(d =>
+      `<div style="background:#f1f5f9;border-radius:8px;padding:9px 13px;margin-bottom:6px">
+        <b style="color:#0f172a">${d.condition}</b><br/>
+        <span style="font-size:13px;color:#475569">${d.explanation}</span>
+      </div>`
+    ).join('') || ''
+
+    w.document.write(`<!DOCTYPE html><html><head><title>Visit Summary — ${name}</title>
+    <style>body{font-family:'Segoe UI',sans-serif;max-width:600px;margin:32px auto;color:#0f172a;font-size:15px;line-height:1.6}
+    h1{font-size:20px;font-weight:800;color:#0c7a52;margin-bottom:2px}
+    .sub{color:#6b7280;font-size:12px;margin-bottom:24px}
+    .section{margin-bottom:20px}.section-title{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 14px}
+    footer{margin-top:32px;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;text-align:center}
+    @media print{body{margin:16px}}</style>
+    </head><body>
+    <h1>🏥 ibuscribe — Your Visit Summary</h1>
+    <p class="sub">${name} &nbsp;·&nbsp; ${date}</p>
+    ${summary?.greeting ? `<p style="font-size:15px;font-weight:500;color:#0f172a">${summary.greeting}</p>` : ''}
+    ${summary?.what_happened ? `<p style="color:#475569">${summary.what_happened}</p>` : ''}
+    ${diags ? `<div class="section"><div class="section-title">Your Conditions</div>${diags}</div>` : ''}
+    <div class="section"><div class="section-title">Your Medicines</div>${meds}</div>
+    ${lifestyle ? `<div class="section"><div class="section-title">✅ What to do at home</div><ul style="padding-left:18px;margin:0">${lifestyle}</ul></div>` : ''}
+    ${warnings ? `<div class="section warn"><div class="section-title" style="color:#b45309">⚠ Come back immediately if</div><ul style="padding-left:18px;margin:0">${warnings}</ul></div>` : ''}
+    ${summary?.follow_up ? `<div class="section"><b>📅 Follow-up:</b> ${summary.follow_up}</div>` : ''}
+    ${summary?.closing ? `<p style="color:#475569;font-style:italic">${summary.closing}</p>` : ''}
+    <footer>Powered by ibuscribe.com &nbsp;·&nbsp; This is a patient-friendly summary. Always follow your doctor's instructions.</footer>
+    </body></html>`)
+    w.document.close()
+    w.focus()
+    setTimeout(() => w.print(), 400)
+  }
+
   const summaryLangs = LANGUAGES.filter(l => l.code !== 'mixed')
 
   return (
     <div style={{
-      background: '#FFFFFF', border: `1px solid ${theme.border}`,
-      borderRadius: 14, padding: 20, marginBottom: 16, textAlign: 'left',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+      background: pt.bg, border: `1px solid ${pt.border}`,
+      borderRadius: 16, padding: 22, marginBottom: 16, textAlign: 'left',
+      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <Icon.MessageCircle size={20} color={theme.accent} />
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: pt.accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon.MessageCircle size={18} color={pt.accent} />
+          </div>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: theme.accent }}>Patient Summary</p>
-            <p style={{ fontSize: 12, color: theme.textDim }}>Plain-language note to share with the patient</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: pt.text, margin: 0 }}>Patient Summary</p>
+            <p style={{ fontSize: 12, color: pt.textDim, margin: 0 }}>Plain-language note for the patient</p>
           </div>
         </div>
-        {status === 'idle' && (
-          <Btn variant="ghost" onClick={() => generate(lang)} style={{ padding: '8px 18px', fontSize: 13 }}>
-            Generate
-          </Btn>
+        {status === 'done' && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <select value={lang} onChange={handleLangChange} style={{
+              background: pt.surface, border: `1px solid ${pt.border}`, borderRadius: 7,
+              padding: '5px 10px', fontSize: 12, color: pt.textMuted, fontFamily: 'inherit', cursor: 'pointer',
+            }}>
+              {summaryLangs.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+            </select>
+            <button onClick={printSummary} title="Print for patient" style={{
+              background: pt.surface, border: `1px solid ${pt.border}`, borderRadius: 7,
+              padding: '5px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+              fontSize: 12, color: pt.textMuted, fontFamily: 'inherit',
+            }}>
+              <Icon.Printer size={13} color={pt.textDim} /> Print
+            </button>
+          </div>
         )}
       </div>
 
-      {status === 'idle' && (
-        <p style={{ fontSize: 13, color: theme.textDim }}>
-          Auto-generate a plain-language summary the patient can read or receive on WhatsApp.
-        </p>
-      )}
-
       {status === 'loading' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
-          <Spinner /> <span style={{ color: theme.textMuted, fontSize: 14 }}>Generating patient summary…</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+          <Spinner />
+          <span style={{ color: pt.textMuted, fontSize: 14 }}>Generating patient summary…</span>
         </div>
       )}
 
       {status === 'error' && (
         <div>
-          <p style={{ color: theme.danger, fontSize: 13, marginBottom: 8 }}>Could not generate summary.</p>
+          <p style={{ color: '#DC2626', fontSize: 13, marginBottom: 8 }}>Could not generate summary.</p>
           <Btn variant="ghost" onClick={() => generate(lang)} style={{ padding: '7px 16px', fontSize: 12 }}>Retry</Btn>
         </div>
       )}
 
       {status === 'done' && summary && (
         <>
-          {/* Language selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <label style={{ fontSize: 12, color: theme.textDim, whiteSpace: 'nowrap' }}>Language:</label>
-            <select value={lang} onChange={handleLangChange} style={{
-              background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 7,
-              padding: '5px 10px', fontSize: 13, color: theme.text, fontFamily: 'inherit', cursor: 'pointer',
-            }}>
-              {summaryLangs.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-            </select>
-          </div>
-
           {/* Greeting + What happened */}
           {summary.greeting && (
-            <p style={{ fontSize: 14, color: theme.text, fontWeight: 500, marginBottom: 10, lineHeight: 1.6 }}>
+            <p style={{ fontSize: 15, color: pt.text, fontWeight: 600, marginBottom: 6, lineHeight: 1.5 }}>
               {summary.greeting}
             </p>
           )}
           {summary.what_happened && (
-            <p style={{ fontSize: 14, color: theme.textMuted, marginBottom: 14, lineHeight: 1.7 }}>
+            <p style={{ fontSize: 14, color: pt.textMuted, marginBottom: 18, lineHeight: 1.7 }}>
               {summary.what_happened}
             </p>
           )}
 
           {/* Diagnoses */}
           {summary.diagnoses?.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: theme.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Conditions</p>
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: pt.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Your Conditions</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {summary.diagnoses.map((d, i) => (
-                  <div key={i} style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: theme.text, marginBottom: 2 }}>{d.condition}</p>
-                    <p style={{ fontSize: 13, color: theme.textMuted }}>{d.explanation}</p>
+                  <div key={i} style={{ background: pt.card, borderRadius: 8, padding: '10px 13px' }}>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: pt.text, marginBottom: 2 }}>{d.condition}</p>
+                    <p style={{ fontSize: 13, color: pt.textMuted, margin: 0 }}>{d.explanation}</p>
                   </div>
                 ))}
               </div>
@@ -2586,17 +2651,17 @@ function PatientSummaryCard({ clinicalData, intake }) {
 
           {/* Medications */}
           {summary.medications?.length > 0 && (
-            <div style={{ marginBottom: 12 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: theme.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>Medicines</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: pt.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Your Medicines</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
                 {summary.medications.map((m, i) => (
-                  <div key={i} style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, padding: '9px 12px' }}>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: theme.accent, marginBottom: 3 }}>💊 {m.name}</p>
-                    <p style={{ fontSize: 13, color: theme.textMuted }}>{m.instructions}{m.duration ? ` · ${m.duration}` : ''}</p>
+                  <div key={i} style={{ background: pt.cardGreen, border: `1px solid ${pt.borderAccent}`, borderRadius: 9, padding: '10px 13px' }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: pt.accent, marginBottom: 3 }}>💊 {m.name}</p>
+                    <p style={{ fontSize: 13, color: pt.textMuted, margin: 0 }}>{m.instructions}{m.duration ? ` · ${m.duration}` : ''}</p>
                     {m.with_food !== undefined && (
-                      <p style={{ fontSize: 12, color: theme.textDim, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {m.with_food ? <><Icon.Utensils size={11} color={theme.textDim} /> Take after food</> : 'Take on empty stomach'}
-                    </p>
+                      <p style={{ fontSize: 12, color: pt.textDim, marginTop: 3, display: 'flex', alignItems: 'center', gap: 4, margin: '3px 0 0' }}>
+                        {m.with_food ? '🍽️ Take after food' : 'Take on empty stomach'}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -2604,17 +2669,31 @@ function PatientSummaryCard({ clinicalData, intake }) {
             </div>
           )}
 
+          {/* Lifestyle advice */}
+          {summary.lifestyle_advice?.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: pt.textDim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>✅ What to do at home</p>
+              <ul style={{ paddingLeft: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {summary.lifestyle_advice.map((tip, i) => (
+                  <li key={i} style={{ fontSize: 13, color: pt.textMuted, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span style={{ color: pt.accent, fontWeight: 700, flexShrink: 0 }}>·</span>{tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Warning signs */}
           {summary.warning_signs?.length > 0 && (
             <div style={{
-              background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.2)',
-              borderRadius: 8, padding: '10px 12px', marginBottom: 12,
+              background: pt.cardOrange, border: `1px solid rgba(180,83,9,0.2)`,
+              borderRadius: 9, padding: '11px 13px', marginBottom: 14,
             }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: theme.warning, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>⚠ Come back if</p>
-              <ul style={{ paddingLeft: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: pt.warning, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>⚠ Come back immediately if</p>
+              <ul style={{ paddingLeft: 0, margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {summary.warning_signs.map((s, i) => (
-                  <li key={i} style={{ fontSize: 13, color: theme.textMuted, display: 'flex', gap: 8 }}>
-                    <span style={{ color: theme.warning, flexShrink: 0 }}>•</span>{s}
+                  <li key={i} style={{ fontSize: 13, color: '#92400E', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <span style={{ flexShrink: 0 }}>•</span>{s}
                   </li>
                 ))}
               </ul>
@@ -2623,26 +2702,43 @@ function PatientSummaryCard({ clinicalData, intake }) {
 
           {/* Follow-up */}
           {summary.follow_up && (
-            <p style={{ fontSize: 13, color: theme.textMuted, marginBottom: 12 }}>
-              <strong style={{ color: theme.text }}>Follow-up:</strong> {summary.follow_up}
+            <p style={{ fontSize: 13, color: pt.textMuted, marginBottom: 14 }}>
+              <strong style={{ color: pt.text }}>📅 Follow-up:</strong> {summary.follow_up}
             </p>
           )}
 
-          {/* WhatsApp copy button */}
-          {waMsg && (
-            <button onClick={copyWhatsApp} style={{
-              width: '100%', padding: '11px 0', borderRadius: 9, border: 'none',
-              background: copied ? 'rgba(94,191,163,0.12)' : 'rgba(37,211,102,0.12)',
-              color: copied ? theme.accent : '#128C7E',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              transition: 'all 0.2s',
-            }}>
-              {copied
-                ? <><Icon.Check size={14} color={theme.accent} /> Copied!</>
-                : <><Icon.Copy size={14} color="#128C7E" /> Copy WhatsApp Message</>}
-            </button>
+          {/* Closing */}
+          {summary.closing && (
+            <p style={{ fontSize: 13, color: pt.textDim, fontStyle: 'italic', marginBottom: 14, lineHeight: 1.6 }}>
+              {summary.closing}
+            </p>
           )}
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {waMsg && (
+              <button onClick={copyWhatsApp} style={{
+                flex: 1, minWidth: 140, padding: '11px 0', borderRadius: 9, border: 'none',
+                background: copied ? pt.accentLight : 'rgba(37,211,102,0.1)',
+                color: copied ? pt.accent : '#128C7E',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                transition: 'all 0.2s',
+              }}>
+                {copied
+                  ? <><Icon.Check size={14} /> Copied!</>
+                  : <><Icon.Copy size={14} /> Copy for WhatsApp</>}
+              </button>
+            )}
+            <button onClick={printSummary} style={{
+              flex: 1, minWidth: 140, padding: '11px 0', borderRadius: 9,
+              border: `1px solid ${pt.border}`, background: pt.surface,
+              color: pt.textMuted, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            }}>
+              <Icon.Printer size={14} /> Print for Patient
+            </button>
+          </div>
         </>
       )}
     </div>

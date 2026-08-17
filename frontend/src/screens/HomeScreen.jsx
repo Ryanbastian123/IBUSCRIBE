@@ -516,7 +516,7 @@ function Brand() {
 }
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav({ onNew, onOpenPricing, doctor, onLogout }) {
+function Nav({ onNew, onOpenPricing, onDocuments, doctor, onLogout }) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
@@ -553,6 +553,7 @@ function Nav({ onNew, onOpenPricing, doctor, onLogout }) {
           {doctor ? (
             <>
               <span style={{ fontSize: 13, fontWeight: 600, color: T.textSecondary }}>👨‍⚕️ {doctor.full_name}</span>
+              <Btn variant="ghost" size="sm" onClick={onDocuments}>Analyze Document</Btn>
               <Btn variant="ghost" size="sm" onClick={onNew}>Open app</Btn>
               <Btn variant="ghost" size="sm" onClick={onLogout}>Sign out</Btn>
             </>
@@ -2426,7 +2427,7 @@ function DemoModal({ onClose }) {
   )
 }
 
-export default function HomeScreen({ onNew, doctor, onLogout }) {
+export default function HomeScreen({ onNew, onDocuments, doctor, onLogout }) {
   useReveal()
   const [pricingOpen, setPricingOpen] = useState(false)
   const [demoOpen, setDemoOpen]       = useState(false)
@@ -2435,7 +2436,7 @@ export default function HomeScreen({ onNew, doctor, onLogout }) {
     <div style={{ background: T.bg, color: T.text, fontFamily: FONT, minHeight: '100vh' }}>
       <GlobalStyles />
       <AnimatedBg />
-      <Nav onNew={onNew} onOpenPricing={openPricing} doctor={doctor} onLogout={onLogout} />
+      <Nav onNew={onNew} onOpenPricing={openPricing} onDocuments={onDocuments} doctor={doctor} onLogout={onLogout} />
       <Hero onNew={onNew} onDemo={() => setDemoOpen(true)} />
       {demoOpen && <DemoModal onClose={() => setDemoOpen(false)} />}
       <Problem />

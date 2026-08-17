@@ -3416,6 +3416,266 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
   )
 }
 
+// ── Document Upload & Analysis Screen ────────────────────────────────────────
+
+function DocumentUploadScreen({ onBack, doctor }) {
+  const [dragOver, setDragOver] = useState(false)
+  const [file, setFile] = useState(null)
+  const [status, setStatus] = useState('idle') // idle | uploading | done | error
+  const [result, setResult] = useState(null)
+  const [errorMsg, setErrorMsg] = useState('')
+  const inputRef = useRef(null)
+
+  const ALLOWED = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+
+  const handleFile = (f) => {
+    if (!f) return
+    if (!ALLOWED.includes(f.type)) { setErrorMsg('Only PDF, DOC, or DOCX files are supported.'); return }
+    if (f.size > 20 * 1024 * 1024) { setErrorMsg('File must be under 20 MB.'); return }
+    setFile(f); setErrorMsg(''); setResult(null); setStatus('idle')
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault(); setDragOver(false)
+    handleFile(e.dataTransfer.files[0])
+  }
+
+  const analyze = async () => {
+    if (!file) return
+    setStatus('uploading'); setResult(null); setErrorMsg('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch(`${API}/api/v1/documents/analyze`, { method: 'POST', body: fd })
+      if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Analysis failed') }
+      const data = await res.json()
+      setResult(data); setStatus('done')
+    } catch (e) {
+      setErrorMsg(e.message); setStatus('error')
+    }
+  }
+
+  const flagColor = (flag) => ({
+    normal: theme.accent, high: theme.danger, critical_high: theme.danger,
+    low: '#1D4ED8', critical_low: '#1D4ED8',
+  }[flag] || theme.textDim)
+
+  const flagBg = (flag) => ({
+    normal: theme.accentDim, high: 'rgba(220,38,38,0.08)', critical_high: 'rgba(220,38,38,0.13)',
+    low: 'rgba(29,78,216,0.08)', critical_low: 'rgba(29,78,216,0.13)',
+  }[flag] || 'transparent')
+
+  const docTypeLabel = (t) => ({
+    lab_report: 'Lab Report', discharge_summary: 'Discharge Summary',
+    prescription: 'Prescription', referral: 'Referral Letter', unknown: 'Document',
+  }[t] || 'Document')
+
+  return (
+    <div style={{ minHeight: '100vh', background: theme.bg, fontFamily: theme.font }}>
+      {/* Header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 100, background: theme.surface, borderBottom: `1px solid ${theme.border}`, padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: theme.textMuted, fontSize: 13, fontWeight: 600, fontFamily: theme.font, padding: '6px 0' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Back
+          </button>
+          <div style={{ width: 1, height: 18, background: theme.border }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src="/logo.png" alt="ibuscribe" style={{ width: 24, height: 24, objectFit: 'contain' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: theme.text }}>Document Analysis</span>
+          </div>
+        </div>
+        <span style={{ fontSize: 13, color: theme.textMuted, fontWeight: 500 }}>{doctor?.full_name}</span>
+      </div>
+
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 24px' }}>
+
+        {/* Upload zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current?.click()}
+          style={{
+            border: `2px dashed ${dragOver ? theme.accent : file ? theme.accent : theme.border}`,
+            borderRadius: 16,
+            background: dragOver ? theme.accentDim : file ? 'rgba(12,122,82,0.04)' : theme.surface,
+            padding: '48px 32px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            marginBottom: 24,
+          }}
+        >
+          <input ref={inputRef} type="file" accept=".pdf,.doc,.docx" style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
+          {file ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: theme.accentDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={theme.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{file.name}</div>
+                <div style={{ fontSize: 12, color: theme.textDim, marginTop: 2 }}>{(file.size / 1024).toFixed(0)} KB · Click to change</div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 14, background: theme.accentDim, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={theme.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: theme.text }}>Drop a lab report or discharge summary</div>
+                <div style={{ fontSize: 13, color: theme.textMuted, marginTop: 4 }}>PDF, DOC, DOCX · Max 20 MB · Click to browse</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {errorMsg && (
+          <div style={{ background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: theme.danger, fontWeight: 500, marginBottom: 20 }}>
+            {errorMsg}
+          </div>
+        )}
+
+        {file && status !== 'done' && (
+          <button
+            onClick={analyze}
+            disabled={status === 'uploading'}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+              background: status === 'uploading' ? 'rgba(12,122,82,0.5)' : `linear-gradient(135deg, ${theme.accent}, ${theme.accent2})`,
+              color: '#fff', fontSize: 15, fontWeight: 700, cursor: status === 'uploading' ? 'not-allowed' : 'pointer',
+              fontFamily: theme.font, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              boxShadow: status === 'uploading' ? 'none' : '0 4px 16px rgba(12,122,82,0.28)',
+              transition: 'all 0.2s', marginBottom: 32,
+            }}
+          >
+            {status === 'uploading' ? (
+              <>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', border: '2.5px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />
+                Analysing document…
+              </>
+            ) : 'Analyse Document'}
+          </button>
+        )}
+
+        {/* Results */}
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+            {/* Header card */}
+            <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 16, padding: '20px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, background: theme.accentDim, color: theme.accent, border: `1px solid rgba(12,122,82,0.2)`, borderRadius: 6, padding: '3px 9px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{docTypeLabel(result.document_type)}</span>
+                    {result.test_date && <span style={{ fontSize: 12, color: theme.textDim }}>{result.test_date}</span>}
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>{result.patient_name || 'Patient name not found'}</div>
+                  {result.patient_age_sex && <div style={{ fontSize: 13, color: theme.textMuted, marginTop: 2 }}>{result.patient_age_sex}</div>}
+                  {result.lab_name && <div style={{ fontSize: 12, color: theme.textDim, marginTop: 2 }}>{result.lab_name}</div>}
+                </div>
+                <button
+                  onClick={() => { setFile(null); setResult(null); setStatus('idle') }}
+                  style={{ fontSize: 12, color: theme.textDim, background: 'none', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontFamily: theme.font, fontWeight: 600 }}
+                >
+                  Upload another
+                </button>
+              </div>
+              <div style={{ marginTop: 14, padding: '12px 14px', background: theme.accentDim, borderRadius: 10, fontSize: 13.5, color: theme.text, lineHeight: 1.6 }}>
+                {result.summary}
+              </div>
+            </div>
+
+            {/* Abnormal values */}
+            {result.abnormal_values?.length > 0 && (
+              <div style={{ background: 'rgba(220,38,38,0.05)', border: '1px solid rgba(220,38,38,0.18)', borderRadius: 14, padding: '16px 20px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: theme.danger, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Abnormal Values</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {result.abnormal_values.map((v, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13.5, color: '#991B1B', fontWeight: 500 }}>
+                      <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L12.5 11H1.5L7 1.5Z" stroke="#DC2626" strokeWidth="1.4" strokeLinejoin="round"/><line x1="7" y1="5.5" x2="7" y2="8" stroke="#DC2626" strokeWidth="1.4" strokeLinecap="round"/><circle cx="7" cy="9.5" r="0.6" fill="#DC2626"/></svg>
+                      {v}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Key findings table */}
+            {result.key_findings?.length > 0 && (
+              <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 20px', borderBottom: `1px solid ${theme.border}`, fontSize: 12, fontWeight: 700, color: theme.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Key Findings</div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ background: theme.bg }}>
+                        {['Test', 'Result', 'Reference', 'Status', 'Notes'].map(h => (
+                          <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11.5, fontWeight: 700, color: theme.textDim, letterSpacing: '0.04em' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.key_findings.map((f, i) => (
+                        <tr key={i} style={{ borderTop: `1px solid ${theme.border}` }}>
+                          <td style={{ padding: '11px 16px', fontSize: 13.5, fontWeight: 600, color: theme.text }}>{f.test}</td>
+                          <td style={{ padding: '11px 16px', fontSize: 13.5, fontFamily: theme.mono, fontWeight: 700, color: flagColor(f.flag) }}>{f.value}{f.unit ? ` ${f.unit}` : ''}</td>
+                          <td style={{ padding: '11px 16px', fontSize: 12.5, color: theme.textDim, fontFamily: theme.mono }}>{f.reference_range || '—'}</td>
+                          <td style={{ padding: '11px 16px' }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, background: flagBg(f.flag), color: flagColor(f.flag), borderRadius: 5, padding: '3px 8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {f.flag?.replace('_', ' ') || '—'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '11px 16px', fontSize: 12.5, color: theme.textMuted }}>{f.interpretation || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Diagnoses + Medications + Recommendations */}
+            {(result.diagnoses_mentioned?.length > 0 || result.medications_mentioned?.length > 0 || result.recommendations?.length > 0) && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+                {result.diagnoses_mentioned?.length > 0 && (
+                  <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: theme.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Diagnoses</div>
+                    {result.diagnoses_mentioned.map((d, i) => <div key={i} style={{ fontSize: 13.5, color: theme.text, padding: '4px 0', borderBottom: i < result.diagnoses_mentioned.length - 1 ? `1px solid ${theme.border}` : 'none' }}>{d}</div>)}
+                  </div>
+                )}
+                {result.medications_mentioned?.length > 0 && (
+                  <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: theme.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Medications</div>
+                    {result.medications_mentioned.map((m, i) => <div key={i} style={{ fontSize: 13.5, color: theme.text, fontFamily: theme.mono, padding: '4px 0', borderBottom: i < result.medications_mentioned.length - 1 ? `1px solid ${theme.border}` : 'none' }}>{m}</div>)}
+                  </div>
+                )}
+                {result.recommendations?.length > 0 && (
+                  <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: theme.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Recommendations</div>
+                    {result.recommendations.map((r, i) => <div key={i} style={{ fontSize: 13.5, color: theme.text, padding: '4px 0', borderBottom: i < result.recommendations.length - 1 ? `1px solid ${theme.border}` : 'none' }}>{r}</div>)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {result.follow_up && (
+              <div style={{ background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 12, padding: '14px 18px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}><circle cx="8" cy="8" r="7" stroke={theme.accent} strokeWidth="1.5"/><path d="M8 5v3.5l2 2" stroke={theme.accent} strokeWidth="1.5" strokeLinecap="round"/></svg>
+                <div>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: theme.accent, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 3 }}>Follow-up</div>
+                  <div style={{ fontSize: 13.5, color: theme.text }}>{result.follow_up}</div>
+                </div>
+              </div>
+            )}
+
+          </motion.div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function MedScribeApp() {
   // ── Auth ──────────────────────────────────────────────────────────────────
   const [doctor, setDoctor] = useState(() => {
@@ -3556,6 +3816,7 @@ export default function MedScribeApp() {
   if (!doctor) return <LoginScreen onLogin={handleLogin} />
 
   const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
+  const handleDocuments = () => setScreen('documents')
   const handleApprove = async (editedData) => {
     const finalData = editedData || clinicalData
     if (finalData) setClinicalData(finalData)
@@ -3585,7 +3846,9 @@ export default function MedScribeApp() {
         {!introComplete && <IntroScreen onComplete={handleIntroComplete} />}
       </AnimatePresence>
 
-      {screen === 'home' && <HomeScreen onNew={handleNew} doctor={doctor} onLogout={handleLogout} />}
+      {screen === 'home' && <HomeScreen onNew={handleNew} onDocuments={handleDocuments} doctor={doctor} onLogout={handleLogout} />}
+
+      {screen === 'documents' && <DocumentUploadScreen onBack={() => setScreen('home')} doctor={doctor} />}
 
       {screen === 'search' && (
         <PatientSearchScreen

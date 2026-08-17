@@ -3418,7 +3418,17 @@ function PatientSearchScreen({ onSelect, onNew, onBack, doctor, onLogout }) {
 
 // ── Document Upload & Analysis Screen ────────────────────────────────────────
 
-function DocumentUploadScreen({ onBack, doctor }) {
+function parseAgeSex(ageSexStr) {
+  if (!ageSexStr) return { age: '', gender: '' }
+  const lower = ageSexStr.toLowerCase()
+  const gender = lower.includes('female') || lower.includes(' f') ? 'Female'
+    : lower.includes('male') || lower.includes(' m') ? 'Male' : ''
+  const ageMatch = ageSexStr.match(/(\d+)\s*[Yy]/)
+  const age = ageMatch ? ageMatch[1] : ''
+  return { age, gender }
+}
+
+function DocumentUploadScreen({ onBack, doctor, onStartConsultation }) {
   const [dragOver, setDragOver] = useState(false)
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState('idle') // idle | uploading | done | error
@@ -3669,6 +3679,28 @@ function DocumentUploadScreen({ onBack, doctor }) {
               </div>
             )}
 
+            {/* Start consultation CTA */}
+            <div style={{ background: theme.accentDim, border: `1.5px solid rgba(12,122,82,0.22)`, borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 4 }}>Start a consultation with this report</div>
+                <div style={{ fontSize: 13, color: theme.textMuted }}>Patient info and report summary will be pre-filled in the intake form.</div>
+              </div>
+              <button
+                onClick={() => onStartConsultation(result)}
+                style={{
+                  background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent2})`,
+                  color: '#fff', border: 'none', borderRadius: 12,
+                  padding: '12px 24px', fontSize: 14, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: theme.font,
+                  boxShadow: '0 4px 14px rgba(12,122,82,0.3)',
+                  display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
+                }}
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="#fff" strokeWidth="1.5"/><path d="M7.5 4.5v6M4.5 7.5h6" stroke="#fff" strokeWidth="1.7" strokeLinecap="round"/></svg>
+                Start Consultation
+              </button>
+            </div>
+
           </motion.div>
         )}
       </div>
@@ -3817,6 +3849,27 @@ export default function MedScribeApp() {
 
   const handleNew = () => { setIntake(EMPTY_INTAKE); setReturningPatient(null); setScreen('search') }
   const handleDocuments = () => setScreen('documents')
+
+  const handleStartConsultationFromReport = useCallback((docResult) => {
+    const { age, gender } = parseAgeSex(docResult.patient_age_sex)
+    const reportContext = [
+      docResult.summary,
+      docResult.diagnoses_mentioned?.length ? `Diagnoses: ${docResult.diagnoses_mentioned.join(', ')}` : '',
+      docResult.abnormal_values?.length ? `Abnormal values: ${docResult.abnormal_values.join('; ')}` : '',
+      docResult.follow_up ? `Follow-up: ${docResult.follow_up}` : '',
+    ].filter(Boolean).join('\n')
+
+    setIntake({
+      ...EMPTY_INTAKE,
+      name:               docResult.patient_name || '',
+      age:                age,
+      gender:             gender,
+      currentMedications: docResult.medications_mentioned?.join(', ') || '',
+      pastHistory:        reportContext,
+    })
+    setReturningPatient(null)
+    setScreen('intake')
+  }, [])
   const handleApprove = async (editedData) => {
     const finalData = editedData || clinicalData
     if (finalData) setClinicalData(finalData)
@@ -3848,7 +3901,7 @@ export default function MedScribeApp() {
 
       {screen === 'home' && <HomeScreen onNew={handleNew} onDocuments={handleDocuments} doctor={doctor} onLogout={handleLogout} />}
 
-      {screen === 'documents' && <DocumentUploadScreen onBack={() => setScreen('home')} doctor={doctor} />}
+      {screen === 'documents' && <DocumentUploadScreen onBack={() => setScreen('home')} doctor={doctor} onStartConsultation={handleStartConsultationFromReport} />}
 
       {screen === 'search' && (
         <PatientSearchScreen

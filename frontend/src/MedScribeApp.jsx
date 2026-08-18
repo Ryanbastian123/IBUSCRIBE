@@ -34,6 +34,16 @@ const theme = {
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < breakpoint)
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [breakpoint])
+  return isMobile
+}
+
 const LANGUAGES = [
   { code: 'mixed', label: 'Auto-detect / Mixed' },
   { code: 'en', label: 'English' },
@@ -517,6 +527,7 @@ function IntroScreen({ onComplete }) {
 // ── Step 1: Patient Intake (Voice-first) ──────────────────────────────────────
 
 function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatient, doctor, onLogout }) {
+  const isMobile = useIsMobile()
   const [mode, setMode] = useState('voice') // 'voice' | 'manual' | 'confirm'
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -803,33 +814,35 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
         borderBottom: `1px solid ${theme.border}`,
         boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
       }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: isMobile ? '12px 16px' : '14px 32px', display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 24 }}>
           <button onClick={onBack} style={{
             display: 'inline-flex', alignItems: 'center', gap: 7,
             background: theme.surface, border: `1px solid ${theme.border}`,
             color: theme.textMuted, cursor: 'pointer',
             fontSize: 13.5, fontFamily: 'inherit', padding: '7px 14px', borderRadius: 10,
-            transition: 'all .15s',
+            transition: 'all .15s', flexShrink: 0,
           }}>← Back</button>
 
-          <div style={{ height: 22, width: 1, background: theme.border }} />
+          {!isMobile && <div style={{ height: 22, width: 1, background: theme.border }} />}
 
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>Patient Intake</div>
-            <div style={{ fontSize: 13.5, color: theme.textMuted, marginTop: 3 }}>
-              {doneReq} of 3 required filled
-              {doneReq === 3 && <span style={{ color: theme.accent, marginLeft: 10 }}>· ready to hand to doctor</span>}
-            </div>
+            {!isMobile && (
+              <div style={{ fontSize: 13.5, color: theme.textMuted, marginTop: 3 }}>
+                {doneReq} of 3 required filled
+                {doneReq === 3 && <span style={{ color: theme.accent, marginLeft: 10 }}>· ready to hand to doctor</span>}
+              </div>
+            )}
           </div>
 
           <select style={{
             background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 10,
-            padding: '9px 14px', color: theme.text, fontSize: 13.5, fontFamily: 'inherit', cursor: 'pointer',
+            padding: isMobile ? '8px 10px' : '9px 14px', color: theme.text, fontSize: isMobile ? 13 : 13.5, fontFamily: 'inherit', cursor: 'pointer', flexShrink: 0,
           }} value={intake.language} onChange={set('language')}>
-            {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+            {LANGUAGES.map(l => <option key={l.code} value={l.code}>{isMobile ? l.label.split(' ')[0] : l.label}</option>)}
           </select>
 
-          {doctor && (
+          {doctor && !isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 12, borderLeft: `1px solid ${theme.border}` }}>
               <span style={{ fontSize: 12.5, fontWeight: 600, color: theme.textMuted }}>Dr. {doctor.full_name}</span>
               <button onClick={onLogout} style={{ background: 'none', border: `1px solid ${theme.border}`, borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 500, color: theme.textDim, cursor: 'pointer', fontFamily: theme.font }}>Sign out</button>
@@ -840,9 +853,9 @@ function PatientIntakeScreen({ intake, setIntake, onNext, onBack, returningPatie
 
       {/* ── GRID ── */}
       <div style={{
-        maxWidth: 1320, margin: '0 auto', padding: '36px 32px',
-        display: 'grid', gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 1fr)',
-        gap: 48, position: 'relative', zIndex: 1,
+        maxWidth: 1320, margin: '0 auto', padding: isMobile ? '20px 16px 40px' : '36px 32px',
+        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.25fr) minmax(0, 1fr)',
+        gap: isMobile ? 24 : 48, position: 'relative', zIndex: 1,
       }}>
         {/* ═════ LEFT: FORM ═════ */}
         <div style={{ minWidth: 0 }}>
@@ -1324,6 +1337,7 @@ function ChecklistRow({ label, ok, required, theme }) {
 // ── Step 2: Doctor + Patient Consultation Recording ───────────────────────────
 
 function ConsultationScreen({ onStop, intake, analyser }) {
+  const isMobile = useIsMobile()
   const [seconds, setSeconds] = useState(0)
   const [bars, setBars] = useState(Array(60).fill(4))
   const animRef = useRef(null)
@@ -1385,27 +1399,29 @@ function ConsultationScreen({ onStop, intake, analyser }) {
         borderBottom: `1px solid ${theme.border}`,
         boxShadow: '0 1px 0 rgba(0,0,0,0.06)',
       }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'stretch', height: 62, gap: 24 }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: isMobile ? '0 16px' : '0 32px', display: 'flex', alignItems: 'stretch', height: 62, gap: isMobile ? 12 : 24 }}>
           {/* Step label */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div>
               <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.24em', textTransform: 'uppercase', fontWeight: 700 }}>Step 2 of 3</div>
-              <div style={{ fontSize: 14, color: theme.text, fontWeight: 500, marginTop: 2, letterSpacing: '-0.01em' }}>Consultation in session</div>
+              {!isMobile && <div style={{ fontSize: 14, color: theme.text, fontWeight: 500, marginTop: 2, letterSpacing: '-0.01em' }}>Consultation in session</div>}
             </div>
           </div>
 
-          {/* Step progress pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
-            {['Intake', 'Consultation', 'Review'].map((s, i) => (
-              <div key={i} style={{
-                padding: '4px 12px', borderRadius: 99, fontSize: 11.5, fontWeight: 600,
-                background: i === 1 ? theme.accentDim : 'transparent',
-                color: i === 1 ? theme.accent : theme.textDim,
-                border: `1px solid ${i === 1 ? 'rgba(12,122,82,0.25)' : theme.border}`,
-                letterSpacing: '0.02em',
-              }}>{i === 1 && <span style={{ marginRight: 5, opacity: 0.7 }}>●</span>}{s}</div>
-            ))}
-          </div>
+          {/* Step progress pills — hidden on mobile */}
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+              {['Intake', 'Consultation', 'Review'].map((s, i) => (
+                <div key={i} style={{
+                  padding: '4px 12px', borderRadius: 99, fontSize: 11.5, fontWeight: 600,
+                  background: i === 1 ? theme.accentDim : 'transparent',
+                  color: i === 1 ? theme.accent : theme.textDim,
+                  border: `1px solid ${i === 1 ? 'rgba(12,122,82,0.25)' : theme.border}`,
+                  letterSpacing: '0.02em',
+                }}>{i === 1 && <span style={{ marginRight: 5, opacity: 0.7 }}>●</span>}{s}</div>
+              ))}
+            </div>
+          )}
 
           <div style={{ flex: 1 }} />
 
@@ -1413,7 +1429,7 @@ function ConsultationScreen({ onStop, intake, analyser }) {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
-              padding: '8px 18px', borderRadius: 10,
+              padding: isMobile ? '8px 14px' : '8px 18px', borderRadius: 10,
               background: 'rgba(220,38,38,0.06)',
               border: '1px solid rgba(220,38,38,0.22)',
             }}>
@@ -1431,13 +1447,13 @@ function ConsultationScreen({ onStop, intake, analyser }) {
 
       {/* ── MAIN GRID ── */}
       <div style={{
-        maxWidth: 1320, margin: '0 auto', padding: '32px 32px 60px',
-        display: 'grid', gridTemplateColumns: 'minmax(280px, 340px) 1fr',
-        gap: 36, position: 'relative', zIndex: 1,
+        maxWidth: 1320, margin: '0 auto', padding: isMobile ? '20px 16px 60px' : '32px 32px 60px',
+        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(280px, 340px) 1fr',
+        gap: isMobile ? 20 : 36, position: 'relative', zIndex: 1,
       }}>
 
         {/* ═════ LEFT: PATIENT CONTEXT ═════ */}
-        <aside style={{
+        {!isMobile && <aside style={{
           position: 'sticky', top: 78, alignSelf: 'start',
           display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0,
         }}>
@@ -1511,7 +1527,7 @@ function ConsultationScreen({ onStop, intake, analyser }) {
               </div>
             </div>
           </div>
-        </aside>
+        </aside>}
 
         {/* ═════ RIGHT: RECORDING STAGE ═════ */}
         <section style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 12 }}>
@@ -1557,10 +1573,11 @@ function ConsultationScreen({ onStop, intake, analyser }) {
           {/* Symmetric waveform */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: 3, height: 80, width: '100%', maxWidth: 660, marginBottom: 28,
+            gap: isMobile ? 2 : 3, height: 80, width: '100%', maxWidth: 660, marginBottom: 28,
           }}>
-            {bars.map((h, i) => {
-              const center = bars.length / 2
+            {(isMobile ? bars.slice(15, 45) : bars).map((h, i) => {
+              const displayBars = isMobile ? bars.slice(15, 45) : bars
+              const center = displayBars.length / 2
               const distFromCenter = Math.abs(i - center) / center
               const opacity = 0.55 + (1 - distFromCenter) * 0.4
               return (
@@ -1816,6 +1833,7 @@ function AddBtn({ onClick, label }) {
 // ── Proforma Review (Hospital Clinical Proforma format) ────────────────────────
 
 function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onApprove, onDiscard }) {
+  const isMobile = useIsMobile()
   const [showFhir, setShowFhir] = useState(false)
   const [showTranscript, setShowTranscript] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -1904,7 +1922,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
-    <div style={{ minHeight: '100vh', background: theme.bg, animation: 'fadeIn 0.4s ease both', paddingBottom: 60 }}>
+    <div style={{ minHeight: '100vh', background: theme.bg, animation: 'fadeIn 0.4s ease both', paddingBottom: isMobile ? 140 : 60 }}>
 
       {/* ── TOP NAV BAR ── */}
       <div style={{
@@ -1912,7 +1930,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         background: `${theme.bg}E8`, backdropFilter: 'blur(14px)',
         borderBottom: `1px solid ${theme.border}`,
       }}>
-        <div style={{ maxWidth: 1360, margin: '0 auto', padding: '0 32px', height: 58, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ maxWidth: 1360, margin: '0 auto', padding: isMobile ? '0 16px' : '0 32px', height: 58, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ fontSize: 10.5, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700 }}>Step 3 of 3 &nbsp;·&nbsp;</span>
             <span style={{ fontSize: 13, color: theme.textMuted }}>Review &amp; approve consultation note</span>
@@ -1952,8 +1970,8 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             </div>
           )}
 
-          {/* Jump anchors */}
-          <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+          {/* Jump anchors — hidden on mobile */}
+          {!isMobile && <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             {[
               { id: 'sec-id',   label: 'Patient' },
               { id: 'sec-cc',   label: 'CC / HPI' },
@@ -1972,7 +1990,7 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
                 onMouseLeave={e => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.color = theme.textMuted }}
               >{j.label}</button>
             ))}
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -1993,9 +2011,9 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
 
       {/* ── PAGE GRID ── */}
       <div style={{
-        maxWidth: 1360, margin: '0 auto', padding: '28px 32px 0',
-        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px',
-        gap: 28, alignItems: 'start',
+        maxWidth: 1360, margin: '0 auto', padding: isMobile ? '16px 16px 0' : '28px 32px 0',
+        display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) 340px',
+        gap: isMobile ? 16 : 28, alignItems: 'start',
       }}>
 
         {/* ══ MAIN — HOSPITAL PROFORMA DOCUMENT ══ */}
@@ -2027,12 +2045,12 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
             background: theme.card,
             border: `1px solid ${editMode ? theme.accent + '50' : theme.border}`,
             borderTop: 'none', borderRadius: '0 0 16px 16px',
-            padding: '4px 26px 26px', transition: 'border-color .2s',
+            padding: isMobile ? '4px 16px 24px' : '4px 26px 26px', transition: 'border-color .2s',
           }}>
 
             {/* ════ 1. PATIENT IDENTIFICATION ════ */}
             <Section num="1" title="Patient Identification" id="sec-id" />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '8px' : '10px 28px' }}>
               <Field label="Name" value={intake.name} wide />
               <Field label="Age / DOB" value={intake.age ? `${intake.age} years` : null} />
               <Field label="Sex" value={intake.gender ? intake.gender.charAt(0).toUpperCase() + intake.gender.slice(1) : null} />
@@ -2360,10 +2378,16 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
         </div>{/* end main col */}
 
         {/* ══ SIDEBAR ══ */}
-        <aside style={{ position: 'sticky', top: 68, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <aside style={isMobile ? {
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+          background: theme.surface, borderTop: `1px solid ${theme.border}`,
+          padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+          display: 'flex', flexDirection: 'column', gap: 8,
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.08)',
+        } : { position: 'sticky', top: 68, display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-          {/* Patient card */}
-          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+          {/* Patient card — hidden on mobile (shown in proforma header) */}
+          {!isMobile && <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
             <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 10 }}>Patient on record</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: theme.text, letterSpacing: '-0.02em', marginBottom: 3 }}>{intake.name || '—'}</div>
             <div style={{ fontSize: 13, color: theme.textMuted, marginBottom: 4 }}>
@@ -2375,10 +2399,10 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
                 ⚠ {intake.allergies}
               </div>
             )}
-          </div>
+          </div>}
 
-          {/* Review checklist — reflects editData live */}
-          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
+          {/* Review checklist — hidden on mobile */}
+          {!isMobile && <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, padding: '16px 18px' }}>
             <div style={{ fontSize: 10, color: theme.accent, fontFamily: theme.mono, letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: 12 }}>Review checklist</div>
             <div style={{ display: 'grid', gap: 9 }}>
               {checks.map((c, i) => (
@@ -2388,10 +2412,10 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
                 </div>
               ))}
             </div>
-          </div>
+          </div>}
 
-          {/* Collapsibles: transcript + FHIR */}
-          <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, overflow: 'hidden' }}>
+          {/* Collapsibles: transcript + FHIR — hidden on mobile */}
+          {!isMobile && <div style={{ background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 14, overflow: 'hidden' }}>
             <button onClick={() => setShowTranscript(s => !s)} style={{ width: '100%', padding: '12px 16px', background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', borderBottom: showTranscript ? `1px solid ${theme.border}` : 'none' }}>
               <span style={{ fontSize: 12.5, color: theme.textMuted, fontWeight: 500 }}>Raw transcript</span>
               <span style={{ color: theme.textDim, fontSize: 15, transform: showTranscript ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
@@ -2414,10 +2438,10 @@ function ProformaScreen({ clinicalData, fhirBundle, encounterId, intake, onAppro
                 )}
               </>
             )}
-          </div>
+          </div>}
 
           {/* Approve / Discard */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? 10 : 10 }}>
             <button onClick={() => onApprove(editData)} style={{
               width: '100%', padding: '14px', borderRadius: 12, border: 'none',
               background: theme.accent, color: theme.accentInk,

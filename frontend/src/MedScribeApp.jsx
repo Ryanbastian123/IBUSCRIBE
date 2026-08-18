@@ -3923,9 +3923,13 @@ export default function MedScribeApp() {
     reader.onloadend = async () => {
       const base64 = reader.result.split(',')[1]
       try {
+        const token = localStorage.getItem('ibus_token')
         const res = await fetch(`${API}/api/v1/encounter`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             audio_b64: base64,
             language: intake.language,
@@ -3993,7 +3997,25 @@ export default function MedScribeApp() {
   const handleApprove = async (editedData) => {
     const finalData = editedData || clinicalData
     if (finalData) setClinicalData(finalData)
-    // Save patient record + encounter to IndexedDB (stays on clinic's device)
+
+    // 1. Persist approval to backend DB
+    const token = localStorage.getItem('ibus_token')
+    if (encounterId && token) {
+      try {
+        await fetch(`${API}/api/v1/encounters/${encounterId}/approve`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ clinical_data: finalData }),
+        })
+      } catch (e) {
+        console.warn('Backend approve failed (offline?), saved locally only:', e)
+      }
+    }
+
+    // 2. Keep IndexedDB write as offline backup
     const patient = await savePatientRecord(intake, finalData, doctor)
     await dbSaveEncounter({
       orgId:        doctor?.org_id || 'local',
